@@ -1,14 +1,12 @@
 -- ~~~~~~
--- Script by dzikakulka
--- Issues, history at: http://github.com/tjakubo2/TTS_xwing
---
+-- Original Script by dzikakulka
 -- Based on a work of: Flolania, Hera Vertigo
--- ~~~~~~
-
 -- ~~~~~~
 -- Code contributions
 --  - Characted width data: Indimeco
 --  - http://github.com/Indimeco/Tabletop-Simulator-Misc
+--  - MSG FLightpath specific code: WizardofAZ
+--  - https://github.com/WizardofAZ9/TTS_MSG-Flightpath
 -- ~~~~~~
 
 -- Should the code execute print functions or skip them?
@@ -251,13 +249,13 @@ end
 
 -- Possible commands supported by this module
 XW_cmd.AddCommand('[sk][012345][r]?', 'move')   -- Straights/Koiograns + stationary moves
-XW_cmd.AddCommand('b[rle][123][str]?', 'move')   -- Banks + segnor and reverse versions
-XW_cmd.AddCommand('t[rle][1234][srfbt]?[t]?', 'move')  -- Turns + segnor, talon and reverse versions
-
+XW_cmd.AddCommand('b[rle][123][strfbc]?[c]?', 'move')   -- Banks + segnor, curve and reverse versions
+XW_cmd.AddCommand('t[rle][1234][srfbti]?[t]?', 'move')   -- Turns + segnor, talon, inverse and reverse versions
+XW_cmd.AddCommand('f[rle][123][fb]?[f]?', 'move')         --Strafe Maneuver
 XW_cmd.AddCommand('r[rle][123]?', 'actionMove')       --New Roll Done
 XW_cmd.AddCommand('v[rle][fb][123]?', 'actionMove')   --New ViperRoll
 XW_cmd.AddCommand('c[srle][123]?', 'actionMove')      --New Cloak side
-XW_cmd.AddCommand('e[srle][fbrle][123]?', 'actionMove')   --New Echo Cloack
+XW_cmd.AddCommand('e[srle][fbrle][123]?', 'actionMove')   --New Echo Cloak
 
 
 XW_cmd.AddCommand('x[rle][fb]?', 'actionMove')  -- Barrel rolls
@@ -915,7 +913,7 @@ MoveData.SlideLength = function(moveInfo)
         return nil
     else
         baseSize = mm_baseSize[moveInfo.size]
-        if moveInfo.type == 'roll' then
+        if moveInfo.type == 'roll' or moveInfo.type == 'strafe' then
             if baseSize == 40 then
                 return baseSize/2
             elseif baseSize == 60 then
@@ -986,6 +984,14 @@ MoveData.SlideMoveOrigin = function(moveInfo)
             data = MoveData.LeftVariant(data)
         end
         data = MoveData.TurnInwardVariant(data)
+    elseif moveInfo.type == 'bank' and moveInfo.extra == 'curve' then
+         -- Curve maneuvers go half slide length at 45 deg
+         data = MoveData.LUT.ConstructData(moveInfo)
+         data[3] = data[3] + MoveData.SlideLength(moveInfo)/2
+         if moveInfo.dir == 'left' then
+             data = MoveData.LeftVariant(data)
+         end
+         data = MoveData.TurnInwardVariant(data)
     end
     return data
 end
@@ -1011,7 +1017,7 @@ MoveData.SlidePartOffset = function(moveInfo, part)
             return Vect.Scale(dirVec, part/MoveData.partMax)
         end
     else
-        -- Normal rolls/talons are simply slid forward
+        -- Normal rolls/strafes/talons/curves are simply slid forward
         return {0, 0, MoveData.SlideLength(moveInfo)*(part/MoveData.partMax), 0}
     end
 end
@@ -1066,9 +1072,9 @@ end
 -- Apply move modifiers that only happen if move is performed fully
 MoveData.ApplyFinalModifiers = function(entry, info)
     local out = table.shallowcopy(entry)
-    if info.extra == 'talon' then
+    if info.extra == 'talon' or info.extra == 'curve' then
         out = MoveData.TurnInwardVariant(out)
-    elseif info.extra == 'koiogran' or info.extra == 'segnor' then
+    elseif info.extra == 'koiogran' or info.extra == 'segnor' or info.extra == 'inverse' then
         out = MoveData.TurnAroundVariant(out)
     end
     return out
@@ -1080,10 +1086,10 @@ end
 MoveData.DecodeInfo = function (move_code, ship)
     local info = {
                                         -- [option1] [option2] ... [optionN]  // [errorOption]
-                    type='invalid',     -- [straight] [bank] [turn] [roll] [viper] [cloak] [echo] //  [invalid]
+                    type='invalid',     -- [straight] [bank] [turn] [strafe] [roll] [talon] [curve] [viper] [cloak] [echo] //  [invalid]
                     speed=nil,          -- [1] [2] [3] [4] [5]  //  [nil]
                     dir=nil,            -- [left] [right] [nil]
-                    extra=nil,          -- [koiogran] [segnor] [talon] [reverse] [straight] [forward] [backward] [nil]
+                    extra=nil,          -- [koiogran] [segnor] [talon] [curve] [inverse] [reverse] [straight] [forward] [backward] [nil]
                     traits =
                     {   slide=false,    -- [true] [false] if this move can be slid afterwards
                         full=false,     -- [true] [false] if this move can be attempted as a full move
@@ -1160,14 +1166,27 @@ MoveData.DecodeInfo = function (move_code, ship)
         if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
             info.dir = 'left'
         end
-        if move_code:sub(-1,-1) == 's' then
+      if move_code:sub(-1,-1) == 'c' then
+            info.type = 'curve'
+            info.note = 'perform a curve ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a curve ' .. info.dir .. ' ' .. info.speed
+            if move_code:sub(-2,-2) == 'f' then
+                info.type = 'curveF'
+                info.note = 'performed a curve ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
+                info.collNote = 'tried to perform a curve ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
+            elseif move_code:sub(-2,-2) == 'b' then
+                info.type = 'curveB'
+                info.note = 'performed a curve ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
+                info.collNote = 'tried to perform a curve ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
+            end
+        elseif move_code:sub(-1,-1) == 's' then
             info.extra = 'segnor'
-            info.note = 'segnor looped ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to segnor loop ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a segnor loop ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a segnor loop ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 't' then
             info.extra = 'talon'
-            info.note = 'talon rolled (bank template) ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a talon roll (bank template) ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a talon roll ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 'r' then
             info.extra = 'reverse'
             info.note = 'flew reverse bank ' .. info.dir .. ' ' .. info.speed
@@ -1194,23 +1213,27 @@ MoveData.DecodeInfo = function (move_code, ship)
         if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
             info.dir = 'left'
         end
-        if move_code:sub(-1,-1) == 't' then
-            info.type = 'talon'
-            info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed
-            if move_code:sub(-2,-2) == 'f' then
-                info.type = 'talonF'
-                info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
-                info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
-            elseif move_code:sub(-2,-2) == 'b' then
-                info.type = 'talonB'
-                info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
-                info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
-            end
+    if move_code:sub(-1,-1) == 't' then
+        info.type = 'talon'
+        info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed
+        info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed
+        if move_code:sub(-2,-2) == 'f' then
+            info.type = 'talonF'
+            info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+        elseif move_code:sub(-2,-2) == 'b' then
+            info.type = 'talonB'
+            info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+        end
         elseif move_code:sub(-1,-1) == 's' then
             info.extra = 'segnor'
             info.note = 'segnor looped (turn template) ' .. info.dir .. ' ' .. info.speed
             info.collNote = 'tried to segnor loop (turn template) ' .. info.dir .. ' ' .. info.speed
+        elseif move_code:sub(-1,-1) == 'i' then
+            info.extra = 'inverse'
+            info.note = 'performed an inverse ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform an inverse ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 'r' then
             info.extra = 'reverse'
             info.note = 'flew reverse turn ' .. info.dir .. ' ' .. info.speed
@@ -1232,7 +1255,28 @@ MoveData.DecodeInfo = function (move_code, ship)
             info.note = 'Pivoted ' .. info.dir
             info.collNote = 'tried pivoting ' .. info.dir
         end
-    -- New Barrel Roll
+    -- New Strafe Maneuver
+    elseif move_code:sub(1,1) == 'f' then
+        info.type = 'strafe'
+        info.dir = 'right'
+        info.speed = tonumber(move_code:sub(3,3))
+        info.traits.full = true
+        info.traits.part = true
+        if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
+            info.dir = 'left'
+        end
+        info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' straight'
+        info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' straight'
+        if move_code:sub(-2,-2) == 'f' then
+            info.type = 'strafeF'
+            info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' forward'
+            info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' forward'
+        elseif move_code:sub(-2,-2) == 'b' then
+            info.type = 'strafeB'
+            info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' backward'
+            info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' backward'
+        end
+      -- New Barrel Roll
     elseif move_code:sub(1,1) == 'r' then
         info.type = 'roll'
         info.dir = 'right'
@@ -2070,6 +2114,20 @@ MoveModule.TemplateCastCheck = function(excludeObj, collList, templateData, Sele
         end
         templateData.speed = 1
         templateData.type = "bank"
+    elseif templateData.type == "strafe" or templateData.type == "strafeF" or templateData.type == "strafeB" then
+        templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, templateData.dir)
+        templateData.type = "straight"
+        if templateData.dir == "right" then
+            templateData.dir = "left"
+        elseif templateData.dir == "left" then
+            templateData.dir = "right"
+        end
+    elseif templateData.type == "talon" or templateData.type == "talonF" or templateData.type == "talonB" then
+        templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, "front")
+        templateData.type = "turn"
+    elseif templateData.type == "curve" or templateData.type == "curveF" or templateData.type == "curveB" then
+        templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, "front")
+        templateData.type = "bank"
     elseif templateData.type == "echoF"  then
         templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, templateData.dir)
         templateData.speed = 2
@@ -2420,7 +2478,7 @@ end
 -- Get the FINAL position for a given move, including partial move and collisions
 -- Follows traits from MoveData.DecodeInfo to try different move functions
 -- Return:  {
---      finType     <- 'slide' when did a slide, 'move' when did full/part mvoe
+--      finType     <- 'slide' when did a slide, 'move' when did full/part move
 --                     'stationary' when there was no position change (rotation change allowed)
 --                     'overlap' if there was no valid free target position
 --                     IF OVERLAP, OTHER KEYS ARE TO BE IGNORED
@@ -3388,12 +3446,21 @@ DialModule.TemplateData.straight[2] = {0, -2.5, 40, 0}
 DialModule.TemplateData.straight[3] = {0, -2.5, 60, 0}
 DialModule.TemplateData.straight[4] = {0, -2.5, 80, 0}
 DialModule.TemplateData.straight[5] = {0, -2.5, 100, 0}
+DialModule.TemplateData.strafe = {}
+DialModule.TemplateData.strafe[1] = {0, -2.5, 20, 0}
+DialModule.TemplateData.strafe[2] = {0, -2.5, 40, 0}
 DialModule.TemplateData.bank = {}
 DialModule.TemplateData.bank.leftRot = 45
 DialModule.TemplateData.bank.trim = { left = {{-2,0,-4,0}, {-5.5,0,-5.2,0}, {-9.3,0,-6.45,0}}, right={{4.2,0,1.2,0}, {7.8,0,-0.3,0}, {11.5,0,-1.4,0}} }
 DialModule.TemplateData.bank[1] = {80*(1-math.cos(math.pi/8)), 0, 80*math.sin(math.pi/8), 180}
 DialModule.TemplateData.bank[2] = {130*(1-math.cos(math.pi/8)), 0, 130*math.sin(math.pi/8), 180}
 DialModule.TemplateData.bank[3] = {180*(1-math.cos(math.pi/8)), 0, 180*math.sin(math.pi/8), 180}
+DialModule.TemplateData.curve = {}
+DialModule.TemplateData.curve.leftRot = 45
+DialModule.TemplateData.curve.trim = { left = {{-2,0,-4,0}, {-5.5,0,-5.2,0}, {-9.3,0,-6.45,0}}, right={{4.2,0,1.2,0}, {7.8,0,-0.3,0}, {11.5,0,-1.4,0}} }
+DialModule.TemplateData.curve[1] = {80*(1-math.cos(math.pi/8)), 0, 80*math.sin(math.pi/8), 180}
+DialModule.TemplateData.curve[2] = {130*(1-math.cos(math.pi/8)), 0, 130*math.sin(math.pi/8), 180}
+DialModule.TemplateData.curve[3] = {180*(1-math.cos(math.pi/8)), 0, 180*math.sin(math.pi/8), 180}
 DialModule.TemplateData.turn = {}
 DialModule.TemplateData.turn.leftRot = 90
 DialModule.TemplateData.turn.trim = { left = {{0,-2.5,0,0}, {-3,-2.5,-3.66,0}, {-4.7,-2.5,-7.5,0}}, right={{0,-2.5,0,0}, {3,-2.5,-4.1,0}, {4.5,-2.5,-7.8,0}} }
@@ -3412,7 +3479,7 @@ DialModule.TemplateData.baseOffset.small = {0, 0, 20, 0}
 DialModule.TemplateData.baseOffset.medium = {0, 0, 30, 0}
 DialModule.TemplateData.baseOffset.large = {0, 0, 40, 0}
 
--- Spawn a tempalte on given ship
+-- Spawn a template on given ship
 -- dialCode is move code PLUS identifier if ship already did it or not
 -- be3_A means "spawn a bank left 3 template behind me" (A as in after move)
 -- tr1_B means "spawn a turn right 1 tempalte in front of me" (B as in before move)
@@ -3625,9 +3692,12 @@ DialModule.SetInitialButtonsState = function(dial, newState)
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.leftArc))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rightArc))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rearArc))
+            dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR0))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR1))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR2))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR3))
+            dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR4))
+            dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.rulerR5))
             dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.targetLock))
 --            dial.createButton(DialModule.Buttons.FlipVersion(DialModule.Buttons.slide))
             dialName = DialModule.getPilotName(dial)
@@ -3738,11 +3808,16 @@ DialModule.SetMainButtonsState = function(dial, newState)
             dial.createButton(DialModule.Buttons.rightArc)
             dial.createButton(DialModule.Buttons.leftArc)
             dial.createButton(DialModule.Buttons.rearArc)
+            dial.createButton(DialModule.Buttons.rulerR0)
             dial.createButton(DialModule.Buttons.rulerR1)
             dial.createButton(DialModule.Buttons.rulerR2)
             dial.createButton(DialModule.Buttons.rulerR3)
+            dial.createButton(DialModule.Buttons.rulerR4)
+            dial.createButton(DialModule.Buttons.rulerR5)
             dial.createButton(DialModule.Buttons.targetLock)
             if dial.getVar('move'):sub(-1,-1) =='t' then
+                dial.createButton(DialModule.Buttons.slide)
+            elseif dial.getVar('move'):sub(-1,-1) =='c' then
                 dial.createButton(DialModule.Buttons.slide)
             end
         end
@@ -3905,10 +3980,12 @@ RulerModule.meshes.smallBase.side = '{verifycache}https://raw.githubusercontent.
 RulerModule.meshes.smallBase.rear = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallRear.obj'
 RulerModule.meshes.smallBase.sideArc = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallSide.obj'
 RulerModule.meshes.smallBase.range = {}
+RulerModule.meshes.smallBase.range[0] = '{verifycache}https://www.dropbox.com/s/1gxff18orrq28xe/SmallRM.obj?dl=1'
 RulerModule.meshes.smallBase.range[1] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR1.obj'
 RulerModule.meshes.smallBase.range[2] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR2.obj'
 RulerModule.meshes.smallBase.range[3] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR3.obj'
 RulerModule.meshes.smallBase.range[4] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR4.obj'
+RulerModule.meshes.smallBase.range[5] = '{verifycache}https://www.dropbox.com/s/qbs5sjat65q3mnt/SmallR5.obj?dl=1'
 
 -- Ruler meshes for medium base JC
 RulerModule.meshes.mediumBase = {}
@@ -3948,7 +4025,7 @@ RulerModule.meshes.largeBase.range[4] = '{verifycache}https://raw.githubusercont
 -- AR           - rear arc
 -- AT           - turret arc
 -- AM           - mobile arc
-XW_cmd.AddCommand('r[1-3]?', 'rulerHandle')     -- Range "rings"
+XW_cmd.AddCommand('r[0-5]?', 'rulerHandle')     -- Range "rings"
 XW_cmd.AddCommand('[fbs][lrs]?', 'rulerHandle')  -- Rulers with arc lines
 
 -- Translate ruler code to a mesh entry
@@ -3986,7 +4063,7 @@ RulerModule.DescriptiveName = function(ship, rulerType)
     if rulerType:sub(1,1) == 'R' then
         ranges = rulerType:sub(2,2)
         if ranges == '' then
-            ranges = '1-3'
+            ranges = '0-5'
         end
         return 'range ' .. ranges .. ' ruler'
     else
@@ -4180,6 +4257,7 @@ BombModule.snapTable = {}
 BombModule.snapTable['Ion Bomb'] = 'standardAoE'
 BombModule.snapTable['Proton Bomb'] = 'standardAoE'
 BombModule.snapTable['Seismic Charge'] = 'standardAoE'
+BombModule.snapTable['Cracker Grenade'] = 'standardAoE'
 BombModule.snapTable['Thermal Detonator'] = 'standardAoE'
 BombModule.snapTable['Bomblet'] = 'standardAoE'
 BombModule.snapTable['Proximity Mine'] = 'prox'
@@ -4434,7 +4512,7 @@ function onObjectPeek(object, player_color)
                 else
                     local info = MoveData.DecodeInfo(set_manouver)
                     local manouver = info.speed
-                    -- [koiogran] [segnor] [talon] [reverse] [straight] [forward] [backward] [nil]
+                    -- [koiogran] [segnor] [talon] [curve] [inverse] [strafe] [reverse] [straight] [forward] [backward] [nil]
                     if info.extra == "koiogran" then
                         manouver = manouver .. " " .. info.extra
                     else

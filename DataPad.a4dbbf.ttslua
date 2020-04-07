@@ -99,8 +99,8 @@ addSqdAction[554]={[1]='TL'}--Synchronized Console (TL)
 -- FFG uses full name on factions, so a conversion is needed
 ffgFaction = {}
 ffgFaction[0] = 'Dum'
-ffgFaction[1] = 'Reb'
-ffgFaction[2] = 'Imp'
+ffgFaction[1] = 'Zeo'
+ffgFaction[2] = 'EFF'
 ffgFaction[3] = 'Scu'
 ffgFaction[4] = 'Res'
 ffgFaction[5] = 'For'
@@ -148,11 +148,19 @@ cardBackDB['mc'] = 'http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/
 masterShipDB={}
 masterShipDB[0]={['name']='',['Shield']=0,['size']='small',['agi']=1,['XWS']='',['Fac']={[0]=true},['arcs']={'front'}}
 
-masterShipDB[1]={['name']='Modified YT-1300',['Shield']=5,['dTurret']=1,['size']='large',['agi']=1,['XWS']='modifiedyt1300lightfreighter', ['Fac']={[1]=true}, ['arcs']={'doubleturret'},
-                            ['moveSet']={'wbl1','bs1','wbr1','wtl2','bbl2','bs2','bbr2','wtr2','rbl3s','wtl3','wbl3','bs3','wbr3','wtr3','rbr3s','ws4','rk4'}}
+masterShipDB[1]={['name']='MS-06F Zaku II',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuii', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'rs4',
+                                          'wbl3','ws3','wbr3','rbl3s','rbr3c','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2','rfl2f','rtr2t',
+                                          'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
 --masterShipDB[2]={['name']='',['Shield']=0,['size']=0,['agi']=0,['XWS']='', ['Fac']={[0]=true}}
-masterShipDB[3]={['name']='StarViper',['Shield']=1,['size']='small',['agi']=3,['XWS']='starviperclassattackplatform', ['Fac']={[3]=true}, ['arcs']={'front'},
-                ['moveSet']={'wtl1','bbl1','bs1','bbr1','wtr1','wtl2','bbl2','bs2','bbr2','wtr2','rbl3s','wbl3','bs3','wbr3','rbr3s','ws4' } }
+masterShipDB[3]={['name']='MS-06S Zaku II S-Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistype', ['Fac']={[1]=true}, ['arcs']={'front'},
+                ['moveSet']={ 'ws4',
+                              'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                              'wtl2','wbl2','bs2','wbr2','wtr2',
+                              'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                              'rs0'}}
 masterShipDB[4]={['name']='Scurrg H6 Bomber',['Shield']=4,['size']='medium',['agi']=1,['XWS']='scurrgh6bomber', ['Fac']={[3]=true}, ['arcs']={'front'},
                             ['moveSet']={'bbl1','bs1','bbr1','wtl2','wbl2','bs2','wbr2','wtr2','rtl3t','rtl3','wbl3','ws3','wbr3','rtr3','rtr3t','rs4'}}
 masterShipDB[5]={['name']='YT-2400',['Shield']=4,['dTurret']=1,['size']='large',['agi']=2,['XWS']='yt2400lightfreighter', ['Fac']={[1]=true}, ['arcs']={'doubleturret'},
@@ -1761,8 +1769,8 @@ end
 ]]
 
 dialSkin={
-  [1]='http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/skin/Rebel.png',
-  [2]='http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/skin/Empire.png',
+  [1]='http://cloud-3.steamusercontent.com/ugc/776248816759536085/F1682EB306C8FDFA5A1D2AD7FE41691532156412/',
+  [2]='http://cloud-3.steamusercontent.com/ugc/776248816759536533/909FE80347105F36346550CDA6246082AA0729A6/',
   [3]='http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/skin/Scum.png',
   [4]='http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/skin/Resistance.png',
   [5]='http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/skin/FO.png',
@@ -1997,8 +2005,8 @@ function builderStart()
     currentIndex = nil
     totalCost = nil
     self.createButton({click_function = 'Dummy1', function_owner = self, label = 'Choose Faction', position = {0,0.45,-0.3}, width = 1800, height = 520, font_size = 240,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'buiReb', function_owner = self, label = 'Rebel', position = {-0.6,0.45,0.1}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'buiImp', function_owner = self, label = 'Imperial', position = {-0.6,0.45,0.4}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'buiZeo', function_owner = self, label = 'Zeon', position = {-0.6,0.45,0.1}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'buiEFF', function_owner = self, label = 'Federation', position = {-0.6,0.45,0.4}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'buiScu', function_owner = self, label = 'Scum', position = {-0.6,0.45,0.7}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'buiRes', function_owner = self, label = 'Resistance', position = {0,0.45,0.1}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'buiFor', function_owner = self, label = 'First Order', position = {0,0.45,0.4}, width = 1000, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
@@ -2009,12 +2017,12 @@ end
 
 
 -- One function for each faction, forwards to main menu.
-function buiReb()
+function buiZeo()
     partList.Faction = 1
     mainMenu()
 end
 
-function buiImp()
+function buiEFF()
     partList.Faction = 2
     mainMenu()
 end
@@ -2835,8 +2843,8 @@ function spawnerStart ()
     finalList.AuxU = {}
     finalList.spawnCard = self
     self.createButton({click_function = 'Dummy1', function_owner = self, label = 'Choose Faction', position = {0,0.45,-0.3}, width = 1800, height = 520, font_size = 240,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'Reb', function_owner = self, label = 'Rebel', position = {-0.4,0.45,0}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'Imp', function_owner = self, label = 'Imperial', position = {-0.4,0.45,0.2}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'Zeo', function_owner = self, label = 'Zeon', position = {-0.4,0.45,0}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'EFF', function_owner = self, label = 'Federation', position = {-0.4,0.45,0.2}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'Rep', function_owner = self, label = 'Republic', position = {-0.4,0.45,0.4}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'Res', function_owner = self, label = 'Resistance', position = {0.4,0.45,0}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'For', function_owner = self, label = 'First Order', position = {0.4,0.45,0.2}, width = 1200, height = 280, font_size = 200,  scale = {0.25,0.25,0.25}})
@@ -2848,12 +2856,12 @@ function spawnerStart ()
 end
 
 --Set up faction in the table
-function Reb()
+function Zeo()
     finalList.Faction = 1
     inputList()
 end
 
-function Imp()
+function EFF()
     finalList.Faction = 2
     inputList()
 end
