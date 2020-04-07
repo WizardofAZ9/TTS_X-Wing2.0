@@ -156,25 +156,53 @@ masterShipDB[1]={['name']='MS-06F Zaku II',['Shield']=1,['size']='small',['agi']
                                           'rs0'}}
 --masterShipDB[2]={['name']='',['Shield']=0,['size']=0,['agi']=0,['XWS']='', ['Fac']={[0]=true}}
 masterShipDB[3]={['name']='MS-06S Zaku II S-Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistype', ['Fac']={[1]=true}, ['arcs']={'front'},
-                ['moveSet']={ 'ws4',
-                              'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
-                              'wtl2','wbl2','bs2','wbr2','wtr2',
-                              'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
-                              'rs0'}}
-masterShipDB[4]={['name']='Scurrg H6 Bomber',['Shield']=4,['size']='medium',['agi']=1,['XWS']='scurrgh6bomber', ['Fac']={[3]=true}, ['arcs']={'front'},
-                            ['moveSet']={'bbl1','bs1','bbr1','wtl2','wbl2','bs2','wbr2','wtr2','rtl3t','rtl3','wbl3','ws3','wbr3','rtr3','rtr3t','rs4'}}
-masterShipDB[5]={['name']='YT-2400',['Shield']=4,['dTurret']=1,['size']='large',['agi']=2,['XWS']='yt2400lightfreighter', ['Fac']={[1]=true}, ['arcs']={'doubleturret'},
-                            ['moveSet']={'wtl1','bbl1','bs1','bbr1','wtr1','wtl2','wbl2','bs2','wbr2','wtr2','wtl3','wbl3','ws3','wbr3','wtr3','ws4','rk4'}}
-masterShipDB[6]={['name']='Auzituk Gunship',['Shield']=2,['size']='small',['agi']=1,['XWS']='auzituckgunship', ['Fac']={[1]=true}, ['arcs']={'fullfront'},
-                            ['moveSet']={'bbl1', 'bs1', 'bbr1','wtl2','wbl2','bs2','wbr2','wtr2','wtl3','wbl3','bs3','wbr3','wtr3','ws4','rs0'}}
-masterShipDB[7]={['name']='Khiraxz Fighter',['Shield']=1,['size']='small',['agi']=2,['XWS']='kihraxzfighter', ['Fac']={[3]=true}, ['arcs']={'front'},
-                            ['moveSet']={'wtl1','bbl1','bbr1','wtr1','rtl2t','wtl2','bbl2','bs2','bbr2','wtr2','rtr2t','wbl3','bs3','wbr3','ws4','rk4'}}
-masterShipDB[8]={['name']='Sheathipede Shuttle',['Shield']=1,['size']='small',['agi']=2,['XWS']='sheathipedeclassshuttle', ['Fac']={[1]=true}, ['arcs']={'front', 'back'},
-                            ['moveSet']={'rs1r','wbl1','bs1','wbr1','wtl2','bbl2','bs2','bbr2','wtr2','rtl3','wbl3','bs3','wbr3','rtr3','rk3','rs4'}}
-masterShipDB[9]={['name']='Quad Jumper',['Shield']=0,['size']='small',['agi']=2,['XWS']='quadrijettransferspacetug', ['Fac']={[3]=true}, ['arcs']={'front'},
-                            ['moveSet']={'rbl1r','rbr1r','wtl1','wbl1','ws1','wbr1','wtr1','rs2r','rbl2s','wtl2','bbl2','bs2','bbr2','wtr2','rbr2s','wbl3','bs3','wbr3'}}
-masterShipDB[10]={['name']='FireSpray',['Shield']=4,['size']='medium',['agi']=2,['XWS']='firesprayclasspatrolcraft', ['Fac']={[3]=true}, ['arcs']={'front', 'back'},
-                            ['moveSet']={'wtl1','bbl1','bs1','bbr1','wtr1','wtl2','wbl2','bs2','wbr2','wtr2','rtl3t','wbl3','bs3','wbr3','rtr3t','ws4','rk4'}}
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[1]={['name']='MS-06R-1A Zaku II High Mobility Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiir1a', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'rs4',
+                                          'wbl3','ws3','wbr3','rbl3s','rbr3c','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2','rfl2f','rtr2t',
+                                          'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[5]={['name']='MS-09R Rick Dom',['Shield']=1,['size']='small',['agi']=2,['XWS']='rickdom', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[6]={['name']='RGM-79 GM',['Shield']=1,['size']='small',['agi']=2,['XWS']='gm', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[7]={['name']='RGC-80 GM Cannon',['Shield']=1,['size']='small',['agi']=1,['XWS']='gmcannon', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[8]={['name']='RGM-79GS GM Command Space Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='gmcommands', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[9]={['name']='RX-77D Guncannon Mass Production Type',['Shield']=1,['size']='small',['agi']=1,['XWS']='guncannonmp', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
+masterShipDB[10]={['name']='MS-06S Zaku II S-Type Robert Gilliam Custom',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistyperg', ['Fac']={[1]=true}, ['arcs']={'front'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2',
+                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rs0'}}
 masterShipDB[11]={['name']='TIE/ln Fighter',['Shield']=0,['size']='small',['agi']=3,['XWS']='tielnfighter', ['Fac']={[1]=true,[2]=true}, ['arcs']={'front'},
                             ['moveSet']={'wtl1','wtr1','wtl2','bbl2','bs2','bbr2','wtr2','wtl3','wbl3','bs3','wbr3','wtr3','rk3','ws4','rk4','ws5'}}
 masterShipDB[12]={['name']='Y-Wing',['Shield']=2,['size']='small',['agi']=1,['XWS']='btla4ywing', ['Fac']={[1]=true,[3]=true}, ['arcs']={'front'},
@@ -316,67 +344,67 @@ masterShipDB[82]={['name']='Droid Gunship',['Shield']=3,['size']='small',['agi']
 masterPilotDB={}
 masterPilotDB[0]={['name']='',['Faction']= 0,['ship_type']=0,['cost']=0,['slot']={},['Shield']=0,['card']='',['cardB']='',['init']=0,['actSet']={}}
 
-masterPilotDB[1]={['name']='Wedge Antilles',['Faction']= 1,['ship_type']=33,['cost']=55,['slot']={1, 5, 10, 14, 18},['Shield']=2,
+masterPilotDB[1]={['name']='Albert Bell',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_1.png',['init']=6,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[2]={['name']='Luke Skywalker',['Faction']= 1,['ship_type']=33,['cost']=62,['slot']={17, 5, 10, 14, 18},['Shield']=2,['Force']=2,
+masterPilotDB[2]={['name']='Brennis Ox',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={17, 5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_2.png',['init']=5,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[3]={['name']='Thane Kyrell',['Faction']= 1,['ship_type']=33,['cost']=48,['slot']={1, 5, 10, 14, 18},['Shield']=2,
+masterPilotDB[3]={['name']='Capable Pilot',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_3.png',['init']=5,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[4]={['name']='Garven Dreis',['Faction']= 1,['ship_type']=33,['cost']=47,['slot']={1, 5, 10, 14, 18},['Shield']=2,
+masterPilotDB[4]={['name']='Charlotte Hepner',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_4.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[5]={['name']='Jek Porkins',['Faction']= 1,['ship_type']=33,['cost']=45,['slot']={1, 5, 10, 14, 18},['Shield']=2,
+masterPilotDB[5]={['name']='Christo Doerr',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_5.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[6]={['name']='Kullbee Sperado',['Faction']= 1,['ship_type']=33,['cost']=46,['slot']={1, 5, 10, 13, 14, 18},['Shield']=2,
+masterPilotDB[6]={['name']='Crown',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 13, 14, 18},['Shield']=1,['Force']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_6.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[7]={['name']='Biggs Darklighter',['Faction']= 1,['ship_type']=33,['cost']=48,['slot']={5, 10, 14, 18},['Shield']=2,
+masterPilotDB[7]={['name']='Denim',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={5, 10, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_7.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[8]={['name']='Leevan Tenza',['Faction']= 1,['ship_type']=33,['cost']=44,['slot']={1, 5, 10, 13, 14, 18},['Shield']=2,
+masterPilotDB[8]={['name']='Eager Recruit',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 13, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_8.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[9]={['name']='Edrio Two Tubes',['Faction']= 1,['ship_type']=33,['cost']=43,['slot']={5, 10, 13, 14, 18},['Shield']=2,
+masterPilotDB[9]={['name']='Gene',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={5, 10, 13, 14, 18},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_9.png',['init']=2,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[10]={['name']='Red Squadron Veteran',['Faction']= 1,['ship_type']=33,['cost']=41,['slot']={1, 5, 10, 14, 18},['Shield']=2,
+masterPilotDB[10]={['name']='Gerald Sakai',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 5, 10, 14, 18},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_10.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[11]={['name']='Blue Squadron Escort',['Faction']= 1,['ship_type']=33,['cost']=40,['slot']={5, 10, 14, 18},['Shield']=2,
+masterPilotDB[11]={['name']='Ian Graden',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={5, 10, 14, 18},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_11.png',['init']=2,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[12]={['name']='Cavern Angels Zealot',['Faction']= 1,['ship_type']=33,['cost']=39,['slot']={5, 10, 13, 14, 18},['Shield']=2,
+masterPilotDB[12]={['name']='Jake Guns',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={5, 10, 13, 14, 18},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_12.png',['init']=1,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[13]={['name']='Norra Wexley',['Faction']= 1,['ship_type']=12,['cost']=41,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[13]={['name']='J.Q.',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_13.png',['init']=5,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[14]={['name']='"Dutch" Vander',['Faction']= 1,['ship_type']=12,['cost']=40,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[14]={['name']='Karius Otto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_14.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[15]={['name']='Horton Salm',['Faction']= 1,['ship_type']=12,['cost']=37,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[15]={['name']='Kohm',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_15.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[16]={['name']='Evaan Verlaine',['Faction']= 1,['ship_type']=12,['cost']=35,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[16]={['name']='Lou Roher',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_16.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[17]={['name']='Gold Squadron Veteran',['Faction']= 1,['ship_type']=12,['cost']=32,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[17]={['name']='Nikki Roberto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_17.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[18]={['name']='Gray Squadron Bomber',['Faction']= 1,['ship_type']=12,['cost']=30,['slot']={4, 5, 16, 10, 12, 14},['Shield']=2,
+masterPilotDB[18]={['name']='Nimbus Schterzen',['Faction']= 1,['ship_type']=3,['cost']=1,['slot']={4, 5, 16, 10, 12, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_18.png',['init']=2,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[19]={['name']='Jake Farrell',['Faction']= 1,['ship_type']=35,['cost']=36,['slot']={1,1, 6},['Shield']=2,
+masterPilotDB[19]={['name']='Robin Bradshaw',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1,1, 6},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_19.png',['init']=4,['actSet']={'F','TL','E','BR','B'}}
-masterPilotDB[20]={['name']='Arvel Crynyd',['Faction']= 1,['ship_type']=35,['cost']=34,['slot']={1,1, 6},['Shield']=2,
+masterPilotDB[20]={['name']='Shin Matsunaga',['Faction']= 1,['ship_type']=4,['cost']=1,['slot']={1,1, 6},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_20.png',['init']=3,['actSet']={'F','TL','E','B','BR'}}
-masterPilotDB[21]={['name']='Green Squadron Pilot',['Faction']= 1,['ship_type']=35,['cost']=32,['slot']={1,1, 6},['Shield']=2,
+masterPilotDB[21]={['name']='Slender',['Faction']= 1,['ship_type']=35,['cost']=32,['slot']={1,1, 6},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_21.png',['init']=3,['actSet']={'F','TL','E','B','BR'}}
-masterPilotDB[22]={['name']='Phoenix Squadron Pilot',['Faction']= 1,['ship_type']=35,['cost']=29,['slot']={1,6},['Shield']=2,
+masterPilotDB[22]={['name']='Vincent Gleissner',['Faction']= 1,['ship_type']=35,['cost']=29,['slot']={1,6},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_22.png',['init']=1,['actSet']={'F','TL','E','B','BR'}}
-masterPilotDB[23]={['name']='Braylen Stramm',['Faction']= 1,['ship_type']=17,['cost']=52,['slot']={1, 2, 3, 3, 5, 14},['Shield']=4,
+masterPilotDB[23]={['name']='Char Aznable',['Faction']= 1,['ship_type']=3,['cost']=1,['slot']={1, 2, 3, 3, 5, 14},['Shield']=1,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_23.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[24]={['name']='Ten Numb',['Faction']= 1,['ship_type']=17,['cost']=48,['slot']={1, 2, 3, 3, 5, 14},['Shield']=4,
+masterPilotDB[24]={['name']='Doug Schneid',['Faction']= 1,['ship_type']=17,['cost']=48,['slot']={1, 2, 3, 3, 5, 14},['Shield']=4,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_24.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[25]={['name']='Blade Squadron Veteran',['Faction']= 1,['ship_type']=17,['cost']=42,['slot']={1, 2, 3, 3, 5, 14},['Shield']=4,
+masterPilotDB[25]={['name']='Gabby Hazard',['Faction']= 1,['ship_type']=17,['cost']=42,['slot']={1, 2, 3, 3, 5, 14},['Shield']=4,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_25.png',['init']=3,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[26]={['name']='Blue Squadron Pilot',['Faction']= 1,['ship_type']=17,['cost']=41,['slot']={2, 3, 3, 5, 14},['Shield']=4,
+masterPilotDB[26]={['name']='Johnny Ridden',['Faction']= 1,['ship_type']=17,['cost']=41,['slot']={2, 3, 3, 5, 14},['Shield']=4,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_26.png',['init']=2,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[27]={['name']='Airen Cracken',['Faction']= 1,['ship_type']=38,['cost']=36,['slot']={1, 6, 14},['Shield']=2,
+masterPilotDB[27]={['name']='Ken Bederstadt',['Faction']= 1,['ship_type']=38,['cost']=36,['slot']={1, 6, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_27.png',['init']=5,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[28]={['name']='Lieutenant Blount',['Faction']= 1,['ship_type']=38,['cost']=30,['slot']={1, 6, 14},['Shield']=2,
+masterPilotDB[28]={['name']='Nordit Bauer',['Faction']= 1,['ship_type']=38,['cost']=30,['slot']={1, 6, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_28.png',['init']=4,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[29]={['name']='Tala Squadron Pilot',['Faction']= 1,['ship_type']=38,['cost']=24,['slot']={1, 6, 14},['Shield']=2,
+masterPilotDB[29]={['name']='Resolute Squad Leader',['Faction']= 1,['ship_type']=38,['cost']=24,['slot']={1, 6, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_29.png',['init']=2,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[30]={['name']='Bandit Squadron Pilot',['Faction']= 1,['ship_type']=38,['cost']=22,['slot']={6, 14},['Shield']=2,
+masterPilotDB[30]={['name']='Robert Gilliam',['Faction']= 1,['ship_type']=38,['cost']=22,['slot']={6, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_30.png',['init']=1,['actSet']={'F','TL', 'BR'}}
-masterPilotDB[31]={['name']='Wullffwarro',['Faction']= 1,['ship_type']=6,['cost']=56,['slot']={1, 8, 8, 14},['Shield']=2,
+masterPilotDB[31]={['name']='Seasoned Commander',['Faction']= 1,['ship_type']=6,['cost']=56,['slot']={1, 8, 8, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_31.png',['init']=4,['actSet']={'F','R', 'BR'}}
 masterPilotDB[32]={['name']='Lowhhrick',['Faction']= 1,['ship_type']=6,['cost']=52,['slot']={1, 8, 8, 14},['Shield']=2,
                   ['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Pilot_32.png',['init']=3,['actSet']={'F','R', 'BR'}}
