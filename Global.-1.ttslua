@@ -4958,7 +4958,7 @@ function newSpawner(listTable)
                         end
                     end
                 end
-                if Pilots[shipIndex]['Ship'] == 3 then
+                if Pilots[shipIndex]['Ship'] == 2 then
                     for k, acc in ipairs(listaAcc) do
                         if acc.name == 'StarViper Mk.II roll token' then
                             pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
