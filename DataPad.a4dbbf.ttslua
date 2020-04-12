@@ -148,62 +148,57 @@ cardBackDB['mc'] = 'http://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/
 masterShipDB={}
 masterShipDB[0]={['name']='',['Shield']=0,['size']='small',['agi']=1,['XWS']='',['Fac']={[0]=true},['arcs']={'front'}}
 --starterMS
-masterShipDB[1]={['name']='MS-06F Zaku II',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuii', ['Fac']={[1]=true}, ['arcs']={'front'},
+masterShipDB[1]={['name']='MS-06F Zaku II',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuii', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
                             ['moveSet']={ 'rs4',
-                                          'wbl3','ws3','wbr3','rbl3s','rbr3c','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2','rfl2f','rtr2t',
+                                          'wbl3','ws3','wbr3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2','rk2',
                                           'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
 --masterShipDB[2]={['name']='',['Shield']=0,['size']=0,['agi']=0,['XWS']='', ['Fac']={[0]=true}}
-masterShipDB[3]={['name']='MS-06S Zaku II S-Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistype', ['Fac']={[1]=true}, ['arcs']={'front'},
+masterShipDB[3]={['name']='MS-06S Zaku II S-Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistype', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
                             ['moveSet']={ 'ws4',
                                           'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
                                           'wtl2','wbl2','bs2','wbr2','wtr2',
                                           'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[4]={['name']='MS-06R-1A Zaku II High Mobility Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiism', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'rs4',
-                                          'wbl3','ws3','wbr3','rbl3s','rbr3c','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2','rfl2f','rtr2t',
+masterShipDB[4]={['name']='MS-06R-1A Zaku II High Mobility Type',['Shield']=2,['size']='small',['agi']=2,['XWS']='zakuiihighm', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'ws4',
+                                          'wtl3','wbl3','ws3','wbr3','wtr3','rbl3s','rbr3s',
+                                          'wtl2','bbl2','bs2','bbr2','wtr2',
                                           'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[5]={['name']='MS-09R Rick Dom',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistype', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+masterShipDB[5]={['name']='MS-09R Rick Dom',['Shield']=3,['size']='small',['agi']=2,['XWS']='rickdom', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'ws5','ws4',
+                                          'rtl3','wbl3','bs3','wbr3','rtr3','rtl3t','rtr3t',
+                                          'wtl2','bbl2','bs2','bbr2','wtr2',
+                                          'wbl1','bs1','wbr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[6]={['name']='RGM-79 GM',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistypeca', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+masterShipDB[6]={['name']='RGM-79 GM',['Shield']=1,['size']='small',['agi']=2,['XWS']='gm', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'rs4',
+                                          'wbl3','ws3','wbr3','rk3',
                                           'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[7]={['name']='RGC-80 GM Cannon',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistypeds', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+masterShipDB[7]={['name']='RGC-80 GM Cannon',['Shield']=3,['size']='small',['agi']=1,['XWS']='gmcannon', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'rbl3','ws3','rbr3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2','rtl2t','rtr2t',
+                                          'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[8]={['name']='RGM-79GS GM Command Space Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistypegh', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+masterShipDB[8]={['name']='RGM-79GS GM Command Space Type',['Shield']=3,['size']='small',['agi']=2,['XWS']='gmcommandspace', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'ws4','rk4',
+                                          'wtl3','wbl3','bs3','wbr3','wtr3',
+                                          'wtl2','wbl2','bs2','wbr2','wtr2','wbr2','rbl2s','rbr2s',
+                                          'btl1','bbl1','bbr1','btr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
-masterShipDB[9]={['name']='RX-77D Guncannon Mass Production Type',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistypejr', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
+masterShipDB[9]={['name']='RX-77D Guncannon Mass Production Type',['Shield']=4,['size']='small',['agi']=1,['XWS']='guncannonmp', ['Fac']={[1]=true}, ['arcs']={'front', 'melee'},
+                            ['moveSet']={ 'rs4',
+                                          'rbl3','ws3','rbr3','wtl3t','wtr3t',
                                           'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
+                                          'rtl1','bbl1','bs1','bbr1','rtr1','rfl1f','rfr1f','rs1r',
                                           'rs0'}}
 --w1MS
-masterShipDB[10]={['name']='MS-06S Zaku II S-Type Robert Gilliam Custom',['Shield']=1,['size']='small',['agi']=2,['XWS']='zakuiistyperg', ['Fac']={[1]=true}, ['arcs']={'front'},
-                            ['moveSet']={ 'ws4',
-                                          'wtl3','wbl3','ws3','wbr3','wtr3','rk3',
-                                          'wtl2','wbl2','bs2','wbr2','wtr2',
-                                          'wtl1','bbl1','bs1','bbr1','wtr1','rfl1f','rfr1f','rs1r',
-                                          'rs0'}}
+masterShipDB[10]={['name']='TIE/ln Fighter',['Shield']=0,['size']='small',['agi']=3,['XWS']='tielnfighter', ['Fac']={[1]=true,[2]=true}, ['arcs']={'front'},
+                            ['moveSet']={'wtl1','wtr1','wtl2','bbl2','bs2','bbr2','wtr2','wtl3','wbl3','bs3','wbr3','wtr3','rk3','ws4','rk4','ws5'}}
 masterShipDB[11]={['name']='TIE/ln Fighter',['Shield']=0,['size']='small',['agi']=3,['XWS']='tielnfighter', ['Fac']={[1]=true,[2]=true}, ['arcs']={'front'},
                             ['moveSet']={'wtl1','wtr1','wtl2','bbl2','bs2','bbr2','wtr2','wtl3','wbl3','bs3','wbr3','wtr3','rk3','ws4','rk4','ws5'}}
 masterShipDB[12]={['name']='Y-Wing',['Shield']=2,['size']='small',['agi']=1,['XWS']='btla4ywing', ['Fac']={[1]=true,[3]=true}, ['arcs']={'front'},
@@ -1505,135 +1500,12 @@ end
 function initiate()
     self.clearButtons()
     self.clearInputs()
-    self.createButton({click_function = 'ffgStart', function_owner = self, label = 'FFG Spawner', position = {0,0.45,-0.2}, width = 1600, height = 380, font_size = 250, scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'singleSpawner', function_owner = self, label = 'Single Spawner', position = {0,0.45,0.1}, width = 1600, height = 380, font_size = 200, scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'singleSpawner', function_owner = self, label = 'Single Spawner', position = {0,0.45,-0.05}, width = 1600, height = 380, font_size = 200, scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'spawnerStart', function_owner = self, label = 'TTS Spawner', position = {0,0.45,0.4}, width = 1600, height = 380, font_size = 250, scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'builderStart', function_owner = self, label = 'Builder', position = {0,0.45,0.7}, width = 1600, height = 380, font_size = 250, scale = {0.25,0.25,0.25}})
 end
 
-
---Spawn from FFG squad shareable link. User must paste his link on the input field, load the squad, then press the spawn squad button. Maybe streamline the process and do it with one button?
-function ffgStart()
-    self.clearButtons()
-    self.createButton({click_function = 'DummyFFG', function_owner = self, label = 'Paste squad link', position = {0,0.45,-0.3}, width = 1800, height = 520, font_size = 240,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'ffgLoad', function_owner = self, label = 'Load Squad', position = {0,0.45,0.6}, width = 1800, height = 520, font_size = 240,  scale = {0.15,0.15,0.15}})
-    self.createInput({input_function = 'action2', function_owner = self, position = {0,0.45,0.2}, width = 1000, height = 500, font_size = 50, scale = {0.5,0.5,0.5}})
-    self.createButton({click_function = 'FFGinitiate', function_owner = self, label = 'Back', position = {-0.5,0.45,0.8}, width = 1000, height = 300, font_size = 150,  scale = {0.21,0.21,0.21}})
-    --self.createButton({click_function = 'printInput', function_owner = self, label = 'Print Input', position = {0,0.6,0.5}, width = 1000, height = 200, font_size = 150, tooltip = 'Print'})
-    --self.createButton({click_function = 'parseList', function_owner = self, label = 'Parse', position = {0,0,3.2}, width = 1000, height = 200, font_size = 150, tooltip = 'Parse'})
-end
-
 function DummyFFG()
-end
-
---prepares the link and call the json extractor
-function FFGinitiate()
-    if lista ~= nil then
-        lista =  nil
-    end
-    if partList ~= nil then
-        partList = nil
-    end
-    initiate()
-end
-
---takes a link and converts it for the API link
-function ffgLoad()
-    if lista ~= nil then
-        lista = string.gsub(lista, 'saved%-squads', 'api/squads')
-        lista = string.gsub(lista, 'squad%-builder/tool', 'api/squads')
-        ffgLoad2(lista)
-    else
-        print ('Please paste a link')
-    end
-end
-
-function ffgClearName(string)  --Clars FFG name from all of their shenannigans
-    name = string.gsub(string, '•', '')
-    name = string.gsub(name, '’', '')
-    name = string.gsub(name, '”', '"')
-    name = string.gsub(name, '��', '"')
-    name = string.gsub(name, '<italic>', '') --So stupid....
-    name = string.gsub(name, '</italic>', '')
-    name = string.gsub(name, ' %(Open%)', '')
-    newName = string.gsub(name, ' %(Closed%)', '')
-    return newName
-end
-
---parses and organize the extracted json table and calls the spawner (TO-DO)
-function ffgSpawn()
-    if JSONlist ~=nil then
-        partList = {}
-        partList.Pilots = {}
-        partList.Upgrades = {}
-        partList.spawnCard = self
-        partList.Faction = JSONlist['faction']['id']
-        for k,v in pairs (JSONlist.deck) do
-            --[[
-            for key, value in pairs(v["pilot_card"]) do
-                print(key)
-            end
-            --]]
-            partList.Pilots[k] = v['pilot_card']['id']
-            --[[
-            print("Pilot Name: "..v["pilot_card"]['name'])
-            print("Pilot ID: "..v['pilot_card']['id'])
-            print("Pilot Cost: "..v['pilot_card']['cost'])
-            print("Ship Type: "..v['pilot_card']['ship_type'])
-            print()--]]
-            partList.Upgrades[k] ={}
-            for key,value in pairs (v['slots']) do
-                partList.Upgrades[k][key] = value['id']
-                --[[
-                for i, uval in pairs(value) do
-                    print("upgrade[" .. tostring(i) .. "]=" .. tostring(uval))
-                end
-                print("Upgrade Name: "..value['name'])
-                print("Upgrade Id: "..value['id'])
-                print("Upgrade Cost: "..value['cost'])
-                print()
-                --]]
-
-            end
-        end
-        idSpawner(partList)
-        partList = nil
-        JSONlist = nil
-        lista = nil
-        FFGinitiate()
-    else
-        print('Please paste a link')
-    end
-
-end
-
---Extracts the json table from FFG site, reporting success or failure
-function ffgLoad2(squadId, onLoaded)
-    squadJson = squadId
-    WebRequest.get(squadJson, function(request)
-        if request.is_error then
-            error("Failed to load squad JSON.")
-        elseif request.is_done then
-            --list = JSON.decode(request.text)
-            JSONlist = JSON.decode(request.text)
-            print("You've loaded a squad: "..JSONlist.name)
-            print()
-            ffgSpawn()
-        end
-    end)
-end
-
---FFG spawner input field
-function action2(obj, playerColor, value, editing)
-    if not editing then
-        lista = value
-    else
-        nl_index = string.find(value, '\n')
-        if nl_index != nil then
-            lista = string.sub(value, 1,nl_index-1)
-            ffgLoad()
-        end
-    end
 end
 
 --TTS spawner input field
@@ -2024,6 +1896,7 @@ function saveToDisk(finalList)
             print("Done")
         end
     end
+    initiate()
 end
 
 

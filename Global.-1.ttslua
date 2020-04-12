@@ -5,7 +5,7 @@
 -- Code contributions
 --  - Characted width data: Indimeco
 --  - http://github.com/Indimeco/Tabletop-Simulator-Misc
---  - MSG FLightpath specific code: WizardofAZ
+--  - MSG Flightpath specific code: WizardofAZ
 --  - https://github.com/WizardofAZ9/TTS_MSG-Flightpath
 -- ~~~~~~
 
@@ -328,6 +328,12 @@ ArcCheck.CalculateArcLineSegments = function(table, degree, size)
                                        },
                             degrees={direction=0, spread=90}
                         }
+    table['melee'] = {  segments={ {vector(-size, 0, 0), vector(-size, 0, size)},   -- left segment
+                                        {vector(-size, 0, size), vector(size, 0, size)}, -- front edge
+                                        {vector(size, 0, size), vector(size, 0, 0)}  -- right segment
+                                       },
+                            degrees={direction=0, spread=90}
+                        }
     table['fullback'] = {  segments={ {vector(-size, 0, 0), vector(-size, 0, -size)},   -- left segment
                                        {vector(-size, 0, -size), vector(size, 0, -size)}, -- back edge
                                        {vector(size, 0, -size), vector(size, 0, 0)}  -- right segment
@@ -381,10 +387,10 @@ function CheckArc(args)
     args.ship.setLock(true)
     local shipSize = args.ship.getTable("Data").Size or 'small'
     local potential_targets = ArcCheck.GetPotentialTargets(args.ship)
-    local bullseye_targets = ArcCheck.GetBullseyeTargets(args.ship, ArcCheck.bullseye_data.pos[shipData.Size])
+    local bullseye_targets = ArcCheck.GetBullseyeTargets(args.ship, ArcCheck.bullseye_data.pos[shipSize])
     local own_line_segments = {}
     for i, arc in ipairs(arc_parts) do
-        local segments = ArcCheck.GetOwnArcLineSegments(args.ship, ArcCheck.arc_line_segments[shipData.Size][arc]["segments"])
+        local segments = ArcCheck.GetOwnArcLineSegments(args.ship, ArcCheck.arc_line_segments[shipSize][arc]["segments"])
         for k, segment in ipairs(segments) do
             table.insert(own_line_segments, segment)
         end
@@ -403,7 +409,7 @@ function CheckArc(args)
         end
         local target_line_segments = {}
         for i, arc in ipairs(arc_parts) do
-            local segments = ArcCheck.GetTargetLineSegmentsInArc(args.ship, pt, ArcCheck.arc_line_segments[shipData.baseSize][arc]["degrees"])
+            local segments = ArcCheck.GetTargetLineSegmentsInArc(args.ship, pt, ArcCheck.arc_line_segments[shipSize][arc]["degrees"])
             for k, segment in ipairs(segments) do
                 table.insert(target_line_segments, segment)
             end
@@ -413,8 +419,40 @@ function CheckArc(args)
             local other = nil
             local closest = nil
             closest, other = ArcCheck.GetDistanceBetweenLineSegments(own_line_segments, target_line_segments)
-            if closest.range > 3 then
+            if closest.range > 0.5 and (ArcCheck.current_arc == "melee") then
                 printToAll(" - " .. pt.getName() .. " not in range")
+            elseif closest.range > 5 then
+                printToAll(" - " .. pt.getName() .. " not in range")
+            elseif closest.range <= 0.5 then
+                found = true
+                closest.obstructions = ArcCheck.CheckObstruction(closest)
+                closest.in_bullseye = in_bullseye
+                pt.setLock(true)
+                ArcCheck.SpawnObstructionRuler(closest)
+                local multipletext = " is "
+                local obstructedtext = "is "
+                if other ~= nil then
+                    obstructedtext = "is most likely UNOBSTRUCTED "
+                    multipletext = " has multiple closest points and "
+                    other.obstructions = ArcCheck.CheckObstruction(other)
+                    other.in_bullseye = in_bullseye
+                    ArcCheck.SpawnObstructionRuler(other)
+                end
+                if #closest.obstructions ~= 0 then
+                    if other ~= nil then
+                        if #other.obstructions ~= 0 then
+                            obstructedtext = "is most likely OBSTRUCTED "
+                        end
+                        obstructedtext = "can be chosen to be OBSTRUCTED "
+                    else
+                        obstructedtext = "OBSTRUCTED "
+                    end
+                else
+                    if other ~=nil and #other.obstructions ~= 0 then
+                        obstructedtext = "can be chosen to be OBSTRUCTED "
+                    end
+                end
+                printToAll(" - " .. pt.getName().. multipletext .. obstructedtext .. "at melee range " .. bullseyetext, color(1.0, 0.0, 0.0, 0.9))
             else
                 found = true
                 closest.obstructions = ArcCheck.CheckObstruction(closest)
@@ -486,13 +524,15 @@ ArcCheck.SpawnObstructionRuler = function(data)
             snap_to_grid      = false
         })
         ruler.setCustomObject({
-            mesh =  '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/models/ArcCheckRuler'.. data.range .. '.obj',
+            mesh =  '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/rulers/ArcCheckRuler'.. data.range .. '.obj',
             material = 3
         })
         local tintcolor = color(1.0, 1.0, 0.2, 1.0) -- Yellow obstructed tint
         if #data.obstructions == 0 then
             if data.in_bullseye then
                 tintcolor = color(1.0, 0.2, 1.0, 1.0) -- Purple unobstructed bullseye tint
+            elseif data.range == 0.5 then
+                tintcolor = color(1.0, 0.0, 0.0, 1.0) -- red unobstructed melee tint
             else
                 tintcolor = color(0.2, 0.2, 1.0, 1.0) -- Blue unobstructed tint
             end
@@ -614,7 +654,12 @@ ArcCheck.GetDistanceBetweenLineSegmentAndPoint = function(segment, point, revers
         B = point
     end
     local distance = Vect.Distance(P, point)
-    local range =math.floor(Convert_igu_mm(distance / 100)) + 1
+    local range = {}
+    if (math.abs(Convert_igu_mm(distance / 100)) <= 0.5) and (math.abs(Convert_igu_mm(distance / 100)) > 0) then
+        range = 0.5
+    else
+        range = math.floor(Convert_igu_mm(distance / 100)) + 1
+    end
 
     local midpoint = Vect.Middle(A, B)
     midpoint[2] = 1.52
@@ -3980,12 +4025,12 @@ RulerModule.meshes.smallBase.side = '{verifycache}https://raw.githubusercontent.
 RulerModule.meshes.smallBase.rear = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallRear.obj'
 RulerModule.meshes.smallBase.sideArc = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallSide.obj'
 RulerModule.meshes.smallBase.range = {}
-RulerModule.meshes.smallBase.range[0] = '{verifycache}https://www.dropbox.com/s/1gxff18orrq28xe/SmallRM.obj?dl=1'
+RulerModule.meshes.smallBase.range[0] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/rulers/SmallRM.obj'
 RulerModule.meshes.smallBase.range[1] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR1.obj'
 RulerModule.meshes.smallBase.range[2] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR2.obj'
 RulerModule.meshes.smallBase.range[3] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR3.obj'
-RulerModule.meshes.smallBase.range[4] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/SmallR4.obj'
-RulerModule.meshes.smallBase.range[5] = '{verifycache}https://www.dropbox.com/s/qbs5sjat65q3mnt/SmallR5.obj?dl=1'
+RulerModule.meshes.smallBase.range[4] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/rulers/SmallR4.obj'
+RulerModule.meshes.smallBase.range[5] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/rulers/SmallR5.obj'
 
 -- Ruler meshes for medium base JC
 RulerModule.meshes.mediumBase = {}
@@ -4713,6 +4758,8 @@ function initContextMenu()
             end
         elseif arctype == 'fullfront' then
             self.addContextMenuItem("FireArc - Full Front", function(argument) Global.call("CheckArc", {ship=self,arctype="fullfront"}) end, false)
+        elseif arctype == 'melee' then
+            self.addContextMenuItem("FireArc - Melee", function(argument) Global.call("CheckArc", {ship=self,arctype="melee"}) end, false)
         elseif arctype == 'bullseye' then
             self.addContextMenuItem("FireArc - Bullseye", function(argument) Global.call("CheckArc", {ship=self,arctype="bullseye"}) end, false)
         elseif arctype == 'left' then
@@ -4742,7 +4789,7 @@ function onLoad(savedData)
         local state =  JSON.decode(savedData)
         self.setTable("Data", state.shipData)
         if state.shipData.arcs ~= nil then
-            initContextMenu(state.shipData.arcs)
+            initContextMenu()
         end
     end
 end
@@ -4930,10 +4977,13 @@ function newSpawner(listTable)
             if ship.name == tostring(Pilots[shipIndex]['id']) then
                 pos = LocalPos(spawnCard, {0, 0, 9})
                 rot = spawnCard.getRotation()
+                local data = Pilots[shipIndex]['Data']
                 local newShip = tempBagShp.takeObject({ position = pos,
                                                         rotation = rot,
                                                         guid = ship.guid,
-                                                        callback_function = function(obj) obj.call("initContextMenu") end
+                                                        callback_function = function(obj)
+                                                            obj.setTable("Data", data)
+                                                            obj.call("initContextMenu") end
                                                       })
                 shipClone = newShip.clone()
                 newShip.setName(Pilots[shipIndex]['name']) --Corrects ship name for clones
@@ -4945,7 +4995,6 @@ function newSpawner(listTable)
                     newShip.setCustomObject({collider='{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/colliders/Large_base_Collider.obj'})
                 end
                 tempBagShp.putObject(shipClone)
-                newShip.setTable("Data", Pilots[shipIndex]['Data'])
                 newShip.setLuaScript(saveAndLoadShipStateLua)
                 if spawnedPilotList[1] ~= nil then
                     for i, spawned in ipairs(spawnedPilotList) do
