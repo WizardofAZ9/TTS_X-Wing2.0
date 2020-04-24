@@ -14,6 +14,16 @@
 
 self.interactable = false
 
+tintColors = {}
+tintColors[0] = color(0,0,0,0.0)
+tintColors[1] = color(1,0,0,0.7)
+tintColors[2] = color(1,1,0,0.7)
+tintColors[3] = color(0,0.33,0,0.7)
+tintColors[4] = color(0.5,0.25,0.1,0.7)
+tintColors[5] = color(0,0,1,0.7)
+tintColors[6] = color(1,0,0.8,0.7)
+tintColors[7] = color(1,1,1,0.7)
+tintColors[8] = color(0,0,0,0.7)
 
 -- List and cost of variable cost upgrades based on base sizea
 varCostS={}
@@ -80,13 +90,14 @@ addAction[357]={[1]='C'}--IG-88D (C)
 addAction[542]={[1]='CL'}--Scimitar (CL)
 addAction[286]={[1]='CL'}--Cloaking Device (CL)
 addAction[551]={[1]='C'}--R4-P44 (C)
-addAction[577]={[1]='C'}--Passive Sensors(C,TL)
+addAction[577]={[1]='C',[2]='TL'}--Passive Sensors(C,TL)
 addAction[376]={[1]='BR'}--Mist Hunter(BR)
 addAction[582]={[1]='C'}--GA-97(C)
 addAction[381]={[1]='F'}--Composure(F)
 addAction[587]={[1]='C'}--PZ-4CO (C)
 addAction[593]={[1]='R'}--Angled Deflectors (Reinforce)
 addAction[704]={[1]='C'}--K-2SO (C)
+addAction[391]={[1]='TL'}--ST-321 (TL)
 
 --table referenced by upgrades that adds actions to all ships in a squad.
 addSqdAction={}
@@ -653,6 +664,31 @@ end
 dialSkin={
   [1]='http://cloud-3.steamusercontent.com/ugc/776248816759536085/F1682EB306C8FDFA5A1D2AD7FE41691532156412/',
   [2]='http://cloud-3.steamusercontent.com/ugc/776248816759536533/909FE80347105F36346550CDA6246082AA0729A6/',}
+
+function calculateShipIndicators(idTable)
+  shipTable = {}
+  for k,v in pairs (idTable.Pilots) do
+      local ship = masterPilotDB[v]['ship_type']
+      if shipTable[ship] == nil then
+        shipTable[ship] = {k}
+      else
+        table.insert(shipTable[ship], k)
+      end
+    end
+    pilotIndicators = {}
+    local i = 1
+    for ship, pilots in pairs(shipTable) do
+      if #pilots > 1 then
+        for k, pilot in pairs(pilots) do
+          pilotIndicators[pilot] = i
+          i = i+1
+        end
+      else
+        pilotIndicators[pilots[1]] = 0
+      end
+    end
+    return pilotIndicators
+end
 
 function calculateShipIndicators(idTable)
   shipTable = {}
