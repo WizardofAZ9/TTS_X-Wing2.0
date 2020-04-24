@@ -19,13 +19,16 @@ playerColor = nil
 -- Save self state
 function onSave()
     if assignedShip ~= nil then
-        local state = {assignedShipGUID=assignedShip.getGUID()}
+        local state = {assignedShipGUID=assignedShip.getGUID(),
+                        owningPlayer=playerColor}
         return JSON.encode(state)
     end
 end
 
 faceStat = nil
 firstSet=false
+setSinceTemplatePlaced = false -- True if the user has set a movement since the movement template was last placed on the table
+templatePlaced = false  -- True if the movement template is currently on the table (as far as we can tell based on just dial button clicks, anyway)
 
 assetTable = {
     {name="Focus", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/focus.png"},
@@ -157,6 +160,7 @@ assetTable = {
 
 -- Restore self state
 function onLoad()
+    --self.UI.setCustomAssets(assetTable)
     clearDial()
     if savedData ~= nil then
         state = JSON.decode(savedData)
@@ -182,7 +186,7 @@ function clearDial()
     winStat = false
 end
 
-function onFixedUpdate()
+function onUpdate()
     if assignedShip ~= nil then
         if self.getTransformUp().y >0 then
             if faceStat ~= 'Down' then
@@ -272,18 +276,38 @@ function manSetting()
         self.UI.setAttribute("TypeIcon", "active", "true")
         self.UI.setAttribute("SpeedIcon", "active", "true")
         self.UI.setAttribute("MoveBtn", "active", "true")
+        self.UI.setAttribute("MoveBtn", "textColor", "#FFFFFF")
         self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "active", "true")
+        self.UI.setAttribute("Templ", "textColor", "#222222") -- Make the text same color as the background since goal is to only have the type / speed icons showing anyway
     else
         self.UI.setAttribute("TypeIcon", "active", "false")
         self.UI.setAttribute("SpeedIcon", "active", "false")
         self.UI.setAttribute("MoveBtn", "active", "false")
         self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "textColor", "#FFFFFF")
+
+        -- Hide the template button when there isn't a manuver set, since it's confusing and undefined in some cases what template should be shown then
+        if not templatePlaced then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
     end
     if firstSet== false then
         self.UI.setAttribute("TypeIcon", "active", "false")
         self.UI.setAttribute("SpeedIcon", "active", "false")
         self.UI.setAttribute("MoveBtn", "active", "false")
         self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "textColor", "#FFFFFF")
+
+        -- Hide the template button when there isn't a manuver set, since it's confusing and undefined in some cases what template should be shown then
+        if not templatePlaced then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
+    end
+
+    -- Remove template if a new manuver has been set since it was shown, since it could be confusing to still show the old template (and to show the new one you would have to click the button twice, which would be confusing)
+    if setSinceTemplatePlaced and templatePlaced then
+      deleteTemplate()
     end
 end
 
@@ -301,7 +325,8 @@ function Undo(p)
             self.UI.show("StrafePanel")
     else
         self.UI.setAttribute("MoveBtn", "active", "true")
-    end--]]
+        self.UI.setAttribute("MoveBtn", "textColor", "#FFFFFF")
+    end
     befAft='_B'
 end
 
@@ -319,6 +344,7 @@ function performMove(P)
             self.UI.show("StrafePanel")
         else
             self.UI.setAttribute("UndoBtn", "active", "true")
+            self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
             assignedShip.setDescription(setMan)
             befAft = '_A'
             setDial(P)
@@ -334,6 +360,7 @@ function performTalon(P,option,id)
 
     self.UI.hide("TalonPanel")
     self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
     if id=="TalonMidBtn" then
         self.UI.hide("TalonPanel")
         self.UI.setAttribute("UndoBtn", "active", "true")
@@ -360,6 +387,7 @@ function performCurve(P,option,id)
 
     self.UI.hide("CurvePanel")
     self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
     if id=="CurveMidBtn" then
         self.UI.hide("CurvePanel")
         self.UI.setAttribute("UndoBtn", "active", "true")
@@ -386,6 +414,7 @@ function performStrafe(P,option,id)
 
     self.UI.hide("StrafePanel")
     self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
     if id=="StrafeMidBtn" then
         self.UI.hide("StrafePanel")
         self.UI.setAttribute("UndoBtn", "active", "true")
@@ -408,12 +437,17 @@ end
 function onPickUp(player_color)
     if assignedShip == nil then
         pColor = self.held_by_color
-        self.UI.setCustomAssets(assetTable)
     end
 end
 
 -- Assign a ship to the dial
 function assignShip(ship)
+    self.UI.setAttribute("CenterFD", "active", "true")
+    self.UI.setAttribute("CenterFU", "active", "true")
+    self.UI.setAttribute("arcPanel", "active", "true")
+    self.UI.setAttribute("tokenPanel", "active", "true")
+    self.UI.setAttribute("relocPanel", "active", "true")
+    self.UI.setAttribute("CenterFD", "active", "true")
     assignedShip = ship
     Name=assignedShip.getName()
     self.setName(Name)
@@ -459,6 +493,7 @@ function assignShip(ship)
             self.UI.setAttribute("PivLBtn", "active", "true")
         end
     end
+
 end
 
 
@@ -469,7 +504,6 @@ function onDropped()
         local nearest = nil
         local minDist = 2.89 -- 80mm
         for k,ship in pairs(getAllObjects()) do
-
             if ship.tag == 'Figurine' and ship.name ~= '' then
                 local pos = ship.getPosition()
                 local dist = math.sqrt(math.pow((spos[1]-pos[1]),2) + math.pow((spos[3]-pos[3]),2))
@@ -835,12 +869,9 @@ function Window(p)
 end
 
 function spectReturn(p)
-    --[[if p.color == 'Grey' then
-        return true
-    elseif p.color == 'White' then
-        return true
+    if p.color == 'Black' then
+      return false
     end
-    --]]
     return p.color ~= playerColor
 end
 
@@ -848,13 +879,10 @@ function showTokMFD(p)
     if spectReturn(p) == true then
         return
     end
-    --[[if p.color ==  'Grey' then
-        return
-    end]]
     self.UI.show("tokenPanel")
     self.UI.hide("arcPanel")
     self.UI.hide("relocPanel")
-    self.UI.setAttribute("tokenPanel", "position", "-380 -250 -40")
+    self.UI.setAttribute("tokenPanel", "position", "-340 -165 -40")
     self.UI.setAttribute("tokenPanel", "rotation", "180 180 0")
 end
 
@@ -865,7 +893,7 @@ function showTokMFU(p)
     self.UI.show("tokenPanel")
     self.UI.hide("arcPanel")
     self.UI.hide("relocPanel")
-    self.UI.setAttribute("tokenPanel", "position", "380 -250 40")
+    self.UI.setAttribute("tokenPanel", "position", "340 -165 40")
     self.UI.setAttribute("tokenPanel", "rotation", "180 0 0")
 end
 
@@ -884,7 +912,7 @@ function showArcMFD(p)
     self.UI.show("arcPanel")
     self.UI.hide("relocPanel")
     self.UI.hide("tokenPanel")
-    self.UI.setAttribute("arcPanel", "position", "300 -270 -40")
+    self.UI.setAttribute("arcPanel", "position", "260 -185 -40")
     self.UI.setAttribute("arcPanel", "rotation", "180 180 0")
 end
 
@@ -895,7 +923,7 @@ function showArcMFU(p)
     self.UI.show("arcPanel")
     self.UI.hide("relocPanel")
     self.UI.hide("tokenPanel")
-    self.UI.setAttribute("arcPanel", "position", "-300 -270 40")
+    self.UI.setAttribute("arcPanel", "position", "-260 -185 40")
     self.UI.setAttribute("arcPanel", "rotation", "180 0 0")
 end
 
@@ -913,7 +941,7 @@ function showRelocMFD(p)
     self.UI.show("relocPanel")
     self.UI.hide("arcPanel")
     self.UI.hide("tokenPanel")
-    self.UI.setAttribute("relocPanel", "position", "0 -280 -40")
+    self.UI.setAttribute("relocPanel", "position", "0 -215 -40")
     self.UI.setAttribute("relocPanel", "rotation", "180 180 0")
 end
 
@@ -924,7 +952,7 @@ function showRelocMFU(p)
     self.UI.show("relocPanel")
     self.UI.hide("arcPanel")
     self.UI.hide("tokenPanel")
-    self.UI.setAttribute("relocPanel", "position", "0 -280 40")
+    self.UI.setAttribute("relocPanel", "position", "0 -215 40")
     self.UI.setAttribute("relocPanel", "rotation", "180 0 0")
 end
 
@@ -936,24 +964,34 @@ function hideRelocM(p)
 end
 
 function setDial(P)
-    if P.color == playerColor then
+    if spectReturn(P) == false then
         if firstSet == true then
             if setStat == nil then
                 setStat = false
             end
 
                 if setStat == false then
-                    self.UI.setAttribute("SetBtn", "color", P.color)
+                    self.UI.setAttribute("setBtnFD", "color", playerColor)
+                    self.UI.setAttribute("setBtnFD", "active", "true")
+                    self.UI.setAttribute("setBtnFD", "textColor", "#FFFFFF")
+                    if (P.color == "Yellow") then
+                       -- White text on yellow button is pretty hard to read, so for the Yellow player change the text to black instead
+                      self.UI.setAttribute("setBtnFD", "textColor", "#000000")
+                    end
+                    self.UI.setAttribute("moveWindow", "active", "false")
                     setStat = true
+                    setSinceTemplatePlaced = true
                     printToAll(P.color.." player has set the maneuver for "..assignedShip.getName(), P.color)
                     if winStat==true then
                         Window(P)
                     end
-                    self.UI.hide("moveWindow")
+
                 else
-                    self.UI.setAttribute("SetBtn", "color", "White")
+                    --TODO: Now that the set dial and unset dial buttons are 2 different buttons, this file's code would probably be more readable with this function split in to setDial() and unsetDial()
+                    self.UI.setAttribute("setBtnFD", "active", "false")
+                    self.UI.setAttribute("moveWindow", "active", "true")
+                    self.UI.setAttribute("moveWindow", "textColor", "#FFFFFF")
                     setStat = false
-                    self.UI.show("moveWindow")
                 end
         else
             print("Pick a maneuver before setting the dial")
@@ -966,15 +1004,21 @@ function spawnTemplate(p)
         return
     end
     if setMan~='' then
+        setSinceTemplatePlaced = false
+        templatePlaced = not templatePlaced
+
+        -- if a manuver is not visible on dial, template button is only here to allow removal, and after that it can be hidden again
+        if self.UI.getAttribute("SpeedIcon", "active") == "false" then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
+
         Table={[1]=assignedShip,[2]='spawnMoveTemplate:'..setMan..befAft,[3]=playerColor}
         Global.call("proxyPerformAction",Table)
     end
 end
 
-initStat = true
-function onObjectSpawned()
-    if initStat==true then
-        initStat=false
-        clearDial()
-    end
+function deleteTemplate()
+  templatePlaced = false
+  Table={[1]=assignedShip,[2]='deleteMoveTemplate',[3]=playerColor}
+  Global.call("proxyPerformAction",Table)
 end

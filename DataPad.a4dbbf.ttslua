@@ -17,10 +17,10 @@ self.interactable = false
 
 -- List and cost of variable cost upgrades based on base sizea
 varCostS={}
-varCostS[296] = {[1] = 2, [2] = 4,[3] = 7} --Engine Upgrade
-varCostS[234] = {[1] = 2, [2] = 4,[3] = 6} --Expert Handling
-varCostS[489] = {[1] = 3, [2] = 6,[3] = 9} --Hate
-varCostS[612] = {[1] = 7, [2] = 8,[3] = 9} --Snap Shot
+varCostS[296] = {small = 2, medium = 4, large = 7} --Engine Upgrade
+varCostS[234] = {small = 2, medium = 3, large = 4} --Expert Handling
+varCostS[489] = {small = 3, medium = 6, large = 9} --Hate
+varCostS[612] = {small = 7, medium = 8, large  = 9} --Snap Shot
 
 -- List and cost of variable cost upgrades based on agility value
 varCostA={}
@@ -175,49 +175,49 @@ masterShipDB[9]={['name']='RX-77D Guncannon Mass Production Type',['Shield']=4,[
 masterPilotDB={}
 masterPilotDB[0]={['name']='',['Faction']= 0,['ship_type']=0,['cost']=0,['slot']={},['Shield']=0,['card']='',['cardB']='',['init']=0,['actSet']={}}
 --MS-06F Zaku II Pilots
-masterPilotDB[1]={['name']='Albert Bell',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[1]={['name']='Albert Bell',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Albert%20Bell%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[2]={['name']='Brennis Ox',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 1, 2, 2, 3, 5, 6, 8, 10, 10},['Shield']=1,['init']=6,{'F','E','BR'},
+masterPilotDB[2]={['name']='Brennis Ox',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 1, 2, 2, 3, 5, 6, 8, 10, 10},['Shield']=1,['init']=6,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Brennis%20Ox%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[3]={['name']='Capable Pilot',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[3]={['name']='Capable Pilot',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Capable%20Pilot%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[4]={['name']='Charlotte Hepner',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[4]={['name']='Charlotte Hepner',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Charlotte%20Hepner%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[5]={['name']='Christo Doerr',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[5]={['name']='Christo Doerr',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Christo%20Doerr%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[6]={['name']='Crown',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['Force']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[6]={['name']='Crown',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['Force']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Crown%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[7]={['name']='Denim',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,{'F','E','BR'},
+masterPilotDB[7]={['name']='Denim',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Denim%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[8]={['name']='Eager Recruit',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[8]={['name']='Eager Recruit',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Eager%20Recruit%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[9]={['name']='Gene',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[9]={['name']='Gene',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Gene%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[10]={['name']='Gerald Sakai',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,{'F','E','BR'},
+masterPilotDB[10]={['name']='Gerald Sakai',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Gerald%20Sakai%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[11]={['name']='Ian Graden',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,{'F','E','BR'},
+masterPilotDB[11]={['name']='Ian Graden',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Ian%20Graden%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[12]={['name']='Jake Guns',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[12]={['name']='Jake Guns',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Jake%20Guns%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[13]={['name']='J.Q.',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[13]={['name']='J.Q.',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/J.Q.%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[14]={['name']='Karius Otto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,{'F','E','BR'},
+masterPilotDB[14]={['name']='Karius Otto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Karius%20Otto%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[15]={['name']='Kohm',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,{'F','E','BR'},
+masterPilotDB[15]={['name']='Kohm',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=1,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Kohm%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[16]={['name']='Lou Roher',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,{'F','E','BR'},
+masterPilotDB[16]={['name']='Lou Roher',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Lou%20Roher%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[17]={['name']='Nikki Roberto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[17]={['name']='Nikki Roberto',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Nikki%20Roberto%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[18]={['name']='Nimbus Schterzen',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,{'F','E','BR'},
+masterPilotDB[18]={['name']='Nimbus Schterzen',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 2, 3, 5, 6, 8, 10},['Shield']=1,['init']=4,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[19]={['name']='Robin Bradshaw',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[19]={['name']='Robin Bradshaw',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Robin%20Bradshaw%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[20]={['name']='Shin Matsunaga',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 1, 2, 2, 3, 5, 6, 8, 10, 10},['Shield']=1,['init']=6,{'F','E','BR'},
+masterPilotDB[20]={['name']='Shin Matsunaga',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 1, 2, 2, 3, 5, 6, 8, 10, 10},['Shield']=1,['init']=6,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Shin%20Matsunaga%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[21]={['name']='Slender',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,{'F','E','BR'},
+masterPilotDB[21]={['name']='Slender',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={2, 2, 3, 5, 6, 8},['Shield']=1,['init']=2,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Slender%20-%20MS-06F%20Zaku%20II.png'}
-masterPilotDB[22]={['name']='Vincent Gleissner',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,{'F','E','BR'},
+masterPilotDB[22]={['name']='Vincent Gleissner',['Faction']= 1,['ship_type']=1,['cost']=1,['slot']={1, 2, 2, 3, 5, 6, 8},['Shield']=1,['init']=3,['actSet']={'F','E','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II/Vincent%20Gleissner%20-%20MS-06F%20Zaku%20II.png'}
 --MS-06S Zaku II S-Type Pilots
 
@@ -392,19 +392,19 @@ masterPilotDB[104]={['name']='Yuu Kajima',['Faction']= 2,['ship_type']=8,['cost'
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command/Yuu%20Kajima%20-%20RGM-79GS%20GM%20Command.png'}
 --RX-77D Guncannon Mass Production Type Pilots
 
-masterPilotDB[105]={['name']='Hotshot Ace',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 3, 5, 7, 10},['Shield']=3,['init']=4,['actSet']={'F','TL','BR'},
+masterPilotDB[105]={['name']='Hotshot Ace',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 5, 7, 10},['Shield']=3,['init']=4,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Hotshot%20Ace%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[106]={['name']='Jean Dibebie',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 3, 5, 7},['Shield']=3,['init']=3,['actSet']={'F','TL','BR'},
+masterPilotDB[106]={['name']='Jean Dibebie',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 5, 7},['Shield']=3,['init']=3,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Jean%20Dibebie%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[107]={['name']='Lieutenant Agar',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 3, 5, 7},['Shield']=3,['init']=2,['actSet']={'F','TL','BR'},
+masterPilotDB[107]={['name']='Lieutenant Agar',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 5, 7},['Shield']=3,['init']=2,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Lieutenant%20Agar%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[108]={['name']='Lydo Wolf',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 1, 2, 2, 3, 3, 3, 5, 7, 10, 10},['Shield']=3,['init']=6,['actSet']={'F','TL','BR'},
+masterPilotDB[108]={['name']='Lydo Wolf',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 1, 2, 2, 3, 3, 5, 7, 10, 10},['Shield']=3,['init']=6,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Lydo%20Wolf%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[109]={['name']='Master Pierce Rayer',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 1, 2, 2, 3, 3, 3, 5, 7, 10},['Shield']=3,['init']=5,['actSet']={'F','TL','BR'},
+masterPilotDB[109]={['name']='Master Pierce Rayer',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 1, 2, 2, 3, 3, 5, 7, 10},['Shield']=3,['init']=5,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Master%20Pierce%20Rayer%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[110]={['name']='Maximilian Berger',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 3, 5, 7},['Shield']=3,['init']=3,['actSet']={'F','TL','BR'},
+masterPilotDB[110]={['name']='Maximilian Berger',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={1, 2, 2, 3, 3, 5, 7},['Shield']=3,['init']=3,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Maximilian%20Berger%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
-masterPilotDB[111]={['name']='Skilled Pilot',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={2, 2, 3, 3, 3, 5, 7},['Shield']=3,['init']=2,['actSet']={'F','TL','BR'},
+masterPilotDB[111]={['name']='Skilled Pilot',['Faction']= 2,['ship_type']=9,['cost']=1,['slot']={2, 2, 3, 3, 5, 7},['Shield']=3,['init']=2,['actSet']={'F','TL','BR'},
                   ['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/unit%20cards/EFF/RX-77D%20Guncannon%20MP%20Type/Skilled%20Pilot%20-%20RX-77D%20Guncannon%20MP%20Type.png'}
 
 --talent upgrades slot 1
@@ -427,27 +427,27 @@ masterUpgradesDB[230]={['name']='100mm Machine Gun',['slot']=3,['remSlot']={2},[
 masterUpgradesDB[231]={['name']='100mm Machine Gun x2',['slot']=3,['remSlot']={2, 2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Ballistic%20Weapons/100mm%20Machine%20Gun%20x2.png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[232]={['name']='Bullpup Machine Gun',['slot']=3,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Ballistic%20Weapons/Bullpup%20Machine%20Gun.png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[233]={['name']='Zaku Machine Gun',['slot']=3,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Ballistic%20Weapons/Zaku%20Machine%20Gun.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[234]={['name']='Head-Mounted Vulcan Gun',['slot']=3,['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Ballistic%20Weapons/Head-Mounted%20Vulcan%20Gun.png',['restriction']={['Faction']={[1]=true}}}
+masterUpgradesDB[234]={['name']='Head-Mounted Vulcan Gun',['slot']=3,['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Ballistic%20Weapons/Head-Mounted%20Vulcan%20Gun.png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[235]={['name']='Beam Spray Gun',['slot']=4,['remSlot']={2},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Beam%20Spray%20Gun.png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[236]={['name']='Beam Gun',['slot']=4,['remSlot']={2},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Beam%20Gun.png',['restriction']={['Faction']={[2]=true}}}
-masterUpgradesDB[237]={['name']='Scattering Beam',['slot']=4,['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Scattering%20Beam.png',['restriction']={['Faction']={[2]=true}}}
-masterUpgradesDB[238]={['name']='Beam Bazooka',['slot']=4,['remSlot']={2},['cost']=2,['Charge']=4,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Beam%20Bazooka.png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[237]={['name']='Scattering Beam',['slot']=4,['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Scattering%20Beam.png',['restriction']={['Faction']={[1]=true},['ship']={[5]=true}}}
+masterUpgradesDB[238]={['name']='Beam Bazooka',['slot']=4,['remSlot']={2},['cost']=2,['Charge']=4,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Beam%20Weapons/Beam%20Bazooka.png',['restriction']={['Faction']={[1]=true},['ship']={[5]=true}}}
 masterUpgradesDB[239]={['name']='Cracker Grenade',['slot']=8,['cost']=2,['Charge']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Devices/Cracker%20Grenade.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[240]={['name']='240mm Cannon',['slot']=5,['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/240mm%20Cannon.png',['restriction']={['Faction']={[2]=true},['ship']={7}, ['Size']=nil}}
-masterUpgradesDB[241]={['name']='Telescopic 240mm Cannon x2',['slot']=5,['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/Telescopic%20240mm%20Cannon%20x2.png',['restriction']={['Faction']={[2]=true},['ship']={7}, ['Size']=nil}}
-masterUpgradesDB[242]={['name']='280mm Zaku Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/280mm%20Zaku%20Bazooka.png',['restriction']={ ['Size']={[1]=true,[2]=true}}}
-masterUpgradesDB[243]={['name']='3-tube Missile Pod',['slot']=5,['cost']=2,['Charge']=5,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/3-tube%20Missile%20Pod.png',['restriction']={['Faction']={[1]=true},['ship']={1}, ['Size']=nil}}
-masterUpgradesDB[244]={['name']='Simplified Missile Launcher',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=5,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/3-tube%20Missile%20Pod.png',['restriction']={['Faction']={[1]=true},['ship']={1}, ['Size']=nil}}
-masterUpgradesDB[245]={['name']='380mm Hyper Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/380mm%20360mm%20Giant%20Bazooka.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[246]={['name']='360mm Giant Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/380mm%20360mm%20Giant%20Bazooka%20x2.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[247]={['name']='360mm Giant Bazooka x2',['slot']=5,['remSlot']={2, 2},['cost']=2,['Charge']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/380mm%20Hyper%20Bazooka.png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[240]={['name']='240mm Cannon',['slot']=5,['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/240mm%20Cannon.png',['restriction']={['Faction']={[2]=true},['ship']={[7]=true}}}
+masterUpgradesDB[241]={['name']='Telescopic 240mm Cannon x2',['slot']=5,['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/Telescopic%20240mm%20Cannon%20x2.png',['restriction']={['Faction']={[2]=true},['ship']={[9]=true}}}
+masterUpgradesDB[242]={['name']='280mm Zaku Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/280mm%20Zaku%20Bazooka.png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[243]={['name']='3-tube Missile Pod',['slot']=5,['cost']=2,['Charge']=5,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/3-tube%20Missile%20Pod.png',['restriction']={['Faction']={[1]=true},['ship']={[1]=true}}}
+masterUpgradesDB[244]={['name']='Simplified Missile Launcher',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=5,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/Simplified%20Missile%20Launcher.png',['restriction']={['Faction']={[1]=true},['ship']={[4]=true}}}
+masterUpgradesDB[245]={['name']='380mm Hyper Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=3,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/380mm%20Hyper%20Bazooka.png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[246]={['name']='360mm Giant Bazooka',['slot']=5,['remSlot']={2},['cost']=2,['Charge']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/380mm%20360mm%20Giant%20Bazooka.png',['restriction']={['Faction']={[1]=true}}}
+masterUpgradesDB[247]={['name']='360mm Giant Bazooka x2',['slot']=5,['remSlot']={2, 2},['cost']=2,['Charge']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Explosive%20Weapons/360mm%20Giant%20Bazooka%20x2.png',['restriction']={['Faction']={[1]=true},['ship']={[5]=true},['pilot']={['Lilia Flaubert']=true}}}
 masterUpgradesDB[248]={['name']='Beam Saber',['slot']=6,['remSlot']={2},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Beam%20Saber.png',['restriction']={['Faction']={[2]=true}}}
-masterUpgradesDB[249]={['name']='Double Beam Saber',['slot']=6,['remSlot']={2, 2, 6},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Beam%20Saber.png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[249]={['name']='Double Beam Saber',['slot']=6,['remSlot']={2, 2, 6},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Double%20Beam%20Saber.png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[250]={['name']='Heat Hawk',['slot']=6,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Heat%20Hawk.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[251]={['name']='Double Heat Hawk',['slot']=6,['remSlot']={2, 2, 6},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Double%20Heat%20Hawk.png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[252]={['name']='Large Shield',['slot']=7,['remSlot']={2},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Large%20Shield.png',,['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Large%20Shield%20(Destroyed).png',['restriction']={['Faction']={[2]=true}}}
-masterUpgradesDB[253]={['name']='Knuckle Shield',['slot']=7,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Knuckle%20Shield.png',,['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Knuckle%20Shield%20(Destroyed).png',['restriction']={['Faction']={[1]=true}}}
-masterUpgradesDB[253]={['name']='Command Shield',['slot']=7,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Command%20Shield.png',['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Command%20Shield%20(Destroyed).png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[251]={['name']='Double Heat Hawk',['slot']=6,['remSlot']={2, 2, 6},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Melee%20Weapons/Double%20Heat%20Hawk.png',['restriction']={['Faction']={[1]=true},['pilot']={['Nimbus Schterzen']=true}}}
+masterUpgradesDB[252]={['name']='Large Shield',['slot']=7,['remSlot']={2},['cost']=2,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Large%20Shield.png',['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Large%20Shield%20(Damaged).png',['restriction']={['Faction']={[2]=true}}}
+masterUpgradesDB[253]={['name']='Knuckle Shield',['slot']=7,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Knuckle%20Shield.png',['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Knuckle%20Shield%20(Damaged).png',['restriction']={['Faction']={[1]=true}}}
+masterUpgradesDB[254]={['name']='Command Shield',['slot']=7,['remSlot']={2},['cost']=1,['card']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Command%20Shield.png',['cardB']='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/upgrade%20cards/Shields/Command%20Shield%20(Damaged).png',['restriction']={['Faction']={[2]=true}}}
 masterUpgradesDB[255]={['name']='Strengthened Frame',['slot']=10,['cost']='a',['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Upgrade_73.png',['restriction']={ }}
 masterUpgradesDB[256]={['name']='Shield Upgrade',['slot']=10,['cost']='a',['shd']=1,['card']='http://sb-cdn.fantasyflightgames.com/card_images/Card_Upgrade_75.png',['restriction']={ }}
 
@@ -654,6 +654,31 @@ dialSkin={
   [1]='http://cloud-3.steamusercontent.com/ugc/776248816759536085/F1682EB306C8FDFA5A1D2AD7FE41691532156412/',
   [2]='http://cloud-3.steamusercontent.com/ugc/776248816759536533/909FE80347105F36346550CDA6246082AA0729A6/',}
 
+function calculateShipIndicators(idTable)
+  shipTable = {}
+  for k,v in pairs (idTable.Pilots) do
+      local ship = masterPilotDB[v]['ship_type']
+      if shipTable[ship] == nil then
+        shipTable[ship] = {k}
+      else
+        table.insert(shipTable[ship], k)
+      end
+    end
+    pilotIndicators = {}
+    local i = 1
+    for ship, pilots in pairs(shipTable) do
+      if #pilots > 1 then
+        for k, pilot in pairs(pilots) do
+          pilotIndicators[pilot] = i
+          i = i+1
+        end
+      else
+        pilotIndicators[pilots[1]] = 0
+      end
+    end
+    return pilotIndicators
+end
+
 function idSpawner(idTable)
     fList={}
     fList.Pilots = {}
@@ -665,17 +690,23 @@ function idSpawner(idTable)
     end
     fList.factionDial=dialSkin[fList.Faction]
     fList.sqdAction = {}
+
+    pilotIndicators = calculateShipIndicators(idTable)
+
     for k,v in pairs (idTable.Pilots) do
         local name = masterPilotDB[v]['name']
         fList.Pilots[k] ={}
         fList.Pilots[k]['id'] = v
         fList.Pilots[k]['name'] = name
+        fList.Pilots[k]['tint'] = tintColors[pilotIndicators[k]]
         fList.Pilots[k]['card'] = masterPilotDB[v]['card']
         fList.Pilots[k]['cardB'] = cardBackDB[ffgFaction[fList.Faction]]
         local Ship = masterPilotDB[v]['ship_type']
         fList.Pilots[k]['Ship'] = Ship
         fList.Pilots[k]['Size'] = masterShipDB[Ship]['size']
         fList.Pilots[k]['Shield'] = masterShipDB[Ship]['Shield']
+        fList.Pilots[k].mesh = masterShipDB[Ship].mesh
+        fList.Pilots[k].texture = masterPilotDB[v].texture
         fList.Pilots[k]['bombD'] = 's1'
         fList.Pilots[k]['Docking'] = masterShipDB[Ship]['Docking']
         fList.Pilots[k]['Data'] = {}
@@ -690,6 +721,8 @@ function idSpawner(idTable)
             fList.Pilots[k]['bombD'] = fList.Pilots[k]['bombD'] .. ':te1:tr1'
         elseif Ship == 19 then -- TIE Bomber special drops
             fList.Pilots[k]['bombD'] = fList.Pilots[k]['bombD'] .. ':be1:br1'
+        elseif v == 161 then -- Constable Zuvio
+            fList.Pilots[k]['bombD'] = fList.Pilots[k]['bombD'] .. ':s1r'
         end
 
         if masterShipDB[Ship]['sTurret'] ~= nil then
@@ -764,11 +797,8 @@ function idSpawner(idTable)
             else
                 fList.Upgrades[k][key]['Condition'] = false
             end
-            if upSlot == 12 then
+            if masterUpgradesDB[value]['Bomb'] then
                 fList.Pilots[k]['Bomb']= true
-                if name == 'DRK-1 Probe Droids' then
-                    fList.Pilots[k]['Bomb']= false
-                end
             elseif upSlot == 18 then
                 fList.Upgrades[k][key]['Config'] = true
             end
@@ -908,7 +938,7 @@ end
 function mainMenu()
     totalCost = {}
     self.clearButtons()
-    self.createButton({click_function = 'addShip', function_owner = self, label = 'Add Ship', position = {-0.45,0.45,-0.3}, width = 1300, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'addShip', function_owner = self, label = 'Add Unit', position = {-0.45,0.45,-0.3}, width = 1300, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'builderSpawn', function_owner = self, label = 'Spawn List', position = {0.45,0.45,-0.3}, width = 1300, height = 380, font_size = 200,  scale = {0.25,0.25,0.25}})
     for i, pilot in pairs(partList.Pilots) do
         local cost = pilot[3]
@@ -1282,8 +1312,8 @@ function selectShipGeneric(arg)
 
     self.createButton({click_function = 'Dummy1', function_owner = self, label = partList.Pilots[shipIndex][2]..' ('..partList.Pilots[shipIndex][3]..')', position = {-0.3,0.45,-0.35}, width = 2000, height = 320, font_size = 150,  scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'mainMenu', function_owner = self, label = 'Back', position = { 0.5,0.45,-0.35}, width = 1000, height = 320, font_size = 150,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'removeShip', function_owner = self, label = 'Remove Ship', position = { 0.6,0.45,0.75}, width = 1000, height = 320, font_size = 150,  scale = {0.25,0.25,0.25}})
-    self.createButton({click_function = 'Dummy1', function_owner = self, label = 'Ship cost: '..totalCost[shipIndex], position = {-0.6,0.45,0.8}, width = 1000, height = 220, font_size = 150,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'removeShip', function_owner = self, label = 'Remove Unit', position = { 0.6,0.45,0.75}, width = 1000, height = 320, font_size = 150,  scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'Dummy1', function_owner = self, label = 'Unit cost: '..totalCost[shipIndex], position = {-0.6,0.45,0.8}, width = 1000, height = 220, font_size = 150,  scale = {0.25,0.25,0.25}})
 
     self.createButton({click_function = 'Dummy1', function_owner = self, label = 'List cost: '..listCost, position = {0,0.45,0.8}, width = 1000, height = 220, font_size = 150,  scale = {0.25,0.25,0.25}})
 end
@@ -1351,6 +1381,11 @@ function selectSlotGeneric(slotIndex)
             local validUp=true
             if up['restriction']['Faction'] ~= nil then
                 if up['restriction']['Faction'][partList.Faction]~=true then
+                    validUp=false
+                end
+            end
+            if up['restriction']['pilot'] ~= nil then
+                if up['restriction']['pilot'][masterPilotDB[partList.Pilots[shipIndex][1]]['name']] ~=true then
                     validUp=false
                 end
             end
@@ -1716,7 +1751,7 @@ function Dummy1()
 end
 
 function Dummy2()
-    print('Please choose a ship for this pilot:')
+    print('Please choose a unit for this pilot:')
 end
 
 function Dummy3()
@@ -1780,89 +1815,93 @@ alternateSpelling["g4r-gor v/m"] = 'G4R-G0R V/M'
 
 -- Third Step: This function will decompose the input string and will propperly alocate each value on the propper position in the table.
 -- Then, it calls for the next function, either inquiring for ships and version of upgrades or calling the spawner.
-    function parseList()
-        self.clearButtons()
-        self.clearInputs()
-        if lista ~= nil then
-            parsedList = {}
-            pilotsList = mysplit(lista, '/', true)
-            local rest = ""
-            for i, pilot in ipairs(pilotsList) do
-                pilot = rest .. pilot
-                if pilotsWithDash[string.lower(pilot)] ~= nil then
-                    rest = pilot .. "/"
-                else
-                    table.insert(parsedList, mysplit(pilot,'+', true))
-                    rest = ""
-                end
+function parseList()
+    self.clearButtons()
+    self.clearInputs()
+    if lista ~= nil then
+        parsedList = {}
+        pilotsList = mysplit(lista, '/', true)
+        local rest = ""
+        for i, pilot in ipairs(pilotsList) do
+            pilot = rest .. pilot
+            if pilotsWithDash[string.lower(pilot)] ~= nil then
+                rest = pilot .. "/"
+            else
+                table.insert(parsedList, mysplit(pilot,'+', true))
+                rest = ""
             end
-            pilotIndex = 0
-            Aux = 0
-            for i, pilot in ipairs(parsedList) do
-                pilotIndex = pilotIndex + 1
-                for k, cardN in ipairs(pilot) do
-                    cardN = string.gsub(cardN, 'Hardpoint: ', '')
-                    if alternateSpelling[string.lower(cardN)] ~= nil then
-                        cardN = alternateSpelling[string.lower(cardN)]
-                    end
-                    if k == 1 then -- First card, the pilot
-                        finalList.Aux[pilotIndex] = {}
-                        finalList.AuxU[pilotIndex] = {}
-                        local found = false
-                        for id, pilot in pairs(masterPilotDB) do
-                            if string.lower(pilot['name']) == string.lower(cardN) and pilot['Faction'] == finalList.Faction then
-                                Aux = Aux + 1
-                                finalList.Aux[pilotIndex][Aux] = id
-                                finalList.Upgrades[pilotIndex] = {}
-                                found = true
-                            end
-                        end
-                        if not found then
-                            printToAll("Unable to find pilot: " .. cardN .. " please check correct spelling", {1,0,0})
-                            pilotIndex = pilotIndex - 1
-                            break
-                        end
-                        if Aux == 1 then
-                            finalList.Pilots[pilotIndex] = finalList.Aux[pilotIndex][1]
-                            finalList.Aux[pilotIndex] = nil
-                        end
-                        Aux = 0
-                    else -- The remaining cards, the upgrades
-                        finalList.AuxU[pilotIndex][k] ={}
-                        local found = false
-                        for id, upg in pairs(masterUpgradesDB) do
-                            if string.lower(upg['name']) == string.lower(cardN) then
-                                found = true
-                                if upg['restriction']['Faction'] == nil or upg['restriction']['Faction'][finalList.Faction] == true then
-                                    Aux = Aux + 1
-                                    finalList.AuxU[pilotIndex][k][Aux] = id
-                                else
-                                    printToAll('Upgrade "'.. cardN .. '" is restricted to another faction', {1,0,0})
-                                end
-                            end
-                        end
-                        if not found then
-                            printToAll("Unable to find upgrade: " .. cardN .. " please check correct spelling", {1,0,0})
-                            goto continue
-                        end
-                        if Aux == 1 then
-                            finalList.Upgrades[pilotIndex][k-1] = finalList.AuxU[pilotIndex][k][Aux]
-                            finalList.AuxU[pilotIndex][k] = nil
-                        end
-                        Aux = 0
-                    end -- if Pilot and upgrade
-                    ::continue::
-                end -- for card
-            end
-            pChecker()
-        else
-            Dummy3()
-            initiate()
         end
+        pilotIndex = 0
+        Aux = 0
+        for i, pilot in ipairs(parsedList) do
+            pilotIndex = pilotIndex + 1
+            for k, cardN in ipairs(pilot) do
+                cardN = string.gsub(cardN, 'Hardpoint: ', '')
+                if alternateSpelling[string.lower(cardN)] ~= nil then
+                    cardN = alternateSpelling[string.lower(cardN)]
+                end
+                if k == 1 then -- First card, the pilot
+                    finalList.Aux[pilotIndex] = {}
+                    finalList.AuxU[pilotIndex] = {}
+                    local found = false
+                    for id, pilot in pairs(masterPilotDB) do
+                        if string.lower(pilot['name']) == string.lower(cardN) and pilot['Faction'] == finalList.Faction then
+                            Aux = Aux + 1
+                            finalList.Aux[pilotIndex][Aux] = id
+                            finalList.Upgrades[pilotIndex] = {}
+                            found = true
+                        end
+                    end
+                    if not found then
+                        printToAll("Unable to find pilot: " .. cardN .. " please check correct spelling", {1,0,0})
+                        pilotIndex = pilotIndex - 1
+                        break
+                    end
+                    if Aux == 1 then
+                        finalList.Pilots[pilotIndex] = finalList.Aux[pilotIndex][1]
+                        finalList.Aux[pilotIndex] = nil
+                    end
+                    Aux = 0
+                else -- The remaining cards, the upgrades
+                    finalList.AuxU[pilotIndex][k] ={}
+                    local found = false
+                    for id, upg in pairs(masterUpgradesDB) do
+                        if string.lower(upg['name']) == string.lower(cardN) then
+                            found = true
+                            if upg['restriction']['Faction'] == nil or upg['restriction']['Faction'][finalList.Faction] == true then
+                                Aux = Aux + 1
+                                finalList.AuxU[pilotIndex][k][Aux] = id
+                            else
+                                printToAll('Upgrade "'.. cardN .. '" is restricted to another faction', {1,0,0})
+                            end
+                        end
+                    end
+                    if not found then
+                        printToAll("Unable to find upgrade: " .. cardN .. " please check correct spelling", {1,0,0})
+                        goto continue
+                    end
+                    if Aux == 1 then
+                        finalList.Upgrades[pilotIndex][k-1] = finalList.AuxU[pilotIndex][k][Aux]
+                        finalList.AuxU[pilotIndex][k] = nil
+                    end
+                    Aux = 0
+                end -- if Pilot and upgrade
+                ::continue::
+            end -- for card
+        end
+        pChecker()
+    else
+        Dummy3()
+        initiate()
     end
+end
 
 
--- Fourth step: This function checks for pilots with the same name in the same faction and stores de data por future inquire. If no inquire is needed, it calls the newSpawner function and reset all buttons.
+
+
+-- Fourth step: This function checks for pilots with the same name in the same
+-- faction and stores de data por future inquire. If no inquire is needed, it
+-- calls the newSpawner function and reset all buttons.
 function pChecker()
     repPN=0
     for i, pilot in pairs(finalList.Aux) do
@@ -1921,7 +1960,7 @@ function pilotChoice(options)
     local button1 = name..' ('.. masterShipDB[masterPilotDB[options[1]]['ship_type']]['name'] ..')'
     local button2 = name..' ('.. masterShipDB[masterPilotDB[options[2]]['ship_type']]['name'] ..')'
     self.clearButtons()
-    self.createButton({click_function = 'Dummy2', function_owner = self, label = 'Please choose a ship for the following pilot', position = {0,0.45,-0.4}, width = 3400, height = 380, font_size = 170, scale = {0.25,0.25,0.25}})
+    self.createButton({click_function = 'Dummy2', function_owner = self, label = 'Please choose a unit for the following pilot', position = {0,0.45,-0.4}, width = 3400, height = 380, font_size = 170, scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'Dummy2', function_owner = self, label = name, position = {0,0.45,-0.1}, width = 1600, height = 380, font_size = 200, scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'setShip1', function_owner = self, label = button1, position = {0,0.45,0.1}, width = 2500, height = 380, font_size = 160, scale = {0.25,0.25,0.25}})
     self.createButton({click_function = 'setShip2', function_owner = self, label = button2, position = {0,0.45,0.3}, width = 2500, height = 380, font_size = 160, scale = {0.25,0.25,0.25}})
@@ -1965,27 +2004,19 @@ function setShip3()
 end
 
 slotName = {}
-slotName[1] = 'Talent' -- EPT
-slotName[2] = 'Sensors' -- Sensor
-slotName[3] = 'Cannon' -- Cannon
-slotName[4] = 'Turret' -- Turret
-slotName[5] = 'Torpedo' -- Torpedo
-slotName[6] = 'Missile' -- Missile
-slotName[7] = '' --
-slotName[8] = 'Crew' -- Crew
-slotName[9] = ''
-slotName[10] = 'Astromech' --Astromech
-slotName[11] = ''
-slotName[12] = 'Device' -- Device
-slotName[13] = 'Illicit' -- Ilicit
-slotName[14] = 'Modification' -- Modification
-slotName[15] = 'Title' -- Title
-slotName[16] = 'Gunner' -- Gunner
-slotName[17] = 'Force Talent' -- Force Power
-slotName[18] = 'Configuration' -- Configuration
-slotName[19] = 'Tech' -- Tech
-slotName[20] = 'Relay' -- Relay
-slotName[99] = 'HardPoint' -- Hardpoint
+slotName[1] = 'Talent' -- Talent
+slotName[2] = 'Handheld' -- Handheld
+slotName[3] = 'Ballistic Weapon' -- Cannon
+slotName[4] = 'Beam Weapon' -- Turret
+slotName[5] = 'Explosive Weapon' -- Explosive
+slotName[6] = 'Melee Weapon' -- Missile
+slotName[7] = 'Shield' -- Shield
+slotName[8] = 'Device' -- Device
+slotName[9] = 'Configuration' -- Configuration
+slotName[10] = 'Modification' -- Modification
+slotName[11] = 'Newtype' -- Newtype
+slotName[12] = 'Tactics' -- Tactics
+slotName[13] = 'Commander' -- Commander
 
 
 
