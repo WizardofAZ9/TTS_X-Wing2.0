@@ -662,33 +662,8 @@ end
 ]]
 
 dialSkin={
-  [1]='http://cloud-3.steamusercontent.com/ugc/776248816759536085/F1682EB306C8FDFA5A1D2AD7FE41691532156412/',
-  [2]='http://cloud-3.steamusercontent.com/ugc/776248816759536533/909FE80347105F36346550CDA6246082AA0729A6/',}
-
-function calculateShipIndicators(idTable)
-  shipTable = {}
-  for k,v in pairs (idTable.Pilots) do
-      local ship = masterPilotDB[v]['ship_type']
-      if shipTable[ship] == nil then
-        shipTable[ship] = {k}
-      else
-        table.insert(shipTable[ship], k)
-      end
-    end
-    pilotIndicators = {}
-    local i = 1
-    for ship, pilots in pairs(shipTable) do
-      if #pilots > 1 then
-        for k, pilot in pairs(pilots) do
-          pilotIndicators[pilot] = i
-          i = i+1
-        end
-      else
-        pilotIndicators[pilots[1]] = 0
-      end
-    end
-    return pilotIndicators
-end
+  [1]='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/dials/ZeonDialTex.png',
+  [2]='https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msg_assets/dials/FedDialTex.png',}
 
 function calculateShipIndicators(idTable)
   shipTable = {}

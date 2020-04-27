@@ -119,11 +119,6 @@ assetTable = {
 
     {name="1BG", url="http://cloud-3.steamusercontent.com/ugc/1008184350401102660/FDCEDB6FAC6E1926182948B027BB0476E6B15AF4/"},
     {name="2BG", url="http://cloud-3.steamusercontent.com/ugc/1008184350401102397/6667CFE127DDECDD0C28AD10CEFBC2DE6F4FFD17/"},
-    {name="3BG", url="http://cloud-3.steamusercontent.com/ugc/786353138690743898/496C87762809AD9AC4378ED0658B92CB710BAFCD/"},
-    {name="4BG", url="http://cloud-3.steamusercontent.com/ugc/786353138690743342/17602741DFC8FD5C73D27E04CE30CA2FC3995BA1/"},
-    {name="5BG", url="http://cloud-3.steamusercontent.com/ugc/786353138690741478/7105CD681F12E287097BD6F48F44270E28BB7C93/"},
-    {name="6BG", url="http://cloud-3.steamusercontent.com/ugc/786353138690742185/1D0B70CBDB4C49C821E62FC19087E5519E23B163/"},
-    {name="7BG", url="http://cloud-3.steamusercontent.com/ugc/786353138690740125/42AC09562FF72E57CB989509B6F7A5F58FFB9781/"},
 
     {name="BoostS", url="http://cloud-3.steamusercontent.com/ugc/816750219423811083/7C1C7A560593EDFF93D9D5DA5A79B44ADF504860/"},
     {name="BoostL", url="http://cloud-3.steamusercontent.com/ugc/816750219423811582/19142588710573CD84E797611597948407E2951B/"},
@@ -176,13 +171,13 @@ end
 function clearDial()
 
     self.UI.hide('TalonPanel') -- Talon has to come before CenterFU which it is inside -- hide doesn't work when the parent is already hidden (could also use active=false instead)
+    self.UI.Hide('CurvePanel')
+    self.UI.Hide('StrafePanel')
     self.UI.hide("CenterFD")
     self.UI.hide('CenterFU')
     self.UI.hide("ManWin")
     self.UI.Hide('arcPanel')
     self.UI.Hide('relocPanel')
-    self.UI.Hide('CurvePanel')
-    self.UI.Hide('StrafePanel')
     self.UI.Hide('tokenPanel')
     winStat = false
 end
