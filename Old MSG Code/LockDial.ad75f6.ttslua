@@ -1,0 +1,1039 @@
+-- ~~~~~~
+-- Script by dzikakulka
+-- Issues, history at: http://github.com/tjakubo2/TTS_xwing
+--
+-- Token for easy barrel rolls with StarViper Mk.II title
+-- ~~~~~~
+
+local surface = false
+
+function onLoad(save_state)
+    if surface == false then
+        local sPos = self.getPosition()
+        self.setPosition({sPos[1], -3, sPos[3]})
+        self.interactable = false
+        self.tooltip = false
+        self.lock()
+    else
+        local sPos = self.getPosition()
+        self.setPosition({sPos[1], 3, sPos[3]})
+        self.interactable = true
+        self.tooltip = true
+        self.lock()
+    end
+end
+
+-- ~~~~~~
+-- Script by dzikakulka
+-- Issues, history at: http://github.com/tjakubo2/TTS_xwing
+--
+-- Token for easy barrel rolls with StarViper Mk.II title
+-- ~~~~~~
+
+
+-- Scripted token properties
+__XW_Token = false
+__XW_TokenIdle = true
+__XW_TokenType = 'helper:Dial'
+
+-- Ref to assigned ship if there is one
+assignedShip = nil
+currMan = nil
+playerColor = nil
+
+-- Save self state
+function onSave()
+    if assignedShip ~= nil then
+        local state = {assignedShipGUID=assignedShip.getGUID(),
+                        owningPlayer=playerColor}
+        return JSON.encode(state)
+    end
+end
+
+faceStat = nil
+firstSet=false
+setSinceTemplatePlaced = false -- True if the user has set a movement since the movement template was last placed on the table
+templatePlaced = false  -- True if the movement template is currently on the table (as far as we can tell based on just dial button clicks, anyway)
+
+assetTable = {
+    {name="Focus", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/focus.png"},
+    {name="Evade", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/evade.png"},
+    {name="TL", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/TL.png"},
+    {name="Calculate", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/calculate.png"},
+    {name="Reinforce", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/reinforce.png"},
+    {name="Stress", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/stress.png"},
+    {name="Ion", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/ion.png"},
+    {name="Cloak", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/cloak.png"},
+    {name="Jam", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/jam.png"},
+    {name="Disarm", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/disarm.png"},
+    {name="Tractor", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/tractor.png"},
+    {name="Strain", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/strain.png"},
+    {name="RotCW", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/RotateHorario.png"},
+    {name="RotACW", url="https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/dial/actions/RotateAntiHorario.png"},
+--    {name="", url=""},
+--    {name="", url=""},
+--    {name="", url=""},
+
+    {name="Speed0", url="http://cloud-3.steamusercontent.com/ugc/949606135040409273/B5766B19502F8C850B0EE2A99C9200D3616A9B4B/"},
+    {name="Speed1", url="http://cloud-3.steamusercontent.com/ugc/949606135040406789/9366AC5AE8AD2A2493A04369FF0C084DBA8CDCE3/"},
+    {name="Speed2", url="http://cloud-3.steamusercontent.com/ugc/949606135040407375/2C92F4961A68C0625CF7865C2638DBD0181F2F51/"},
+    {name="Speed3", url="http://cloud-3.steamusercontent.com/ugc/949606135040407761/3806B2D4F8EC94CF02865285E1ECC59E4242829E/"},
+    {name="Speed4", url="http://cloud-3.steamusercontent.com/ugc/949606135040408215/E7FF2F8943812956DE0985BE48379C51C2236225/"},
+    {name="Speed5", url="http://cloud-3.steamusercontent.com/ugc/949606135040408733/3ECFB2033B09DCB6C9D4A552E3A334668A05B83C/"},
+
+    {name="BlueTurnL", url="http://cloud-3.steamusercontent.com/ugc/949606135040395919/D6D60325E0BAEE9AD72BCB330142F08587B90D03/"},
+    {name="BlueBankL", url="http://cloud-3.steamusercontent.com/ugc/949606135040393732/D65A9C470A425A67D5D77BCE53553FBBD60970CF/"},
+    {name="BlueStraight", url="http://cloud-3.steamusercontent.com/ugc/949606135040395007/9EEF382D92D32F2C4061E26E87773A4C2B0AA140/"},
+    {name="BlueBankR", url="http://cloud-3.steamusercontent.com/ugc/949606135040396590/49564AB44B974BA428615D6B3056F594418898A9/"},
+    {name="BlueTurnR", url="http://cloud-3.steamusercontent.com/ugc/949606135040398571/EE7B711A1F5AF010381525D5968D5FB38B1BB3A4/"},
+    {name="WhiteTurnL", url="http://cloud-3.steamusercontent.com/ugc/949606135040403103/59C18BE8E4409CAB8579CEC26B5B9811BD86F6DE/"},
+    {name="WhiteBankL", url="http://cloud-3.steamusercontent.com/ugc/949606135040400730/8328F626B9F36E27CA1CAE65F928A731EACD76D8/"},
+    {name="WhiteStraight", url="http://cloud-3.steamusercontent.com/ugc/949606135040401242/1911B1DD1F0EC64E014A604961C6D91D4ADEB61F/"},
+    {name="WhiteBankR", url="http://cloud-3.steamusercontent.com/ugc/949606135040402027/25C6B189B2223C26DC4DDB7CE56F8B2D24ADC4D5/"},
+    {name="WhiteTurnR", url="http://cloud-3.steamusercontent.com/ugc/949606135040400129/353045C22EF58E506773D69F59366CA6C4A48EE1/"},
+    {name="RedTurnL", url="http://cloud-3.steamusercontent.com/ugc/949606135040455933/B9D823CAD517F42C38890F14048C07E448BB3475/"},
+    {name="RedBankL", url="http://cloud-3.steamusercontent.com/ugc/949606135040456852/68D62F2ABA691A7571844BA72F9064FA8B33D420/"},
+    {name="RedStraight", url="http://cloud-3.steamusercontent.com/ugc/949606135040457715/63688F4A36960C21C088096F5F5676782EBA181A/"},
+    {name="RedBankR", url="http://cloud-3.steamusercontent.com/ugc/949606135040458310/4744BD32E7B3834F85F99C61D895143244FDDBF3/"},
+    {name="RedTurnR", url="http://cloud-3.steamusercontent.com/ugc/949606135040459391/C73C7081EDCA100140E10018789897885850501B/"},
+--{name="BlueK", url=""},
+    {name="WhiteK", url="http://cloud-3.steamusercontent.com/ugc/816750219422673136/801B2DAC4E6FCD9209D83B41C69E9B3D8797A5C5/"},
+    {name="RedK", url="http://cloud-3.steamusercontent.com/ugc/949606135040405996/F59983D69585362F5D0202FBD069811E921DBBCA/"},
+--    {name="BlueTalonL", url=""},
+--    {name="WhiteTalonL", url=""},
+    {name="RedTalonL", url="http://cloud-3.steamusercontent.com/ugc/949606135040404506/51C35705F386E6BA4C2817A7C551D8A3CCC4FC32/"},
+--    {name="BlueTalonR", url=""},
+--    {name="WhiteTalonR", url=""},
+    {name="RedTalonR", url="http://cloud-3.steamusercontent.com/ugc/949606135040405419/5641C0914D0DC743AE3BE9213EA93BA7DB7D8795/"},
+--    {name="BlueSloopL", url=""},
+--    {name="WhiteSloopL", url=""},
+    {name="RedSloopL", url="http://cloud-3.steamusercontent.com/ugc/814499055610131914/4CA47CC889B08837743A4EB90BE04D5A1A708DB6/"},
+--    {name="BlueSloopR", url=""},
+--    {name="WhiteSloopR", url=""},
+    {name="RedSloopR", url="http://cloud-3.steamusercontent.com/ugc/814499055610132872/B358C74D765B8EEB144C64FEE492555759FDD645/"},
+--    {name="BlueStall", url=""},
+--    {name="WhiteStall", url=""},
+    {name="RedStall", url="http://cloud-3.steamusercontent.com/ugc/814499055610135216/F2DB1B4BCACECEFF376BA36F6CCFD16DAED85A3A/"},
+--    {name="BlueReverseBankL", url=""},
+--    {name="WhiteReverseBankL", url=""},
+    {name="RedReverseBankL", url="http://cloud-3.steamusercontent.com/ugc/814499055610137796/4D0155993F880DFC4BB531AC5D4ECE440B2274B1/"},
+--    {name="BlueReverseBankR", url=""},
+--    {name="WhiteReverseBankR", url=""},
+    {name="RedReverseBankR", url="http://cloud-3.steamusercontent.com/ugc/814499055610138551/B003582B5FDDEBF9084E22B51141F56284CDCC1B/"},
+--    {name="BlueReverseStraight", url=""},
+--    {name="WhiteReverseStraight", url=""},
+    {name="RedReverseStraight", url="http://cloud-3.steamusercontent.com/ugc/814499055610138969/74EF4C6E5AAC459C2693B5A0682D3F58BFEAF40F/"},
+--    {name="BlueStrafeL", url=""},
+--    {name="WhiteStrafeL", url=""},
+    {name="RedStrafeL", url="http://cloud-3.steamusercontent.com/ugc/776248408890654566/365BE7D6C6B32BA0D87B12DEBD38C502C7248484/"},
+--    {name="BlueStrafeR", url=""},
+--    {name="WhiteStrafeR", url=""},
+    {name="RedStrafeR", url="http://cloud-3.steamusercontent.com/ugc/776248408890655851/1068908AC4802CBA1ACA59152F7565EBBE66BAB2/"},
+--    {name="BlueCurveL", url=""},
+--    {name="WhiteCurveL", url=""},
+    {name="RedCurveL", url="http://cloud-3.steamusercontent.com/ugc/776248408890644076/21EFCD220DCF942F78ADD0136061D19C03422285/"},
+--    {name="BlueCurveR", url=""},
+--    {name="WhiteCurveR", url=""},
+    {name="RedCurveR", url="http://cloud-3.steamusercontent.com/ugc/776248408890646368/3E5AA93709BEA63A0AF70C8B22D651DE4C3B71C5/"},
+--    {name="BlueInverseL", url=""},
+--    {name="WhiteInverseL", url=""},
+    {name="RedInverseL", url="http://cloud-3.steamusercontent.com/ugc/776248408890661159/3F6EA7BBD0247FFB8E586F142D37E413B4E94EE7/"},
+--    {name="BlueInverseR", url=""},
+--    {name="WhiteInverseR", url=""},
+    {name="RedInverseR", url="http://cloud-3.steamusercontent.com/ugc/776248408890672737/AF8F9CCCF707C964EA7F1895C348EE92FE761EFC/"},
+
+    {name="1BG", url="http://cloud-3.steamusercontent.com/ugc/1008184350401102660/FDCEDB6FAC6E1926182948B027BB0476E6B15AF4/"},
+    {name="2BG", url="http://cloud-3.steamusercontent.com/ugc/1008184350401102397/6667CFE127DDECDD0C28AD10CEFBC2DE6F4FFD17/"},
+
+    {name="BoostS", url="http://cloud-3.steamusercontent.com/ugc/816750219423811083/7C1C7A560593EDFF93D9D5DA5A79B44ADF504860/"},
+    {name="BoostL", url="http://cloud-3.steamusercontent.com/ugc/816750219423811582/19142588710573CD84E797611597948407E2951B/"},
+    {name="BoostR", url="http://cloud-3.steamusercontent.com/ugc/816750219423812051/86409446A79DACB2DD084A052CF64EC9C2A56D9F/"},
+    {name="BarrelL", url="http://cloud-3.steamusercontent.com/ugc/816750219423807162/1DA310CD1B412508B5213EE37476F2A2EB9B4A38/"},
+    {name="BarrelLF", url="http://cloud-3.steamusercontent.com/ugc/816750219423808004/8BEBBB8A447DA3F335AE361885BD3E8599C95490/"},
+    {name="BarrelLB", url="http://cloud-3.steamusercontent.com/ugc/816750219423808688/985FC18E99432A2C05B54F2B0E5C151BD6B582D2/"},
+    {name="BarrelR", url="http://cloud-3.steamusercontent.com/ugc/816750219423809409/5196FEE75132E292D9E22F7B3054F396CC4EB04A/"},
+    {name="BarrelRF", url="http://cloud-3.steamusercontent.com/ugc/816750219423809765/75916DF74C1B0A8AC752204D20622EAC349D7723/"},
+    {name="BarrelRB", url="http://cloud-3.steamusercontent.com/ugc/816750219423810373/C796629CCC0BE925B9CCFF9090439C21534EB9EC/"},
+    {name="R0", url="http://cloud-3.steamusercontent.com/ugc/1008184350402545528/F40329A290CD3F8BA9A989F464F6D27E1AEF31E1/"},
+    {name="R1", url="http://cloud-3.steamusercontent.com/ugc/816750219424132946/CE226D94D489E6E73D5E353FB554E019692568B9/"},
+    {name="R2", url="http://cloud-3.steamusercontent.com/ugc/816750219424133737/7FBE68A025DEBDE7CBAFF2F9A7AF984BE022F782/"},
+    {name="R3", url="http://cloud-3.steamusercontent.com/ugc/816750219424134124/4894A4F2C53E47D340AC0EB5D9C474D5C169B27E/"},
+    {name="R4", url="http://cloud-3.steamusercontent.com/ugc/776248408890593292/C620E2AAC4B3A0B8F9E022B752C20EA594D640B7/"},
+    {name="R5", url="http://cloud-3.steamusercontent.com/ugc/776248408890594377/71648D74519262DD5F9739647D0EA21E706147BC/"},
+    {name="FrontArc", url="http://cloud-3.steamusercontent.com/ugc/816750219423812542/CF0B3D353F6D321FE0009C424D1FF67BE464F27D/"},
+    {name="RightArc", url="http://cloud-3.steamusercontent.com/ugc/816750219424130273/4149098A1D3A39CBAFB2CD310CDEC7EA94CB8EDA/"},
+    {name="LeftArc", url="http://cloud-3.steamusercontent.com/ugc/816750219424129163/003ACF3DAC38E205CAEADD4346D69C3CE861D6E5/"},
+    {name="BackArc", url="http://cloud-3.steamusercontent.com/ugc/816750219424129702/B56EA3D8C1F8EF0218E87E3CADB1E1A7397D5346/"},
+    {name="TalonFront", url="http://cloud-3.steamusercontent.com/ugc/786352494210806497/32D32173D4BBADD42812384D45F2C6F9E5CAD2DD/"},
+    {name="TalonMid", url="http://cloud-3.steamusercontent.com/ugc/786352494210807090/5F3D06E52F2D1E87BEAFB140AFE39A3FCE472C3B/"},
+    {name="TalonRear", url="http://cloud-3.steamusercontent.com/ugc/786352494210807555/80F4AE45B9A83F73EEB7470DABF4E4DB7F9D0FCE/"},
+    {name="CurveFront", url="http://cloud-3.steamusercontent.com/ugc/1008184772393473391/32D32173D4BBADD42812384D45F2C6F9E5CAD2DD/"},
+    {name="CurveMid", url="http://cloud-3.steamusercontent.com/ugc/1008184772393474519/5F3D06E52F2D1E87BEAFB140AFE39A3FCE472C3B/"},
+    {name="CurveRear", url="http://cloud-3.steamusercontent.com/ugc/1008184772393475023/80F4AE45B9A83F73EEB7470DABF4E4DB7F9D0FCE/"},
+    {name="StrafeFront", url="http://cloud-3.steamusercontent.com/ugc/1003681318746176948/32D32173D4BBADD42812384D45F2C6F9E5CAD2DD/"},
+    {name="StrafeMid", url="http://cloud-3.steamusercontent.com/ugc/1003681318746177523/5F3D06E52F2D1E87BEAFB140AFE39A3FCE472C3B/"},
+    {name="StrafeRear", url="http://cloud-3.steamusercontent.com/ugc/1003681318746178243/80F4AE45B9A83F73EEB7470DABF4E4DB7F9D0FCE/"},
+    {name="PivotLeft", url="http://cloud-3.steamusercontent.com/ugc/786352494210814563/9C7B99EA26C94649A79975BF5951718855FD6F8C/"},
+    {name="Pivot180", url="http://cloud-3.steamusercontent.com/ugc/786352494210814013/ADD1ABC87102A1FC25681A92DDFD326B05039BDC/"},
+    {name="PivotRight", url="http://cloud-3.steamusercontent.com/ugc/786352494210815312/D3A4DED40146BFC9246E675E324F24062CFB79D7/"},
+}
+
+-- Restore self state
+function onLoad()
+    --self.UI.setCustomAssets(assetTable)
+    clearDial()
+    if savedData ~= nil then
+        state = JSON.decode(savedData)
+        savedShip = getObjectFromGUID(state.assignedShipGUID)
+        playerColor = state.owningPlayer
+        if savedShip ~= nil then
+            assignShip(savedShip)
+        end
+    end
+end
+
+
+function clearDial()
+
+    self.UI.hide('TalonPanel') -- Talon has to come before CenterFU which it is inside -- hide doesn't work when the parent is already hidden (could also use active=false instead)
+    self.UI.Hide('CurvePanel')
+    self.UI.Hide('StrafePanel')
+    self.UI.hide("CenterFD")
+    self.UI.hide('CenterFU')
+    self.UI.hide("ManWin")
+    self.UI.Hide('arcPanel')
+    self.UI.Hide('relocPanel')
+    self.UI.Hide('tokenPanel')
+    winStat = false
+end
+
+function onUpdate()
+    if assignedShip ~= nil then
+        if self.getTransformUp().y >0 then
+            if faceStat ~= 'Down' then
+                faceStat = 'Down'
+                clearDial()
+                self.UI.setAttribute("Main", "rotation", "0 0 0")
+                self.UI.show("CenterFD")
+            end
+        else
+            if faceStat ~= 'Up' then
+                faceStat = 'Up'
+                clearDial()
+                manSetting()
+                self.UI.setAttribute("Main", "rotation", "180 180 180")
+                self.UI.show('CenterFU')
+            end
+        end
+    end
+end
+
+function manSelect(p, option, id)
+    if spectReturn(p) == true then
+        return
+    end
+    firstSet=true
+    self.UI.setAttribute("ManBtnGroup","allowSwitchOff","false")
+    curMan=string.lower(id)
+    if curMan:sub(1,1) == 'w' then
+        manColor="White"
+    elseif curMan:sub(1,1) == 'b' then
+        manColor="Blue"
+    elseif curMan:sub(1,1) == 'r' then
+        manColor="Red"
+    end
+
+    if curMan:sub(-1,-1) == 't' then
+        manType = "Talon"
+    elseif curMan:sub(-1,-1) == 'i' then
+        manType = "Inverse"
+    elseif curMan:sub(-1,-1) == 'f' then
+        manType = "Strafe"
+    elseif curMan:sub(-1,-1) == 'c' then
+        manType = "Curve"
+    elseif curMan:sub(-1,-1) == 's' then
+        manType = "Sloop"
+    elseif curMan:sub(-1,-1) == 'r' then
+        if curMan:sub(2,2) == 'b' then
+            manType = "ReverseBank"
+        else
+            manType = "ReverseStraight"
+        end
+    elseif curMan:sub(2,2) == 't' then
+        manType = "Turn"
+    elseif curMan:sub(2,2) == 'b' then
+        manType = "Bank"
+    elseif curMan:sub(2,2) == 's' then
+        manType = "Straight"
+    elseif curMan:sub(2,2) == 'f' then
+        manType = "Strafe"
+    elseif curMan:sub(2,2) == 'k' then
+        manType = 'K'
+    end
+
+    local Char= curMan:find("%d")
+    manSpeed = curMan:sub(Char,Char)
+
+    if curMan:sub(3,3) == 'l' then
+        manBear = "L"
+    elseif curMan:sub(3,3) == 'r' then
+        manBear = "R"
+    else
+        manBear = ""
+    end
+    if manSpeed=="0" then
+        manType='Stall'
+    end
+    speedIcon="Speed"..manSpeed
+    typeIcon= manColor .. manType .. manBear
+    setMan = curMan:sub(2)
+    befAft = '_B'
+end
+
+function manSetting()
+    if setStat == true then
+        self.UI.setAttribute("TypeIcon", "image", typeIcon)
+        self.UI.setAttribute("SpeedIcon", "image", speedIcon)
+        self.UI.setAttribute("TypeIcon", "active", "true")
+        self.UI.setAttribute("SpeedIcon", "active", "true")
+        self.UI.setAttribute("MoveBtn", "active", "true")
+        self.UI.setAttribute("MoveBtn", "textColor", "#FFFFFF")
+        self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "active", "true")
+        self.UI.setAttribute("Templ", "textColor", "#222222") -- Make the text same color as the background since goal is to only have the type / speed icons showing anyway
+    else
+        self.UI.setAttribute("TypeIcon", "active", "false")
+        self.UI.setAttribute("SpeedIcon", "active", "false")
+        self.UI.setAttribute("MoveBtn", "active", "false")
+        self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "textColor", "#FFFFFF")
+
+        -- Hide the template button when there isn't a manuver set, since it's confusing and undefined in some cases what template should be shown then
+        if not templatePlaced then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
+    end
+    if firstSet== false then
+        self.UI.setAttribute("TypeIcon", "active", "false")
+        self.UI.setAttribute("SpeedIcon", "active", "false")
+        self.UI.setAttribute("MoveBtn", "active", "false")
+        self.UI.setAttribute("UndoBtn", "active", "false")
+        self.UI.setAttribute("Templ", "textColor", "#FFFFFF")
+
+        -- Hide the template button when there isn't a manuver set, since it's confusing and undefined in some cases what template should be shown then
+        if not templatePlaced then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
+    end
+
+    -- Remove template if a new manuver has been set since it was shown, since it could be confusing to still show the old template (and to show the new one you would have to click the button twice, which would be confusing)
+    if setSinceTemplatePlaced and templatePlaced then
+      deleteTemplate()
+    end
+end
+
+function Undo(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("q")
+    self.UI.setAttribute("UndoBtn", "active", "false")
+            if setMan:sub(-1,-1) =='t' then
+            self.UI.show("TalonPanel")
+        elseif setMan:sub(-1,-1) =='c' then
+            self.UI.show("CurvePanel")
+        elseif setMan:sub(-1,-1) =='f' then
+            self.UI.show("StrafePanel")
+    else
+        self.UI.setAttribute("MoveBtn", "active", "true")
+        self.UI.setAttribute("MoveBtn", "textColor", "#FFFFFF")
+    end
+    befAft='_B'
+end
+
+function performMove(P)
+    if spectReturn(P) == true then
+        return
+    end
+    if setMan~="" then
+        self.UI.setAttribute("MoveBtn", "active", "false")
+        if setMan:sub(-1,-1) =='t' then
+            self.UI.show("TalonPanel")
+        elseif setMan:sub(-1,-1) =='c' then
+            self.UI.show("CurvePanel")
+        elseif setMan:sub(1,1) =='f' then
+            self.UI.show("StrafePanel")
+        else
+            self.UI.setAttribute("UndoBtn", "active", "true")
+            self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
+            assignedShip.setDescription(setMan)
+            befAft = '_A'
+            setDial(P)
+        end
+    end
+end
+
+
+function performTalon(P,option,id)
+    if spectReturn(P) == true then
+        return
+    end
+
+    self.UI.hide("TalonPanel")
+    self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
+    if id=="TalonMidBtn" then
+        assignedShip.setDescription(setMan)
+    elseif id=="TalonReaBtn" then
+        talonMove = setMan:sub(1,3).."b"..setMan:sub(-1,-1)
+        assignedShip.setDescription(talonMove)
+    elseif id=="TalonForBtn" then
+        talonMove = setMan:sub(1,3).."f"..setMan:sub(-1,-1)
+        assignedShip.setDescription(talonMove)
+    end
+    befAft ='_A'
+    setDial(P)
+end
+
+function performCurve(P,option,id)
+    if spectReturn(P) == true then
+        return
+    end
+
+    self.UI.hide("CurvePanel")
+    self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
+    if id=="CurveMidBtn" then
+        self.UI.hide("CurvePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        assignedShip.setDescription(setMan)
+    elseif id=="CurveReaBtn" then
+        self.UI.hide("CurvePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        curveMove = setMan:sub(1,3).."b"..setMan:sub(-1,-1)
+        assignedShip.setDescription(curveMove)
+    elseif id=="CurveForBtn" then
+        self.UI.hide("CurvePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        curveMove = setMan:sub(1,3).."f"..setMan:sub(-1,-1)
+        assignedShip.setDescription(curveMove)
+    end
+    befAft ='_A'
+    setDial(P)
+end
+
+function performStrafe(P,option,id)
+    if spectReturn(P) == true then
+        return
+    end
+
+    self.UI.hide("StrafePanel")
+    self.UI.setAttribute("UndoBtn", "active", "true")
+    self.UI.setAttribute("UndoBtn", "textColor", "#FFFFFF")
+    if id=="StrafeMidBtn" then
+        self.UI.hide("StrafePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        assignedShip.setDescription(setMan)
+    elseif id=="StrafeReaBtn" then
+        self.UI.hide("StrafePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        strafeMove = setMan:sub(1,3).."b"..setMan:sub(-1,-1)
+        assignedShip.setDescription(strafeMove)
+    elseif id=="StrafeForBtn" then
+        self.UI.hide("StrafePanel")
+        self.UI.setAttribute("UndoBtn", "active", "true")
+        strafeMove = setMan:sub(1,3).."f"..setMan:sub(-1,-1)
+        assignedShip.setDescription(strafeMove)
+    end
+    befAft ='_A'
+    setDial(P)
+end
+
+function onPickUp(player_color)
+    if assignedShip == nil then
+        pColor = self.held_by_color
+    end
+end
+
+-- Assign a ship to the dial
+function assignShip(ship)
+    self.UI.setAttribute("CenterFD", "active", "true")
+    self.UI.setAttribute("CenterFU", "active", "true")
+    self.UI.setAttribute("arcPanel", "active", "true")
+    self.UI.setAttribute("tokenPanel", "active", "true")
+    self.UI.setAttribute("relocPanel", "active", "true")
+    self.UI.setAttribute("CenterFD", "active", "true")
+    assignedShip = ship
+    Name=assignedShip.getName()
+    self.setName(Name)
+    --self.UI.setAttribute("DialName", Name)
+    self.UI.setValue("Name",Name)
+    shipData=assignedShip.getTable("Data")
+    self.UI.setAttribute("BackGround", "image", tostring(shipData['Faction']).."BG")
+    for k,v in pairs(shipData['moveSet']) do
+        self.UI.setAttribute(string.upper(v), "active", "true")
+    end
+    setMan=""
+    for k,v in pairs(shipData['actSet']) do
+        if v == 'F' then
+            self.UI.setAttribute('FocusBtn', 'active', 'true')
+        elseif v == 'TL' then
+            self.UI.setAttribute("TargetLockBtn", 'active', 'true')
+        elseif v == 'E' then
+            self.UI.setAttribute("EvadeBtn", 'active', 'true')
+        elseif v == 'R' then
+            self.UI.setAttribute("ReinforceBtn", 'active', 'true')
+        elseif v == 'C' then
+            self.UI.setAttribute("CalculateBtn", 'active', 'true')
+        elseif v == 'CL' then
+            self.UI.setAttribute("CloakBtn", 'active', 'true')
+        elseif v == 'BR' then
+            self.UI.setAttribute("BarrelRBtn", "active", "true")
+            self.UI.setAttribute("BarrelRFBtn", "active", "true")
+            self.UI.setAttribute("BarrelRBBtn", "active", "true")
+            self.UI.setAttribute("BarrelLBtn", "active", "true")
+            self.UI.setAttribute("BarrelLFBtn", "active", "true")
+            self.UI.setAttribute("BarrelLBBtn", "active", "true")
+        elseif v == 'B' then
+            self.UI.setAttribute("BoostSBtn", "active", "true")
+            self.UI.setAttribute("BoostRBtn", "active", "true")
+            self.UI.setAttribute("BoostLBtn", "active", "true")
+        elseif v =='Ail' then
+            self.UI.setAttribute("AilSBtn", "active", "true")
+            self.UI.setAttribute("AilRBtn", "active", "true")
+            self.UI.setAttribute("AilLBtn", "active", "true")
+        elseif v =='Piv' then
+            self.UI.setAttribute("PivKBtn", "active", "true")
+            self.UI.setAttribute("PivRBtn", "active", "true")
+            self.UI.setAttribute("PivLBtn", "active", "true")
+        end
+    end
+
+end
+
+
+-- Assign on drop near a small base ship
+function onDropped()
+    if assignedShip == nil then
+        local spos = self.getPosition()
+        local nearest = nil
+        local minDist = 2.89 -- 80mm
+        for k,ship in pairs(getAllObjects()) do
+            if ship.tag == 'Figurine' and ship.name ~= '' then
+                local pos = ship.getPosition()
+                local dist = math.sqrt(math.pow((spos[1]-pos[1]),2) + math.pow((spos[3]-pos[3]),2))
+                if dist < minDist then
+                    nearest = ship
+                    minDist = dist
+                end
+            end
+        end
+        if nearest ~= nil then
+            if pColor=="White" then
+                printToAll("Please, pick a color before assigning dials")
+            else
+                assignedShip = nearest
+                playerColor=pColor
+                nearest.setVar('owningPlayer', pColor)
+                printToAll('Dial assigned to to ' .. nearest.getName(), {0.2, 0.2, 1})
+                printToAll('Controlled by the '.. playerColor .. ' player')
+                printToAll('')
+                self.setRotation(nearest.getRotation())
+                assignShip(nearest)
+
+            end
+        end
+    end
+end
+
+-- functions called when buttons are pressed
+function genericAction(a,b,c,d)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+end
+
+function focusTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Focus', playerColor})
+end
+
+function evadeTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Evade', playerColor})
+end
+
+function tlTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Target Lock', playerColor})
+end
+
+function tractorTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Tractor', playerColor})
+end
+
+function jamTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Jam', playerColor})
+end
+
+function disarmTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Disarm', playerColor})
+end
+
+function cloakTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Cloak', playerColor})
+end
+
+function calcTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Calculate', playerColor})
+end
+
+function reinforceTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Reinforce', playerColor})
+end
+
+function stressTok(p,id)
+    if spectReturn(p) == true then
+        return
+    end
+    if id == '-1' then
+        Global.call('proxyPerformAction', {assignedShip, 'Stress', playerColor})
+    else
+        Global.call('proxyPerformAction', {assignedShip, 'unstress', playerColor})
+    end
+end
+
+function strainTok(p,id)
+  if spectReturn(p) == true then
+      return
+  end
+  if id == '-1' then
+      Global.call('proxyPerformAction', {assignedShip, 'Strain', playerColor})
+  else
+      Global.call('proxyPerformAction', {assignedShip, 'unstrain', playerColor})
+  end
+end
+
+function ionTok(p)
+    if spectReturn(p) == true then
+        return
+    end
+    Global.call('proxyPerformAction', {assignedShip, 'Ion', playerColor})
+end
+
+function BoostS(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("s1b")
+end
+
+function BoostR(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("br1b")
+end
+
+function BoostL(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("bl1b")
+end
+
+
+function AilS(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("s1")
+end
+
+function AilR(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("br1")
+end
+
+function AilL(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("bl1")
+end
+
+function BarrelL(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rl2")
+end
+
+function BarrelLF(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rl1")
+end
+
+function BarrelLB(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rl3")
+end
+
+function BarrelR(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rr2")
+end
+
+function BarrelRF(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rr1")
+end
+
+function BarrelRB(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("rr3")
+end
+
+function StrafeL()
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("fl2")
+end
+
+function StrafeLF()
+    if spectReturn(p) == true then
+        return
+      end
+    assignedShip.setDescription("fl1")
+end
+
+function StrafeLB()
+    if spectReturn(p) == true then
+        return
+      end
+    assignedShip.setDescription("fl3")
+end
+
+function StrafeR()
+    if spectReturn(p) == true then
+        return
+      end
+    assignedShip.setDescription("fr2")
+end
+
+function StrafeRF()
+    if spectReturn(p) == true then
+        return
+      end
+    assignedShip.setDescription("fr1")
+end
+
+function StrafeRB()
+    if spectReturn(p) == true then
+        return
+      end
+    assignedShip.setDescription("fr3")
+end
+
+function range0(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r0")
+end
+
+function range1(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r1")
+end
+
+function range2(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r2")
+end
+
+function range3(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r3")
+end
+
+function range4(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r4")
+end
+
+function range5(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("r5")
+end
+
+
+function arcF(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("f")
+end
+
+function arcL(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("sl")
+end
+
+function arcR(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("sr")
+end
+
+function arcB(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription("b")
+end
+
+function pivK(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription('k0')
+end
+
+function pivR(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription('tr4')
+end
+
+function pivL(p)
+    if spectReturn(p) == true then
+        return
+    end
+    assignedShip.setDescription('tl4')
+end
+
+function Window(p)
+    if winStat ==  nil then
+        winStat = false
+    end
+    if spectReturn(p) == false then
+        if winStat == false then
+            winStat = true
+            self.UI.show("ManWin")
+            self.UI.setAttribute("ManWin", "visibility", playerColor .. "|Black")
+            self.UI.setAttribute("ManBtnGroup", "active", "true")
+        else
+            winStat = false
+            self.UI.setAttribute("ManBtnGroup", "active", "false")
+            self.UI.hide('ManWin')
+        end
+    end
+end
+
+function spectReturn(p)
+    if p.color == 'Black' then
+      return false
+    end
+    return p.color ~= playerColor
+end
+
+function showTokMFD(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("tokenPanel")
+    self.UI.hide("arcPanel")
+    self.UI.hide("relocPanel")
+    self.UI.setAttribute("tokenPanel", "position", "-340 -165 -40")
+    self.UI.setAttribute("tokenPanel", "rotation", "180 180 0")
+end
+
+function showTokMFU(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("tokenPanel")
+    self.UI.hide("arcPanel")
+    self.UI.hide("relocPanel")
+    self.UI.setAttribute("tokenPanel", "position", "340 -165 40")
+    self.UI.setAttribute("tokenPanel", "rotation", "180 0 0")
+end
+
+function hideTokM(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.hide("tokenPanel")
+end
+
+
+function showArcMFD(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("arcPanel")
+    self.UI.hide("relocPanel")
+    self.UI.hide("tokenPanel")
+    self.UI.setAttribute("arcPanel", "position", "260 -185 -40")
+    self.UI.setAttribute("arcPanel", "rotation", "180 180 0")
+end
+
+function showArcMFU(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("arcPanel")
+    self.UI.hide("relocPanel")
+    self.UI.hide("tokenPanel")
+    self.UI.setAttribute("arcPanel", "position", "-260 -185 40")
+    self.UI.setAttribute("arcPanel", "rotation", "180 0 0")
+end
+
+function hideArcM(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.hide("arcPanel")
+end
+
+function showRelocMFD(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("relocPanel")
+    self.UI.hide("arcPanel")
+    self.UI.hide("tokenPanel")
+    self.UI.setAttribute("relocPanel", "position", "0 -215 -40")
+    self.UI.setAttribute("relocPanel", "rotation", "180 180 0")
+end
+
+function showRelocMFU(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.show("relocPanel")
+    self.UI.hide("arcPanel")
+    self.UI.hide("tokenPanel")
+    self.UI.setAttribute("relocPanel", "position", "0 -215 40")
+    self.UI.setAttribute("relocPanel", "rotation", "180 0 0")
+end
+
+function hideRelocM(p)
+    if spectReturn(p) == true then
+        return
+    end
+    self.UI.hide("relocPanel")
+end
+
+function setDial(P)
+    if spectReturn(P) == false then
+        if firstSet == true then
+            if setStat == nil then
+                setStat = false
+            end
+
+                if setStat == false then
+                    self.UI.setAttribute("setBtnFD", "color", playerColor)
+                    self.UI.setAttribute("setBtnFD", "active", "true")
+                    self.UI.setAttribute("setBtnFD", "textColor", "#FFFFFF")
+                    if (P.color == "Yellow") then
+                       -- White text on yellow button is pretty hard to read, so for the Yellow player change the text to black instead
+                      self.UI.setAttribute("setBtnFD", "textColor", "#000000")
+                    end
+                    self.UI.setAttribute("moveWindow", "active", "false")
+                    setStat = true
+                    setSinceTemplatePlaced = true
+                    printToAll(P.color.." player has set the maneuver for "..assignedShip.getName(), P.color)
+                    if winStat==true then
+                        Window(P)
+                    end
+
+                else
+                    --TODO: Now that the set dial and unset dial buttons are 2 different buttons, this file's code would probably be more readable with this function split in to setDial() and unsetDial()
+                    self.UI.setAttribute("setBtnFD", "active", "false")
+                    self.UI.setAttribute("moveWindow", "active", "true")
+                    self.UI.setAttribute("moveWindow", "textColor", "#FFFFFF")
+                    setStat = false
+                end
+        else
+            print("Pick a maneuver before setting the dial")
+        end
+    end
+end
+
+function spawnTemplate(p)
+    if spectReturn(p) == true then
+        return
+    end
+    if setMan~='' then
+        setSinceTemplatePlaced = false
+        templatePlaced = not templatePlaced
+
+        -- if a manuver is not visible on dial, template button is only here to allow removal, and after that it can be hidden again
+        if self.UI.getAttribute("SpeedIcon", "active") == "false" then
+          self.UI.setAttribute("Templ", "active", "false")
+        end
+
+        Table={[1]=assignedShip,[2]='spawnMoveTemplate:'..setMan..befAft,[3]=playerColor}
+        Global.call("proxyPerformAction",Table)
+    end
+end
+
+function deleteTemplate()
+  templatePlaced = false
+  Table={[1]=assignedShip,[2]='deleteMoveTemplate',[3]=playerColor}
+  Global.call("proxyPerformAction",Table)
+end

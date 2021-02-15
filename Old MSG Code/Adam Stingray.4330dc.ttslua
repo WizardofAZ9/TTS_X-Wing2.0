@@ -1,0 +1,71 @@
+
+function initContextMenu()
+    local added_arcs = {}
+    for k, arctype in pairs(self.getTable("Data").arcs) do
+        if arctype == 'doubleturret' then
+            self.addContextMenuItem("FireArc - Left & Right", function(argument) Global.call("CheckArc", {ship=self,arctype="leftright"}) end, false)
+            self.addContextMenuItem("FireArc - Front & Back", function(argument) Global.call("CheckArc", {ship=self,arctype="frontback"}) end, false)
+        elseif arctype == 'singleturret' then
+            if added_arcs['front'] == nil then
+                self.addContextMenuItem("FireArc - Front", function(argument) Global.call("CheckArc", {ship=self,arctype="front"}) end, false)
+                added_arcs['front'] = true
+            end
+            if added_arcs['back'] == nil then
+                self.addContextMenuItem("FireArc - Back", function(argument) Global.call("CheckArc", {ship=self,arctype="back"}) end, false)
+                added_arcs['back'] = true
+            end
+            if added_arcs['left'] == nil then
+                self.addContextMenuItem("FireArc - Left", function(argument) Global.call("CheckArc", {ship=self,arctype="left"}) end, false)
+                added_arcs['left'] = true
+            end
+            if added_arcs['right'] == nil then
+                self.addContextMenuItem("FireArc - Right", function(argument) Global.call("CheckArc", {ship=self,arctype="right"}) end, false)
+                added_arcs['right'] = true
+            end
+        elseif arctype == 'front' then
+            if added_arcs['front'] == nil then
+                self.addContextMenuItem("FireArc - Front", function(argument) Global.call("CheckArc", {ship=self,arctype="front"}) end, false)
+                added_arcs['front'] = true
+            end
+        elseif arctype == 'back' then
+            if added_arcs['back'] == nil then
+                self.addContextMenuItem("FireArc - Back", function(argument) Global.call("CheckArc", {ship=self,arctype="back"}) end, false)
+                added_arcs['back'] = true
+            end
+        elseif arctype == 'fullfront' then
+            self.addContextMenuItem("FireArc - Full Front", function(argument) Global.call("CheckArc", {ship=self,arctype="fullfront"}) end, false)
+        elseif arctype == 'melee' then
+            self.addContextMenuItem("FireArc - Melee", function(argument) Global.call("CheckArc", {ship=self,arctype="melee"}) end, false)
+        elseif arctype == 'bullseye' then
+            self.addContextMenuItem("FireArc - Bullseye", function(argument) Global.call("CheckArc", {ship=self,arctype="bullseye"}) end, false)
+        elseif arctype == 'left' then
+            if added_arcs['left'] == nil then
+                self.addContextMenuItem("FireArc - Left", function(argument) Global.call("CheckArc", {ship=self,arctype="left"}) end, false)
+                added_arcs['left'] = true
+            end
+        elseif arctype == 'right' then
+            if added_arcs['right'] == nil then
+                self.addContextMenuItem("FireArc - Right", function(argument) Global.call("CheckArc", {ship=self,arctype="right"}) end, false)
+                added_arcs['right'] = true
+            end
+        end
+    end
+end
+
+-- Save self state
+function onSave()
+    local state = {shipData=self.getTable("Data")}
+    return JSON.encode(state)
+end
+
+-- Restore self state
+function onLoad(savedData)
+    --print("OnLoad: ".. self.getName() .. " " .. savedData)
+    if savedData ~= "" and Data == nil then
+        local state =  JSON.decode(savedData)
+        self.setTable("Data", state.shipData)
+        if state.shipData.arcs ~= nil then
+            initContextMenu()
+        end
+    end
+end

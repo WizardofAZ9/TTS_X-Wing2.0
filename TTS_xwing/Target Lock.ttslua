@@ -45,8 +45,9 @@ end
 -- Set function for external calls
 function manualSet(arg)
     set = true
-    self.setColorTint(colorTable[arg.color])
-    self.setName(arg.name)
+    if arg.color then
+      self.setColorTint(colorTable[arg.color])
+    end
 end
 
 -- Tint on pick up
@@ -57,26 +58,78 @@ function onPickedUp()
 end
 
 -- Set name on drop near a ship
-function onDropped()
-    if not set then
-        local spos = self.getPosition()
-        local spos = self.getPosition()
-        local nearest = nil
-        local minDist = 3.6125 -- 100 mm
-        for k,ship in pairs(getAllObjects()) do
-            if ship.tag == 'Figurine' and ship.name ~= '' then
-                local pos = ship.getPosition()
-                local dist = math.sqrt(math.pow((spos[1]-pos[1]),2) + math.pow((spos[3]-pos[3]),2))
-                if dist < minDist then
-                    nearest = ship
-                    minDist = dist
-                end
+function onDropped(player_color)
+    local spos = self.getPosition()
+    local spos = self.getPosition()
+    local nearest = nil
+    local minDist = 3.6125 -- 100 mm
+    for k,ship in pairs(getAllObjects()) do
+        local name = ship.getName()
+        if ship.tag == 'Figurine' and name ~= '' then
+            local pos = ship.getPosition()
+            local dist = math.sqrt(math.pow((spos[1]-pos[1]),2) + math.pow((spos[3]-pos[3]),2))
+            if dist < minDist then
+                nearest = ship
+                minDist = dist
+            end
+        elseif set and (name:find('Asteroid') or name:find('Debris') or name:find('Chute debris') or name:find('Cloud') or name:find('Spare') or name:find('Obstacle')) ~= nil then
+            local pos = ship.getPosition()
+            local dist = math.sqrt(math.pow((spos[1]-pos[1]),2) + math.pow((spos[3]-pos[3]),2))
+            if dist < minDist then
+                nearest = ship
+                minDist = dist
             end
         end
-        if nearest ~= nil then
-            self.setName(nearest.getName())
-            printToAll('Target lock named for ' .. nearest.getName(), {0.2, 0.2, 1})
-            set = true
-        end
     end
+
+    if not set then
+        if nearest ~= nil then
+            setOwner({ship=nearest,player=player_color})
+
+        end
+    else -- Allready set, now Assign to target
+        assignToShip({ship=nearest})
+    end
+end
+
+-- Sets the owner of the token. This is the ship responsible for the target
+-- lock, and who it is named after. Externally accessible.
+function setOwner(args)
+    local ship = args.ship
+    self.setName(ship.getName())
+    printToAll('Target lock named for ' .. ship.getName(), {0.2, 0.2, 1})
+    local displayName = true
+    if args.player then
+        if Global.call("API_GetPlayerConfig", {player_color=args.player, param_name="TargetLockColorMode"}) == "ShipColorId" then
+            local ColorId = ship.getTable("Data").ColorId or nil
+            if ColorId and ColorId.a > 0 then
+                self.setColorTint(ColorId)
+            end
+        end
+        displayName = Global.call("API_GetPlayerConfig", {player_color=args.player, param_name="TargetLockDisplayName"}) == "true"
+    end
+    if displayName then
+        self.UI.setAttribute("IdLabel", "text", getIdText(ship.getName()))
+    end
+    self.setRotationSmooth(ship.getRotation(),false,true)
+    set = true
+end
+
+-- Assigns the token to a ship. This is the ship being target locked, and which
+-- the token sits beside. Externally accessible
+function assignToShip(args)
+    local ship = args.ship
+    Global.call("API_AssignToken", {token=self, ship=ship})
+end
+
+function getIdText(fullName)
+    trimmedname = fullName:match'^%s*"(.*%S)"' or fullName
+    if #trimmedname < 20 then
+        return trimmedname
+    end
+    initials = trimmedname:sub(1,1)
+    for m in string.gmatch(trimmedname, "%s(%w)") do
+        initials = initials .. m
+    end
+    return initials
 end
