@@ -3,7 +3,7 @@ masterPilotDB[0]={['name']='',['XWS']='',['Faction']= 0,['ship_type']=0,['cost']
 
 
 masterPilotDB[1]={
-  name = 'Wedge Antilles',
+  name = 'Potato Test',
   XWS = 'wedgeantilles',
   Faction = 1,
   limited = 1,
