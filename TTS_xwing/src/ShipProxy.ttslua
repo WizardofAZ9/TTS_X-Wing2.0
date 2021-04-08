@@ -325,7 +325,7 @@ ShipProxyModule.proxyModels = {
         huge = '{verifycache}https://github.com/JohnnyCheese/TTS_X-Wing2.0/raw/master/assets/colliders/Huge_base_proxy_collider.obj'
     },
     model = {
-        small = '{verifycache}https://github.com/JohnnyCheese/TTS_X-Wing2.0/raw/master/assets/ships/proxy/small.obj',
+        small = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/models/proxy/small.obj',
         medium = '{verifycache}https://github.com/JohnnyCheese/TTS_X-Wing2.0/raw/master/assets/ships/proxy/medium.obj',
         large = '{verifycache}https://github.com/JohnnyCheese/TTS_X-Wing2.0/raw/master/assets/ships/proxy/large.obj',
         huge = '{verifycache}https://github.com/JohnnyCheese/TTS_X-Wing2.0/raw/master/assets/ships/proxy/huge.obj',
