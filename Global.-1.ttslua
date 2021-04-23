@@ -742,7 +742,7 @@ AIModule.PerformManeuver = function(ship, take_action)
             -- If we are ionised, then our move is always blue and we remove
             -- all of our ion tokens. Otherwise, we check for our difficulty.
             if is_ionised then
-                while TokenModule.GetShipTokenCount(ship, 'Ion') > 0 do
+                while TokenModule.GetShipTokenCount(ship, 'Shock') > 0 do
                     -- BUG: This fails to identify the ion token stack if the
                     -- ship has exactly two stress tokens. If this occurs, the
                     -- ship also leaves behind the single remaining stress
