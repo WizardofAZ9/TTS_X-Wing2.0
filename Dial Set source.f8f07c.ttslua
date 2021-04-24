@@ -1,17 +1,3 @@
-local dialLuaScript = [[
-function setShip(shipTable)
-    assignedShip = shipTable[1]
-end
-
-function onPickedUp()
-    if assignedShip ~= nil then Global.call('DialPickedUp', {dial=self, ship=assignedShip}) end
-end
-
-function onDropped()
-    if assignedShip ~= nil then Global.call('DialDropped', {dial=self, ship=assignedShip}) end
-end
-
-]]
 
 local talSegPos = {1, 0, 4}
 local koiPos = {{2, 0, 4}, {2, 0, 5}, {-2, 0, 4}, {-2, 0, 5}}
@@ -149,6 +135,7 @@ function init(arg)
         end
     end
     local posOffset = {0, 0.1, -1*0.5*(maxSpeed-minSpeed) - minSpeed}
+    ---[[
     for k, dial in pairs(stackDials) do
         if dial['description'] ~= 'spec' then
             local dialPos = decodeDesc(dial['description'])
@@ -162,10 +149,35 @@ function init(arg)
             newDial.setPosition(dialPos)
             newDial.setRotation(dialRot)
             newDial.setLuaScript(dialLuaScript)
+            local Description = newDial.getDescription()
+            newDial = {}
+            newDial.Desc = Description
         end
     end
     self.destruct()
     return spawnedDials
+    --]]
+    --[[
+    function LayoutCor()
+        for k, dial in pairs(stackDials) do
+            if dial['description'] ~= 'spec' then
+                local dialPos = decodeDesc(dial['description'])
+                dialPos = offset(dialPos, posOffset)
+                dialPos = scale(dialPos, dialSpacing)
+                dialPos = localPos(dialPos)
+                local dialRot = {0, self.getRotation()[2], 0}
+                newDial = self.takeObject({ position=dialPos, rotation=dialRot, guid=dial['guid'],
+                                            callback='assignCallback', callback_owner=self, params={ship=callbackTable.ship,
+                                            cb=callbackTable.callbackFun, cbArgs=callbackTable.callbackParams, cbObj=callbackTable.callbackObj}})
+                newDial.setLuaScript(dialLuaScript)
+                coroutine.yield(0)
+            end
+        end
+        self.destruct()
+        return 1
+    end
+    startLuaCoroutine(self, 'LayoutCor')
+    --]]
 end
 
 function onLoad()
@@ -175,5 +187,7 @@ function onLoad()
         self.lock()
         self.tooltip = false
         self.interactable = false
+
     end
+    dialLuaScript = Global.getVar('dialLuaScript')
 end

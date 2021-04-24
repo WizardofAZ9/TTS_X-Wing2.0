@@ -35,6 +35,7 @@ function toggleAcesHighSetup()
                 obj = obj.setState(2)
                 obj.setLock(true)
                 table.insert(markers, obj)
+
             end
         })
         local mark4 = self.takeObject({

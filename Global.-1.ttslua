@@ -9,6 +9,8 @@
 -- Code contributions
 --  - Characted width data: Indimeco
 --  - http://github.com/Indimeco/Tabletop-Simulator-Misc
+--  - MSG Flightpath specific code: WizardofAZ
+--  - https://github.com/WizardofAZ9/TTS_MSG-Flightpath
 -- ~~~~~~
 
 -- Should the code execute print functions or skip them?
@@ -35,7 +37,6 @@ end
 -- Object type abstraction
 #include TTS_lib/ObjType/ObjType
 
-
 -- Save/load management
 #include TTS_lib/SaveManager/SaveManager
 
@@ -48,12 +49,18 @@ end
 -- Dice control and dice_statistics
 #include TTS_xwing/src/DiceControl
 
+-- Ship proxy
+#include TTS_xwing/src/ShipProxy
 -- Ship verification
 #include TTS_xwing/src/ShipVerification
 
 -- ContextGui
 #include TTS_xwing/src/ContextGui
 
+-- ConfigManager
+#include TTS_xwing/src/ConfigManager
+
+HotkeyModule = require("TTS_xwing/src/HotkeyManager")
 
 -- Modules API, must be loaded last
 #include TTS_xwing/src/API
@@ -225,6 +232,10 @@ XW_cmd.Process = function(obj, cmd)
         BombModule.ToggleDrop(obj, cmd)
     elseif type == 'AI' then
         AIModule.EnableAI(obj, cmd)
+    elseif type == 'rotate' then
+        DialModule.RotateArc(obj, cmd)
+    elseif type == 'turretarc' then
+        DialModule.TurretArc(obj, cmd)
     end
     obj.setDescription('')
     return true
@@ -259,10 +270,9 @@ end
 -- Exclusively uses milimeters and degrees for values, needs external conversion
 
 -- Possible commands supported by this module
-XW_cmd.AddCommand('[sk][012345][r]?', 'move')   -- Straights/Koiograns + stationary moves
-XW_cmd.AddCommand('b[rle][0123][strz]?', 'move')   -- Banks + segnor and reverse versions
-XW_cmd.AddCommand('t[rle][01234][srfbtz]?[t]?', 'move')
-
+XW_cmd.AddCommand('[sk][rle]?[012345][fb]?[rf]?', 'move')   -- Straights/Koiograns/Strafe + stationary moves
+XW_cmd.AddCommand('b[rle][0123][strfb]?[zp]?', 'move')   --Banks + segnor, pylon and reverse versions
+XW_cmd.AddCommand('t[rle][01234][srtcfb]?[zt]?', 'move')   --Turns + segnor, talon, spiral and reverse versions
 XW_cmd.AddCommand('r[rle][123]?', 'actionMove')       --New Roll Done
 XW_cmd.AddCommand('v[rle][fb][123]?', 'actionMove')   --New ViperRoll
 XW_cmd.AddCommand('c[srle][123]?', 'actionMove')      --New Cloak side
@@ -270,10 +280,11 @@ XW_cmd.AddCommand('e[srle][fbrle][123]?', 'actionMove')   --New Echo Cloack
 
 
 XW_cmd.AddCommand('x[rle][fb]?', 'actionMove')  -- Barrel rolls
-XW_cmd.AddCommand('s[12345]b', 'actionMove')    -- Boost straights
-XW_cmd.AddCommand('b[rle][123]b', 'actionMove') -- Boost banks
-XW_cmd.AddCommand('t[rle][123]b', 'actionMove') -- Boost turns
+XW_cmd.AddCommand('s[12345][xb]', 'actionMove')    -- Boost straights
+XW_cmd.AddCommand('b[rle][123][xb]', 'actionMove') -- Boost banks
+XW_cmd.AddCommand('t[rle][123][xb]', 'actionMove') -- Boost turns
 XW_cmd.AddCommand('a[12]', 'actionMove')        -- Adjusts
+
 --XW_cmd.AddCommand('c[srle]', 'actionMove')      -- Decloaks side middle + straight
 --XW_cmd.AddCommand('c[rle][fb]', 'actionMove')   -- Decloaks side forward + backward
 --XW_cmd.AddCommand('ch[rle][fb]', 'actionMove')  -- Echo's bullshit
@@ -300,7 +311,7 @@ AIModule.current_move.Reset = function()
     AIModule.current_move.difficulty = nil
     AIModule.current_move.obstacle = false
     AIModule.current_move.stress_count = 0
-    AIModule.current_move.is_ionised = false
+    AIModule.current_move.is_shocked = false
     AIModule.current_move.target = nil
     AIModule.current_move.probes = {}
     AIModule.current_move.action_stack = {}
@@ -324,8 +335,7 @@ end
 -- called except when debugging.
 AIModule.ValidateMoveTables = function(ship)
     local ship_id = ship.getTable('Data')['shipId']
-    local rule_set = BehaviourDB.GetRuleSet()
-    local behaviour = rule_set.ships[ship_id]
+    local behaviour = BehaviourDB.GetRuleSet().GetShipBehaviour(ship)
 
     for arc, range_tables in pairs(behaviour.move_table) do
         for range, move_table in pairs(range_tables) do
@@ -467,7 +477,7 @@ The maneuver selection is the main submodule of the AI, as well as the one that
 ties most of the others together. It is home to one of the entry points,
 "PerformAIManever". The main function, AIModule.PerformManeuver, uses the
 target selection functions to pick a target, then plots a maneuver based on
-the move tables in BehaviourDB.ttslua. It also cover stress, ion, and obstacle
+the move tables in BehaviourDB.ttslua. It also cover stress, shock, and obstacle
 avoidance.
 
 Worth noting is that due to having to wait for ships to finish moving, part of
@@ -500,7 +510,7 @@ AIModule.PerformManeuver = function(ship, take_action)
     local rule_set = BehaviourDB.GetRuleSet()
 
     local ship_id = ship.getTable('Data')['shipId']
-    local ship_behaviour = rule_set.ships[ship_id]
+    local ship_behaviour = rule_set.GetShipBehaviour(ship)
 
     if ship_behaviour ~= nil then
         printToAll('Performing AI routine for ' .. ship.GetName(), color(1.0, 1.0, 0.2, 0.9))
@@ -516,17 +526,17 @@ AIModule.PerformManeuver = function(ship, take_action)
         end
         AIModule.current_move.target = target_ship
 
-        -- Check if we're ionised.
-        local is_ionised = AIModule.IsIonised(ship)
-        AIModule.current_move.is_ionised = is_ionised
+        -- Check if we're shocked.
+        local is_shocked = AIModule.IsShocked(ship)
+        AIModule.current_move.is_shocked = is_shocked
 
         if target_ship == nil then
             -- TODO: This is undefined behaviour, and highly unlikely to happen.
             -- Should it default to a 2 straight?
             printToAll('Failed to find target')
-        elseif is_ionised == true then
+        elseif is_shocked == true then
             move_code = 's1'
-            printToAll('Ionised, skipping movement selection')
+            printToAll('Shocked, skipping movement selection')
         else
             -- Find out the arc that the target is in.
             local target_arc = nil
@@ -671,9 +681,9 @@ AIModule.PerformManeuver = function(ship, take_action)
             if probe_data.collObs ~= nil then
                 printToAll(' Tried ' .. move_code .. ', hit an obstacle')
                 AIModule.current_move.obstacle = true
-                -- We've hit an obstacle! If we aren't ionised then We'll try to
+                -- We've hit an obstacle! If we aren't shocked then We'll try to
                 -- swerve.
-                if is_ionised == false then
+                if is_shocked == false then
                     -- We pick up to two maneuvers that are the closest to our
                     -- current maneuver, and possible for our ship and stress
                     -- level. Whichever of these will get us closer to our
@@ -686,9 +696,9 @@ AIModule.PerformManeuver = function(ship, take_action)
                     if move_info.type == 'straight' then
                         potential_swerve_moves = {'bl' .. swerve_speed, 'br' .. swerve_speed}
                     elseif move_info.type == 'bank' then
-                        potential_swerve_moves = {'t' .. string.sub(move_info.dir, 1, 1) .. swerve_speed, 's' .. swerve_speed}
+                        potential_swerve_moves = {'t' .. string.sub(move_info.dir, 1, 1) .. swerve_speed, 'p' .. string.sub(move_info.dir, 1, 1) .. swerve_speed, 's' .. swerve_speed}
                     elseif move_info.type == 'turn' then
-                        potential_swerve_moves = {'b' .. string.sub(move_info.dir, 1, 1) .. swerve_speed}
+                        potential_swerve_moves = {'b' .. string.sub(move_info.dir, 1, 1) .. swerve_speed, 'c' .. string.sub(move_info.dir, 1, 1) .. swerve_speed}
                     end
 
                     local swerve_moves = {}
@@ -730,6 +740,21 @@ AIModule.PerformManeuver = function(ship, take_action)
                             AIModule.current_move.collision = swerve_probe_data.collObj ~= nil
                         else
                             print(' Tried ' .. closest_swerve_move_code .. ', still hits an obstacle.')
+
+                            local obstacle_name = swerve_probe_data.collObs.getName()
+                            if obstacle_name:find('Asteroid') then
+                                -- Asteroid: roll an attack die and suffer a hit or crit
+                                AIModule.current_move.obstacle = 'asteroid'
+                                printToAll(ship.GetName() .. ' has collided with an asteroid. Please roll a red die and inflict a hit or a critical hit if either is rolled.', color(1.0, 1.0, 0.2, 0.9))
+                            elseif obstacle_name:find('Debris') or obstacle_name:find('Chute debris') or obstacle_name:find('Spare') then
+                                -- Debris cloud: gain stress (happens in ManeuverPostShipRest), roll and attack die and suffer a crit
+                                AIModule.current_move.obstacle = 'debris_field'
+                                printToAll(ship.GetName() .. ' has collided with a debris field. Please roll a red die and inflict a critical hit if one is rolled.', color(1.0, 1.0, 0.2, 0.9))
+                            elseif obstacle_name:find('Cloud') then
+                                AIModule.current_move.obstacle = 'gas_cloud'
+                                -- Gas cloud: roll an attack die, gain a strain on an eye or a hit
+                                printToAll(ship.GetName() .. ' has collided with a gas cloud. Please roll a red die and gain a strain if an eye or a hit is rolled.', color(1.0, 1.0, 0.2, 0.9))
+                            end
                         end
                     end
                 end
@@ -739,11 +764,11 @@ AIModule.PerformManeuver = function(ship, take_action)
 
             AIModule.current_move.difficulty = 'b'
 
-            -- If we are ionised, then our move is always blue and we remove
-            -- all of our ion tokens. Otherwise, we check for our difficulty.
-            if is_ionised then
+            -- If we are shocked, then our move is always blue and we remove
+            -- all of our shock tokens. Otherwise, we check for our difficulty.
+            if is_shocked then
                 while TokenModule.GetShipTokenCount(ship, 'Shock') > 0 do
-                    -- BUG: This fails to identify the ion token stack if the
+                    -- BUG: This fails to identify the shock token stack if the
                     -- ship has exactly two stress tokens. If this occurs, the
                     -- ship also leaves behind the single remaining stress
                     -- token. I've done a bit of debugging and it appears that
@@ -755,7 +780,7 @@ AIModule.PerformManeuver = function(ship, take_action)
                     -- occurence that wouldn't matter if the AI wasn't doing
                     -- everything at the same time. Potential fix: set
                     -- '__XW_Token' on the token afterwards?
-                    DialModule.PerformAction(ship, 'Ion', ship.getVar('owningPlayer'), {['remove'] = true})
+                    DialModule.PerformAction(ship, 'Shock', ship.getVar('owningPlayer'), {['remove'] = true})
                 end
             else
                 AIModule.current_move.difficulty = AIModule.GetMoveDifficulty(ship, move_code)
@@ -794,11 +819,22 @@ end
 AIModule.ManeuverPostShipRest = function(ship)
     local action_selected = false;
 
+    if AIModule.current_move.obstacle == 'debris_field' then
+        DialModule.PerformAction(ship, 'Stress', ship.getVar("owningPlayer"))
+    end
+
     if AIModule.current_move.difficulty == 'r' then
         DialModule.PerformAction(ship, 'Stress', ship.getVar("owningPlayer"))
     elseif AIModule.current_move.take_action == true and AIModule.current_move.stress_count == 0 and AIModule.current_move.collision == false and AIModule.current_move.obstacle == false then
-        if AIModule.current_move.is_ionised then
-            -- TODO: Only perform a focus action (if possible)
+        if AIModule.current_move.is_shocked then
+            -- Shocked ships can only perform a focus action, if possible.
+            for _, action in pairs(ship.getTable('Data')['actSet']) do
+                if action == 'F' then
+                    table.insert(AIModule.current_move.action_stack, 'focus')
+                    action_selected = true
+                    break
+                end
+            end
         else
             -- Check for Full Throttle and apply it now if appropriate.
             AIModule.ApplySpecialAbility(ship, 'fullThrottle')
@@ -942,9 +978,7 @@ AIModule.ApplySpecialAbility = function(ship, ability)
 end
 
 AIModule.HasSpecialAbility = function(ship, ability)
-    local rule_set = BehaviourDB.GetRuleSet()
-    local ship_id = ship.getTable('Data')['shipId']
-    local ship_behaviour = rule_set.ships[ship_id]
+    local ship_behaviour = BehaviourDB.GetRuleSet().GetShipBehaviour(ship)
 
     if ship_behaviour.special_rules == nil then
         return false
@@ -959,24 +993,24 @@ AIModule.HasSpecialAbility = function(ship, ability)
     return false
 end
 
---[[ AIModule.IsIonised
-This function returns whether or not a ship has enough ion tokens to ionise it.
+--[[ AIModule.IsShocked
+This function returns whether or not a ship has enough shock tokens to ionise it.
 
 ship: TTS Object, the ship performing the move
 
-returns true if the ship is ionised, false otherwise.
+returns true if the ship is shocked, false otherwise.
 ]]
-AIModule.IsIonised = function(ship)
-    local ion_count = TokenModule.GetShipTokenCount(ship, "Ion")
+AIModule.IsShocked = function(ship)
+    local shock_count = TokenModule.GetShipTokenCount(ship, "Shock")
     local ship_size = ship.getTable('Data').Size or 'small'
     if ship_size == 'small' then
-        return ion_count >= 1
+        return shock_count >= 1
     elseif ship_size == 'medium' then
-        return ion_count >= 2
+        return shock_count >= 2
     elseif ship_size == 'large' then
-        return ion_count >= 3
+        return shock_count >= 3
     else
-        return ion_count >= 6
+        return shock_count >= 6
     end
 
     return false
@@ -1032,9 +1066,7 @@ AIModule.arc_adjacencies = {
 }
 
 AIModule.SelectAction = function(ship)
-    local rule_set = BehaviourDB.GetRuleSet()
-    local ship_id = ship.getTable('Data')['shipId']
-    local ship_behaviour = rule_set.ships[ship_id]
+    local ship_behaviour = BehaviourDB.GetRuleSet().GetShipBehaviour(ship)
 
     for _, action in ipairs(ship_behaviour.action_selection) do
         if AIModule.AttemptAction(ship, AIModule.current_move.target, action) then
@@ -1042,6 +1074,7 @@ AIModule.SelectAction = function(ship)
         end
     end
 
+    local ship_id = ship.getTable('Data')['shipId']
     printToAll('No AI actions found for ship ID ' .. tostring(ship_id) .. ', please make actions manually.', color(1.0, 1.0, 0.2, 0.9))
 end
 
@@ -1248,12 +1281,12 @@ AIModule.ProcessActionStack = function(ship)
         elseif action == 'cloak' then
             DialModule.PerformAction(ship, 'Cloak', ship.getVar('owningPlayer'))
             table.insert(AIModule.current_move.actions, 'cloak')
-        elseif action == 'reinforceFore' then
-            DialModule.PerformAction(ship, 'Reinforce', ship.getVar('owningPlayer'), {['flip'] = true})
-            table.insert(AIModule.current_move.actions, 'reinforce')
-        elseif action == 'reinforceAft' then
-            DialModule.PerformAction(ship, 'Reinforce', ship.getVar('owningPlayer'))
-            table.insert(AIModule.current_move.actions, 'reinforce')
+        elseif action == 'guardFront' then
+            DialModule.PerformAction(ship, 'Guard', ship.getVar('owningPlayer'), {['flip'] = true})
+            table.insert(AIModule.current_move.actions, 'guard')
+        elseif action == 'guardRear' then
+            DialModule.PerformAction(ship, 'Guard', ship.getVar('owningPlayer'))
+            table.insert(AIModule.current_move.actions, 'guard')
         elseif action == 'coordinate' then
             printToAll('Please manage the coordinate action manually.', color(1.0, 1.0, 0.2, 0.9))
             table.insert(AIModule.current_move.actions, 'coordinate')
@@ -1625,7 +1658,7 @@ AIModule.condition_functions.inEnemyArc = function(ship, target, probe, argument
     end
 
     -- This counts the number of enemies whose arc we are within, and who are
-    -- within our specified arc. This is mainly used for the reinforce action
+    -- within our specified arc. This is mainly used for the guard action
     -- and the fullfront/fullback arc.
     local condition_index = arc .. ',' .. tostring(wholly_within_arc)
     if probe.num_enemy_arcs == nil or probe.num_enemy_arcs[condition_index] == nil then
@@ -1735,7 +1768,7 @@ ArcCheck.bullseye_data =
         large=vector(0,0,Convert_mm_igu(190)),
         huge=vector(0,0,Convert_mm_igu(110.5))
     },
-    size=vector(Convert_mm_igu(14), 0.1, Convert_mm_igu(300))
+    size=vector(Convert_mm_igu(14), 0.1, Convert_mm_igu(500))
 }
 
 ArcCheck.Initialize = function() -- Arc values based on Muon's assesments (vassal)
@@ -1765,10 +1798,25 @@ ArcCheck.CalculateArcLineSegments = function(table, degree, size_w, size_l)
     local edge_arc = Vect.AngleDeg2D({-size_w, 0, size_l}, {size_w, 0,size_l})
     --print("Size_W:" .. tostring(size_w) .. " size_l:"..size_l .. " edge_arc=".. tostring(edge_arc))
     if size_w == size_l then -- Rectangular base sizes (small, medium and large ships)
-        print("Rectangular:".. tostring(size_w)..","..tostring(size_l))
+        --print("Rectangular:".. tostring(size_w)..","..tostring(size_l))
         local r = math.rad(degree/2)
         local a = math.tan(r) * size_l
         table.front =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
+                                degrees={direction=0, spread=degree/2}
+                            }
+        table.frontarc1 =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
+                                degrees={direction=0, spread=degree/2}
+                            }
+        table.frontarc2 =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
+                                degrees={direction=0, spread=degree/2}
+                            }
+        table.frontarc3 =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
+                                degrees={direction=0, spread=degree/2}
+                            }
+        table.frontarc4 =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
+                                degrees={direction=0, spread=degree/2}
+                            }
+        table.frontarc5 =    {   segments={ {vector(-a, 0, size_l), vector(a, 0, size_l)} },-- Front segment
                                 degrees={direction=0, spread=degree/2}
                             }
         table.back =     {   segments={ {vector(-a, 0, -size_l), vector(a, 0, -size_l)} }, -- Front segment
@@ -1788,7 +1836,7 @@ ArcCheck.CalculateArcLineSegments = function(table, degree, size_w, size_l)
                             }
 
     else -- Long base size (huge ships)
-        print("Long:".. tostring(size_w)..","..tostring(size_l))
+        --print("Long:".. tostring(size_w)..","..tostring(size_l))
         local r = math.rad(90 - degree/2)
         local a = math.tan(r) * size_w
         table.front =    {   segments={  {vector(-size_w, 0, a), vector(-size_w, 0, size_l)}, -- left segment
@@ -1810,6 +1858,18 @@ ArcCheck.CalculateArcLineSegments = function(table, degree, size_w, size_l)
     end
     table.bullseye = {   segments={ {vector(-ArcCheck.bullseye_data.size[1]/2, 0, size_l), vector(ArcCheck.bullseye_data.size[1]/2, 0, size_l)} }, -- Bullseye segments
                             degrees={direction=0, spread=0, bullseye=true}
+                        }
+    table.melee = {  segments={ {vector(-size_w, 0, 0), vector(-size_w, 0, size_l)},   -- left segment
+                                        {vector(-size_w, 0, size_l), vector(size_w, 0, size_l)}, -- front edge
+                                        {vector(size_w, 0, size_l), vector(size_w, 0, 0)}  -- right segment
+                                       },
+                            degrees={direction=0, spread=90, melee=true}
+                        }
+    table.half = {  segments={ {vector(-size_w, 0, 0), vector(-size_w, 0, size_l)},   -- left segment
+                                        {vector(-size_w, 0, size_l), vector(size_w, 0, size_l)}, -- front edge
+                                        {vector(size_w, 0, size_l), vector(size_w, 0, 0)}  -- right segment
+                                       },
+                            degrees={direction=0, spread=90}
                         }
     table.fullfront = {  segments={ {vector(-size_w, 0, 0), vector(-size_w, 0, size_l)},   -- left segment
                                         {vector(-size_w, 0, size_l), vector(size_w, 0, size_l)}, -- front edge
@@ -1839,13 +1899,13 @@ function CheckArc(args)
         args.ship.removeFromPlayerSelection(player)
     end
 
-    range = args.range or 3
+    range = args.range or 5
     -- Iterate over the potential targets and display their statuses.
     local spawnedRulers = {}
     if args.arctype ~= "full" then
         printToAll(args.ship.getName() .. ' checks for targets in the ' .. args.arctype .. ' arc:', color(1.0, 1.0, 0.2, 0.9))
     end
-    targets = ArcCheck.GetTargetsInRelationToArc(args.ship, args.arctype, nil, range)
+    targets = ArcCheck.GetTargetsInRelationToArc(args.ship, args.arctype, nil, range, args.include_friendly_ships)
     table.sort(targets, ArcCheck.SortTargetsByDesirability)
     local found = false
     for i, target in pairs(targets) do
@@ -1886,7 +1946,12 @@ function CheckArc(args)
                 if target.bullseye == true then
                     bullseyetext = ' in bullseye'
                 end
+
+                if target.closest.range == 0.5 then
+                printToAll(" - " .. ship.getName().. multipletext .. obstructedtext .. ' at melee range' .. bullseyetext, color(1.0, 1.0, 0.2, 0.9))
+                else
                 printToAll(" - " .. ship.getName().. multipletext .. obstructedtext .. ' at range ' ..tostring(target.closest.range) .. bullseyetext, color(1.0, 1.0, 0.2, 0.9))
+                end
             end
         end
     end
@@ -1903,7 +1968,7 @@ information based on the provided arc type for each one.
 
 ship: TTS Object, the ship whose arc will be tested.
 arc: Table or String. The arc/s of the ship being tested. If a string, it is an
-    arc description such as 'front', 'bullseye', etc. See DataPad for full list.
+    arc description such as 'front', 'melee', 'bullseye', etc. See DataPad for full list.
     If a table, it is a list of arc descriptions. Note that a single string
     is expanded (so "frontback" becomes "front", "back"), but table entries are
     not.
@@ -1913,6 +1978,7 @@ fixed_targets: [optional]A list of TTS Objects, if passed in these are the only
 returns a table of targets, each containing the following:
     ship: TTS Object, the ship being targetted
     bullseye: Boolean, true if the target is in the ship's bullseye
+    melee: Boolean, true if the target is within range 0.5
     closest: Table, the closest points and the range between the ship and the
         target. See ArcCheck.GetDistanceBetweenLineSegments
     in_arc: Boolean, true if the target is in the specified arc.
@@ -1929,12 +1995,12 @@ returns a table of targets, each containing the following:
     other_closest: Table, the other closest point. See 'closest' and
         'multiple_points'. This is nil if only one closest point.
 --]]
-ArcCheck.GetTargetsInRelationToArc = function(ship, arc, fixed_targets, range)
+ArcCheck.GetTargetsInRelationToArc = function(ship, arc, fixed_targets, range, include_friendly_ships)
     if ArcCheck.initialized == false then
         ArcCheck.Initialize()
     end
 
-    range = range or 3
+    range = range or 5
 
     local arc_parts = arc
     if type(arc) == 'string' then
@@ -1950,7 +2016,7 @@ ArcCheck.GetTargetsInRelationToArc = function(ship, arc, fixed_targets, range)
     ship.setLock(true)
     local shipSize = ship.getTable("Data").Size or 'small'
 
-    local potential_targets = fixed_targets or ArcCheck.GetPotentialTargets(ship)
+    local potential_targets = fixed_targets or ArcCheck.GetPotentialTargets(ship, nil, true, include_friendly_ships or false)
     local bullseye_targets = ArcCheck.GetBullseyeTargets(ship, ArcCheck.bullseye_data.pos[shipSize])
 
     local own_line_segments = {}
@@ -2094,7 +2160,7 @@ ArcCheck.CheckObstruction = function(data, ship, ownship)
         orientation  = {0,data.angle, 0},
         direction    = {0,-0.3,0},
         type         = 3,
-        size         = {0.1,0.1,data.length},
+        size         = {0,0,data.length},
         max_distance = 3,
         debug        = false
     })
@@ -2118,7 +2184,7 @@ ArcCheck.SpawnArcVisualization = function()
       snap_to_grid      = false
   })
   arc.setCustomObject({
-      mesh =  '{verifycache}http://cloud-3.steamusercontent.com/ugc/1003682288849959172/A155E2713ECFA2E23D35ED451339ECE69BF8BEF8/',
+      mesh =  '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/models/A155E2713ECFA2E23D35ED451339ECE69BF8BEF8_small-front-working.obj',
       material = 3
   })
   arc.setLock(true)
@@ -2137,13 +2203,15 @@ ArcCheck.SpawnObstructionRuler = function(data)
             snap_to_grid      = false
         })
         ruler.setCustomObject({
-            mesh =  '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/models/ArcCheckRuler'.. data.range .. '.obj',
+            mesh =  '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/models/rulers/ArcCheckRuler'.. data.range .. '.obj',
             material = 3
         })
         local tintcolor = color(1.0, 1.0, 0.2, 1.0) -- Yellow obstructed tint
         if #data.obstructions == 0 then
             if data.in_bullseye then
                 tintcolor = color(1.0, 0.2, 1.0, 1.0) -- Purple unobstructed bullseye tint
+            elseif data.range == 0.5 then
+                tintcolor = color(1.0, 0.0, 0.0, 1.0) -- red unobstructed melee tint
             else
                 tintcolor = color(0.2, 0.2, 1.0, 1.0) -- Blue unobstructed tint
             end
@@ -2158,6 +2226,9 @@ ArcCheck.SpawnObstructionRuler = function(data)
 
         ruler.setColorTint(tintcolor)
         ruler.setLock(true)
+        local rigid = ruler.getComponent("Rigidbody")
+        rigid.set("isKinematic", true)
+        rigid.set("detectCollisions", false)
         return ruler
         --table.insert(ArcCheck.arc_check_rulers, ruler)
     end
@@ -2266,7 +2337,12 @@ ArcCheck.GetDistanceBetweenLineSegmentAndPoint = function(segment, point, revers
         B = point
     end
     local distance = Vect.Distance(P, point)
-    local range =math.floor(Convert_igu_mm(distance / 100)) + 1
+    local range = {}
+    if (math.abs(Convert_igu_mm(distance / 100)) <= 0.5) and (math.abs(Convert_igu_mm(distance / 100)) > 0) then
+        range = 0.5
+    else
+        range = math.floor(Convert_igu_mm(distance / 100)) + 1
+    end
 
     local midpoint = Vect.Middle(A, B)
     midpoint[2] = 1.52
@@ -2298,8 +2374,8 @@ ArcCheck.GetOwnArcLineSegments = function(ship, segments)
 end
 
 -- Finds all potential ships within a little more than range 3 from the ship
-ArcCheck.GetPotentialTargets = function(ship, length)
-    return ArcCheck.GetShipsWithinRange(ship, length)
+ArcCheck.GetPotentialTargets = function(ship, length, include_enemy_ships, include_friendly_ships)
+    return ArcCheck.GetShipsWithinRange(ship, length, include_enemy_ships, include_friendly_ships)
 end
 
 -- Finds all targets in bullseye
@@ -2336,7 +2412,6 @@ ArcCheck.VerifyBullseye = function(ship, target)
     local left = false
     local right = false
     local half_bullseye = (ArcCheck.bullseye_data.size[1]/2)
-    print("Half_bullseye = " .. tostring(half_bullseye))
 
     -- Translate target corners into ship object Space
     local size = Convert_mm_igu((mm_baseSize[target.getTable("Data").Size]/2))
@@ -2350,7 +2425,7 @@ ArcCheck.VerifyBullseye = function(ship, target)
     for _, target_corner in pairs(target_corners) do
         local world_corner = target_corner:rotateOver('y',t_rotation) + target.getPosition() - ship.getPosition()
         local local_corner = world_corner:rotateOver('y', - s_rotation)
-        print ("Local corner: " .. tostring(local_corner[1]) .. "," .. tostring(local_corner[2]) ..  "," .. tostring(local_corner[3]))
+        --print ("Local corner: " .. tostring(local_corner[1]) .. "," .. tostring(local_corner[2]) ..  "," .. tostring(local_corner[3]))
         if local_corner.x > -half_bullseye then
             right = true
         end
@@ -2654,11 +2729,7 @@ end
 -- Apply move modifiers that happen even if move is partial
 MoveData.ApplyBasicModifiers = function(entry, info)
     local out = table.shallowcopy(entry)
-    if (info.type == 'turnSlip' or info.type == 'bankSlip') then
-        if info.dir == 'right' then
-            out = MoveData.LeftVariant(out)
-        end
-    elseif info.dir == 'left' then
+    if info.dir == 'left' then
         out = MoveData.LeftVariant(out)
     end
     if info.extra == 'reverse' then
@@ -2670,9 +2741,9 @@ end
 -- Apply move modifiers that only happen if move is performed fully
 MoveData.ApplyFinalModifiers = function(entry, info)
     local out = table.shallowcopy(entry)
-    if info.extra == 'talon' then
+    if info.extra == 'talon' or info.extra == 'pylon' then
         out = MoveData.TurnInwardVariant(out)
-    elseif info.extra == 'koiogran' or info.extra == 'segnor' then
+    elseif info.extra == 'koiogran' or info.extra == 'segnor' or info.extra == 'spiral' then
         out = MoveData.TurnAroundVariant(out)
     end
     return out
@@ -2684,10 +2755,10 @@ end
 MoveData.DecodeInfo = function (move_code, ship)
     local info = {
                                         -- [option1] [option2] ... [optionN]  // [errorOption]
-                    type='invalid',     -- [straight] [bank] [turn] [roll] [viper] [cloak] [echo] [bankSlip] [ turnSlip]//  [invalid]
+                    type='invalid',     -- [straight] [bank] [turn] [strafe] [roll] [viper] [cloak] [echo] [bankSlip] [ turnSlip]//  [invalid]
                     speed=nil,          -- [1] [2] [3] [4] [5]  //  [nil]
                     dir=nil,            -- [left] [right] [nil]
-                    extra=nil,          -- [koiogran] [segnor] [talon] [reverse] [straight] [forward] [backward] [nil]
+                    extra=nil,          -- [koiogran] [segnor] [talon] [pylon] [spiral] [reverse] [straight] [forward] [backward] [nil]
                     traits =
                     {
                         full=false,     -- [true] [false] if this move can be attempted as a full move
@@ -2713,6 +2784,27 @@ MoveData.DecodeInfo = function (move_code, ship)
             info.extra = 'koiogran'
             info.note = 'koiogran turned ' .. info.speed
             info.collNote = 'tried to koiogran turn ' .. info.speed
+        elseif move_code:sub(-1,-1) == 'f' then
+             info.type = 'strafe'
+             info.extra = 'strafe'
+             info.dir = 'right'
+             info.speed = tonumber(move_code:sub(3,3))
+             info.traits.full = true
+             info.traits.part = true
+             if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
+                 info.dir = 'left'
+             end
+             info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' straight'
+             info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' straight'
+             if move_code:sub(-2,-2) == 'f' then
+                 info.type = 'strafeF'
+                 info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' forward'
+                 info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' forward'
+             elseif move_code:sub(-2,-2) == 'b' then
+                 info.type = 'strafeB'
+                 info.note = 'strafed ' .. info.dir .. ' ' .. info.speed .. ' backward'
+                 info.collNote = 'tried strafing ' .. info.dir .. ' ' .. info.speed .. ' backward'
+             end
         elseif move_code:sub(-1,-1) == 'r' then
             info.extra = 'reverse'
             info.note = 'flew reverse ' .. info.speed
@@ -2725,6 +2817,15 @@ MoveData.DecodeInfo = function (move_code, ship)
             end
             info.note = 'boosted straight' .. boostSpd
             info.collNote = 'tried to boost straight' .. boostSpd
+        elseif move_code:sub(-1,-1) == 'x' then
+            info.extra = 'reverse'
+            info.traits.part = false
+            local boostSpd = ''
+            if info.speed > 1 then
+                boostSpd = ' ' .. info.speed
+            end
+            info.note = 'reverse boosted ' .. boostSpd
+            info.collNote = 'tried to reverse boost ' .. boostSpd
         else
             info.note = 'flew straight ' .. info.speed
             info.collNote = 'tried to fly straight ' .. info.speed
@@ -2759,23 +2860,45 @@ MoveData.DecodeInfo = function (move_code, ship)
         if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
             info.dir = 'left'
         end
-        if move_code:sub(-1,-1) == 's' then
+        if move_code:sub(-1,-1) == 'p' then
+              info.type = 'pylon'
+              info.note = 'perform a pylon twist ' .. info.dir .. ' ' .. info.speed
+              info.collNote = 'tried to perform a pylon twist ' .. info.dir .. ' ' .. info.speed
+              if move_code:sub(-2,-2) == 'f' then
+                  info.type = 'pylonF'
+                  info.note = 'performed a pylon twist ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+                  info.collNote = 'tried to perform a pylon twist ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+              elseif move_code:sub(-2,-2) == 'b' then
+                  info.type = 'pylonB'
+                  info.note = 'performed a pylon twist ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+                  info.collNote = 'tried to perform a pylon twist ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+              end
+        elseif move_code:sub(-1,-1) == 's' then
             info.extra = 'segnor'
-            info.note = 'segnor looped ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to segnor loop ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed an s-loop ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a segnor loop ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 't' then
             info.extra = 'talon'
-            info.note = 'talon rolled (bank template) ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a talon roll (bank template) ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a talon roll ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 'r' then
             info.extra = 'reverse'
-            info.note = 'flew reverse bank ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to fly reverse bank ' .. info.dir .. ' ' .. info.speed
+            info.note = 'flew a reverse bank ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to fly a reverse bank ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 'z' then
             info.type = 'bankSlip'
             info.extra = 'bankSlip'
-            info.note = 'sliped bank ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to slip bank ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a slip bank ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a slip bank ' .. info.dir .. ' ' .. info.speed
+            if move_code:sub(-2,-2) == 'f' then
+                info.type = 'bankSlipF'
+                info.note = 'performed a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+                info.collNote = 'tried to perform a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+            elseif move_code:sub(-2,-2) == 'b' then
+                info.type = 'bankSlipB'
+                info.note = 'performed a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+                info.collNote = 'tried to perform a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+            end
         elseif move_code:sub(-1,-1) == 'b' then
             info.traits.part = false
             local boostSpd = ''
@@ -2784,6 +2907,15 @@ MoveData.DecodeInfo = function (move_code, ship)
             end
             info.note = 'boosted ' .. info.dir .. boostSpd
             info.collNote = 'tried to boost ' .. info.dir .. boostSpd
+        elseif move_code:sub(-1,-1) == 'x' then
+            info.extra = 'reverse'
+            info.traits.part = false
+            local boostSpd = ''
+            if info.speed > 1 then
+                boostSpd = ' ' .. info.speed
+            end
+            info.note = 'reverse boosted ' .. info.dir .. boostSpd
+            info.collNote = 'tried to reverse boost ' .. info.dir .. boostSpd
         else
             info.note = 'banked ' .. info.dir .. ' ' .. info.speed
             info.collNote = 'tried to bank ' .. info.dir .. ' ' .. info.speed
@@ -2805,21 +2937,25 @@ MoveData.DecodeInfo = function (move_code, ship)
         end
         if move_code:sub(-1,-1) == 't' then
             info.type = 'talon'
-            info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a talon roll ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a talon roll ' .. info.dir .. ' ' .. info.speed
             if move_code:sub(-2,-2) == 'f' then
                 info.type = 'talonF'
-                info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
-                info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. 'adjusting Forward'
+                info.note = 'performed a talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+                info.collNote = 'tried to perform a talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
             elseif move_code:sub(-2,-2) == 'b' then
                 info.type = 'talonB'
-                info.note = 'talon rolled ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
-                info.collNote = 'tried to talon roll ' .. info.dir .. ' ' .. info.speed .. 'adjusting Backward'
+                info.note = 'performed a talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+                info.collNote = 'tried to perform a talon roll ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
             end
         elseif move_code:sub(-1,-1) == 's' then
             info.extra = 'segnor'
-            info.note = 'segnor looped (turn template) ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to segnor loop (turn template) ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed an s-loop (turn template) ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform an s-loop (turn template) ' .. info.dir .. ' ' .. info.speed
+        elseif move_code:sub(-1,-1) == 'c' then
+            info.extra = 'spiral'
+            info.note = 'performed an spiral cross ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform an spiral cross ' .. info.dir .. ' ' .. info.speed
         elseif move_code:sub(-1,-1) == 'r' then
             info.extra = 'reverse'
             info.note = 'flew reverse turn ' .. info.dir .. ' ' .. info.speed
@@ -2827,8 +2963,17 @@ MoveData.DecodeInfo = function (move_code, ship)
         elseif move_code:sub(-1,-1) == 'z' then
             info.type = 'turnSlip'
             info.extra = 'turnSlip'
-            info.note = 'sliped turn ' .. info.dir .. ' ' .. info.speed
-            info.collNote = 'tried to slip turn ' .. info.dir .. ' ' .. info.speed
+            info.note = 'performed a slip turn ' .. info.dir .. ' ' .. info.speed
+            info.collNote = 'tried to perform a slip turn ' .. info.dir .. ' ' .. info.speed
+            if move_code:sub(-2,-2) == 'f' then
+                info.type = 'turnSlipF'
+                info.note = 'performed a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+                info.collNote = 'tried to perform a slip turn ' .. info.dir .. ' ' .. info.speed .. ' adjusting Forward'
+            elseif move_code:sub(-2,-2) == 'b' then
+                info.type = 'turnSlipB'
+                info.note = 'performed a slip bank ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+                info.collNote = 'tried to perform a slip turn ' .. info.dir .. ' ' .. info.speed .. ' adjusting Backward'
+            end
         elseif move_code:sub(-1,-1) == 'b' then
             info.traits.part = false
             local boostSpd = ''
@@ -2837,6 +2982,15 @@ MoveData.DecodeInfo = function (move_code, ship)
             end
             info.note = 'boosted (turn template) ' .. info.dir .. boostSpd
             info.collNote = 'tried to boost (turn template) ' .. info.dir .. boostSpd
+        elseif move_code:sub(-1,-1) == 'x' then
+            info.extra = 'reverse'
+            info.traits.part = false
+            local boostSpd = ''
+            if info.speed > 1 then
+                boostSpd = ' ' .. info.speed
+            end
+            info.note = 'reverse boosted (turn template) ' .. info.dir .. boostSpd
+            info.collNote = 'tried to reverse boost (turn template) ' .. info.dir .. boostSpd
         else
             info.note = 'turned ' .. info.dir .. ' ' .. info.speed
             info.collNote = 'tried to turn ' .. info.dir .. ' ' .. info.speed
@@ -2853,18 +3007,19 @@ MoveData.DecodeInfo = function (move_code, ship)
         if move_code:sub(2,2) == 'l' or move_code:sub(2,2) == 'e' then
             info.dir = 'left'
         end
+        info.collNote = 'tried to barrel roll ' .. info.dir
         info.speed = tonumber(move_code:sub(3,3))
         info.traits.full = true
         info.traits.part = false
         if tonumber(move_code:sub(3,3)) == 1 then
             info.note = 'barrel rolled ' .. info.dir .. ' forward'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' forward'
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' forward'
         elseif tonumber(move_code:sub(3,3)) == 2 then
             info.note = 'barrel rolled ' .. info.dir .. ' straight'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' straight'
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' straight'
         elseif tonumber(move_code:sub(3,3)) == 3 then
             info.note = 'barrel rolled ' .. info.dir .. ' backward'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' backward'
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' backward'
         end
 
     -- New Viper roll
@@ -2886,13 +3041,13 @@ MoveData.DecodeInfo = function (move_code, ship)
         end
         if tonumber(move_code:sub(-1,-1)) == 1 then
             info.note = 'barrel rolled ' .. info.dir .. ' ' .. info.extra .. ' adjusting forward'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' ' .. info.extra
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' ' .. info.extra
         elseif tonumber(move_code:sub(-1,-1)) == 2 then
             info.note = 'barrel rolled ' .. info.dir .. ' ' .. info.extra .. ' adjusting straight'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' ' .. info.extra
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' ' .. info.extra
         elseif tonumber(move_code:sub(-1,-1)) == 3 then
             info.note = 'barrel rolled ' .. info.dir .. ' ' .. info.extra .. ' adjusting backward'
-            info.collNote = 'tried barrel rolling ' ..info.dir .. ' ' .. info.extra
+            info.collNote = 'tried to barrel roll ' ..info.dir .. ' ' .. info.extra
         end
         -- New Decloak
     elseif move_code:sub(1,1) == 'c' then
@@ -3711,6 +3866,9 @@ MoveModule.TemplateCastCheck = function(excludeObj, collList, templateData, Sele
     elseif templateData.type:find("talon") then
         templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, "front")
         templateData.type = "turn"
+    elseif templateData.type:find("pylon") then
+        templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, "front")
+        templateData.type = "bank"
     elseif templateData.type == "roll" then
         templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, templateData.dir)
         templateData.speed = 1
@@ -3723,6 +3881,13 @@ MoveModule.TemplateCastCheck = function(excludeObj, collList, templateData, Sele
         end
         templateData.speed = 1
         templateData.type = "bank"
+    elseif templateData.type == "strafe" then
+        local template_pos = "left"
+        if templateData.dir == "left" then
+            template_pos = "right"
+        end
+        templateOrigin = MoveModule.GetTemplateOrigin(templateData.origin, templateData.orientation, templateData.shipSize, templateData.dir)
+        templateData.type = "straight"
     elseif templateData.type == "bankSlip" then
         local template_pos = "left"
         if templateData.dir == "left" then
@@ -3889,14 +4054,13 @@ end
 --      TemplateOrigin (position and rotation)
 MoveModule.GetTemplateOrigin = function(shipOrigin, shipOrientation, shipSize, templateDir)
     -- OBS: Ships are placed backwards
-    local orientation = shipOrientation
-    orientation.y = orientation.y + 180
+    roty = shipOrientation.y + 180
     if templateDir == "left" then
-        orientation.y = orientation.y - 90
+        roty = roty - 90
     elseif templateDir == "right" then
-        orientation.y = orientation.y + 90
+        roty = roty + 90
     elseif templateDir == "back" then
-        orientation.y = orientation.y - 180
+        roty = roty - 180
     end
 
     local distance = Convert_mm_igu(20)
@@ -3906,9 +4070,9 @@ MoveModule.GetTemplateOrigin = function(shipOrigin, shipOrientation, shipSize, t
         distance = Convert_mm_igu(40)
     end
 
-    local position = shipOrigin + vector(distance * math.sin(math.rad(orientation.y)), 0 , distance*math.cos(math.rad(orientation.y)))
+    local position = shipOrigin + vector(distance * math.sin(math.rad(roty)), 0 , distance*math.cos(math.rad(roty)))
 
-    return {pos = position, rot = orientation}
+    return {pos = position, rot = vector(shipOrientation.x, roty, shipOrientation.z)}
 end
 
 
@@ -4067,7 +4231,6 @@ end
 -- Return: {shipRef1, shipRef2, ... , shipRefN}
 MoveModule.MoveProbe.GetHugeShipsNearFull = function(info, ship, fullFun)
     local shipsfound = MoveModule.MoveProbe.GetShipsNearFull(info, ship, fullFun)
-    print("GetHugeShipsNearFull")
     shipsfound = table.sieve(shipsfound, function(obj) return (obj.getTable('Data').Size == 'huge') end)
     return shipsfound
 end
@@ -4134,7 +4297,7 @@ end
 -- Get the FINAL position for a given move, including partial move and collisions
 -- Follows traits from MoveData.DecodeInfo to try different move functions
 -- Return:  {
---      finType     <- 'move' when did full/part mvoe
+--      finType     <- 'move' when did full/part move
 --                     'stationary' when there was no position change (rotation change allowed)
 --                     'overlap' if there was no valid free target position
 --                     IF OVERLAP, OTHER KEYS ARE TO BE IGNORED
@@ -4147,7 +4310,7 @@ MoveModule.GetFinalPosData = function(move_code, ship, ignoreCollisions)
     local info = MoveData.DecodeInfo(move_code, ship)
 
     -- Don't bother with collisions if it's stationary
-    if info.speed == 0 then
+    if info.size ~= 'huge' and info.speed == 0 then
         ignoreCollisions = true
     end
 
@@ -4177,11 +4340,12 @@ MoveModule.GetFinalPosData = function(move_code, ship, ignoreCollisions)
         if info.traits.full == true then
             local fullData = MoveModule.MoveProbe.TryFullMove(info, ship, MoveModule.GetFullMove)
             while info.size == 'huge' and fullData.done == false do
+              out.collObj = fullData.collObj
               info.speed = info.speed -1
               if info.speed == -1 then
-                info.speed = 0
-                info.code = "s0"
-                info.type = "straight"
+                out.finType = 'overlap'
+                out.finPos = {pos=ship.getPosition(), rot=ship.getRotation()}
+                return out
               else
                 info.code = string.gsub(info.code, "%d", info.speed)
               end
@@ -4378,8 +4542,9 @@ MoveModule.PerformMove = function(move_code, ship, ignoreCollisions, finishFunct
     }
 
     MoveModule.CheckMineAndObstacleCollisions(ship, finData.finPos, true, templateData)
-    --MoveModule.CheckObstacleCollisions(ship, finData.finPos, true, templateData)
-    --MoveModule.CheckMineCollisions(ship, finData.finPos, true, templateData)
+    if ((finData.collObj == nil) and ship.getTable('Data').movethrough) then
+        MoveModule.CheckMovethroughShips(ship, true, templateData)
+    end
     return (finData.finType ~= 'overlap')
 end
 
@@ -4484,6 +4649,20 @@ MoveModule.CheckMineAndObstacleCollisions = function(ship, targetPosRot, vocal, 
     return collList
 end
 
+MoveModule.CheckMovethroughShips = function(ship, vocal, templateData)
+    collList = {}
+    if templateData ~= nil then
+        MoveModule.TemplateCastCheck(ship, collList, templateData, MoveModule.SelectShips)
+    end
+    if vocal then
+        for i, coll in pairs(collList) do
+            AnnModule.Announce({type='warn', note=ship.getName() .. ' appears to have moved through ' .. coll.getName()}, 'all')
+            coll.highlightOn({0.2, 0.2, 1}, 3)
+        end
+    end
+    return collList
+end
+
 -- Remove the 'BUMPED' button from a ship (click function)
 function Ship_RemoveOverlapReminder(ship)
     MoveModule.RemoveOverlapReminder(ship)
@@ -4548,12 +4727,14 @@ TokenModule.onLoad = function()
             elseif obj.getName() == 'Stress' then TokenModule.tokenSources.Stress = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Strain' then TokenModule.tokenSources.Strain = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Deplete' then TokenModule.tokenSources.Deplete = {src=obj, hlColor={0.8, 0, 0}}
-            elseif obj.getName() == 'Ion' then TokenModule.tokenSources.Ion = {src=obj, hlColor={0.8, 0, 0}}
+            elseif obj.getName() == 'Shock' then TokenModule.tokenSources.Shock = {src=obj, hlColor={0.8, 0, 0}}
+            elseif obj.getName() == 'Overheat' then TokenModule.tokenSources.Overheat = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Jam' then TokenModule.tokenSources.Jam = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Tractor' then TokenModule.tokenSources.Tractor = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Disarm' then TokenModule.tokenSources.Disarm = {src=obj, hlColor={0.8, 0, 0}}
-            elseif obj.getName() == 'Reinforce' then TokenModule.tokenSources.Reinforce = {src=obj, hlColor={0.8, 0, 0}}
+            elseif obj.getName() == 'Guard' then TokenModule.tokenSources.Guard = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Cloak' then TokenModule.tokenSources.Cloak = {src=obj, hlColor={0.8, 0, 0}}
+            elseif obj.getName() == 'Stationary' then TokenModule.tokenSources.Stationary = {src=obj, hlColor={0.8, 0, 0}}
             elseif obj.getName() == 'Target Locks' then TokenModule.tokenSources['Target Lock'] = {src=obj, hlColor={0, 0, 1}}
             elseif obj.getName():find('Templates') ~= nil then
                 if obj.getName():find('Straight') ~= nil then
@@ -4619,12 +4800,14 @@ TokenModule.basePos.small.Focus     = { 12,  12}
 TokenModule.basePos.small.Calculate = { 12,  24}
 TokenModule.basePos.small.Evade     = { 12, -12}
 TokenModule.basePos.small.Stress    = {-12,  12}
-TokenModule.basePos.small.Ion       = {-12,  -24}
+TokenModule.basePos.small.Shock     = {-12,  -24}
+TokenModule.basePos.small.Overheat  = { 12,  -24}
 TokenModule.basePos.small.Strain    = {-12,  24}
-TokenModule.basePos.small.Deplete    = {-12,  36}
+TokenModule.basePos.small.Deplete   = {-12,  36}
 
-TokenModule.basePos.small.Reinforce = {-24,  24}
+TokenModule.basePos.small.Guard     = {-24,  24}
 TokenModule.basePos.small.Cloak     = {-24, -24}
+TokenModule.basePos.small.Stationary     = {-24, -24}
 TokenModule.basePos.small.Jam       = { 24, -12}
 TokenModule.basePos.small.Disarm    = { 24,  12}
 TokenModule.basePos.small.Tractor   = { 24,  24}
@@ -4637,12 +4820,14 @@ TokenModule.basePos.medium.Focus     = { 25,  25}
 TokenModule.basePos.medium.Calculate = { 25,  35}
 TokenModule.basePos.medium.Evade     = { 25, -25}
 TokenModule.basePos.medium.Stress    = {-25,  25}
-TokenModule.basePos.medium.Ion       = {-25, -35}
+TokenModule.basePos.medium.Shock     = {-25, -35}
+TokenModule.basePos.medium.Overheat  = { 25, -35}
 TokenModule.basePos.medium.Strain    = {-25,  35}
 TokenModule.basePos.medium.Deplete   = {-25,  -45}
 
-TokenModule.basePos.medium.Reinfoce  = {-35,  35}
+TokenModule.basePos.medium.Guard     = {-35,  35}
 TokenModule.basePos.medium.Cloak     = {-35, -35}
+TokenModule.basePos.medium.Stationary     = {-35, -35}
 TokenModule.basePos.medium.Jam       = { 35, -25}
 TokenModule.basePos.medium.Disarm    = { 35,  25}
 TokenModule.basePos.medium.Tractor   = { 35,  35}
@@ -4658,11 +4843,13 @@ TokenModule.basePos.large.Stress    = { 30, -30}
 TokenModule.basePos.large.Strain    = { 30, -40}
 TokenModule.basePos.large.Deplete   = {-30, -40}
 TokenModule.basePos.large.Tractor   = {-30,  30}
-TokenModule.basePos.large.Ion       = {-30,   0}
+TokenModule.basePos.large.Shock     = {-30,   0}
+TokenModule.basePos.large.Overheat  = { 40,  -30}
 TokenModule.basePos.large.Lock      = {  0,  30}
 
 TokenModule.basePos.large.Cloak     = { 30,  30}
-TokenModule.basePos.large.Reinforce = {-30,  30}
+TokenModule.basePos.large.Stationary     = { 30,  30}
+TokenModule.basePos.large.Guard     = {-30,  30}
 TokenModule.basePos.large.Jam       = {-30, -30}
 TokenModule.basePos.large.Disarm    = { 40,  30}
 
@@ -4677,11 +4864,13 @@ TokenModule.basePos.huge.Stress    = { 30, -30}
 TokenModule.basePos.huge.Strain    = { 30, -40}
 TokenModule.basePos.huge.Deplete   = {-30, -40}
 TokenModule.basePos.huge.Tractor   = {-30,  30}
-TokenModule.basePos.huge.Ion       = {-30,   0}
+TokenModule.basePos.huge.Shock     = {-30,   0}
+TokenModule.basePos.huge.Overheat  = {-30,  40}
 TokenModule.basePos.huge.Lock      = {  0,  30}
 
 TokenModule.basePos.huge.Cloak     = { 30,  30}
-TokenModule.basePos.huge.Reinforce = {-30,  30}
+TokenModule.basePos.huge.Stationary     = { 30,  30}
+TokenModule.basePos.huge.Guard     = {-30,  30}
 TokenModule.basePos.huge.Jam       = {-30, -30}
 TokenModule.basePos.huge.Disarm    = { 40,  30}
 
@@ -4698,13 +4887,15 @@ TokenModule.nearPos.small.Evade     = { 35,   0}
 TokenModule.nearPos.small.Stress    = { 35, -25}
 TokenModule.nearPos.small.Strain    = { 35, -35}
 TokenModule.nearPos.small.Deplete   = {-35, -35}
-TokenModule.nearPos.small.Ion       = {-35,  25}
+TokenModule.nearPos.small.Shock     = {-35,  25}
+TokenModule.nearPos.small.Overheat  = {-35,  15}
 TokenModule.nearPos.small.Tractor   = {-35,   0}
 TokenModule.nearPos.small.Lock      = {  0,  40}
 
 
-TokenModule.nearPos.small.Reinfoce  = {-35,  35}
+TokenModule.nearPos.small.Guard     = {-35,  35}
 TokenModule.nearPos.small.Cloak     = {-35, -35}
+TokenModule.nearPos.small.Stationary     = {-35, -35}
 TokenModule.nearPos.small.Jam       = { 35, -25}
 TokenModule.nearPos.small.Disarm    = { 35,  25}
 
@@ -4718,12 +4909,14 @@ TokenModule.nearPos.medium.Evade     = { 45,   0}
 TokenModule.nearPos.medium.Stress    = { 45, -28}
 TokenModule.nearPos.medium.Strain    = { 45, -45}
 TokenModule.nearPos.medium.Deplete   = {-45, -45}
-TokenModule.nearPos.medium.Ion       = {-45,  28}
+TokenModule.nearPos.medium.Shock     = {-45,  28}
+TokenModule.nearPos.medium.Overheat  = {-45,  13}
 TokenModule.nearPos.medium.Tractor   = {-45,   0}
 TokenModule.nearPos.medium.Lock      = {  0,  45}
 
-TokenModule.nearPos.medium.Reinfoce  = {-35,  35}
+TokenModule.nearPos.medium.Guard     = {-35,  35}
 TokenModule.nearPos.medium.Cloak     = {-35, -35}
+TokenModule.nearPos.medium.Stationary     = {-35, -35}
 TokenModule.nearPos.medium.Jam       = { 35, -25}
 TokenModule.nearPos.medium.Disarm    = { 35,  25}
 
@@ -4738,12 +4931,14 @@ TokenModule.nearPos.large.Stress    = { 55, -30}
 TokenModule.nearPos.large.Strain    = { 55, -55}
 TokenModule.nearPos.large.Deplete   = {-55, -55}
 TokenModule.nearPos.large.Tractor   = {-55,  45}
-TokenModule.nearPos.large.Ion       = {-55,  15}
+TokenModule.nearPos.large.Shock     = {-55,  15}
+TokenModule.nearPos.large.Overheat  = {-55,  30}
 TokenModule.nearPos.large.Weapons   = {-55, -15}
 TokenModule.nearPos.large.Lock      = {  0,  50}
 
-TokenModule.nearPos.large.Reinfoce = {-45,  45}
+TokenModule.nearPos.large.Guard     = {-45,  45}
 TokenModule.nearPos.large.Cloak     = {-45, -45}
+TokenModule.nearPos.large.Stationary     = {-45, -45}
 TokenModule.nearPos.large.Jam       = { 45, -45}
 TokenModule.nearPos.large.Disarm    = { 45,  45}
 
@@ -4758,12 +4953,14 @@ TokenModule.nearPos.huge.Stress    = { 55, -30}
 TokenModule.nearPos.huge.Strain    = { 55, -55}
 TokenModule.nearPos.huge.Deplete   = {-55, -55}
 TokenModule.nearPos.huge.Tractor   = {-55,  45}
-TokenModule.nearPos.huge.Ion       = {-55,  15}
+TokenModule.nearPos.huge.Shock     = {-55,  15}
+TokenModule.nearPos.huge.Overheat  = {-55, -30}
 TokenModule.nearPos.huge.Weapons   = {-55, -15}
 TokenModule.nearPos.huge.Lock      = {  0,  50}
 
-TokenModule.nearPos.huge.Reinfoce = {-45,  45}
+TokenModule.nearPos.huge.Guard     = {-45,  45}
 TokenModule.nearPos.huge.Cloak     = {-45, -45}
+TokenModule.nearPos.huge.Stationary     = {-45, -45}
 TokenModule.nearPos.huge.Jam       = { 45, -45}
 TokenModule.nearPos.huge.Disarm    = { 45,  45}
 
@@ -4861,11 +5058,12 @@ TokenModule.locksToBeSet = {}
 -- Callback to set ALL the locks in wueue
 function TokenModule_SetLocks()
     for k,info in pairs(TokenModule.locksToBeSet) do
+        print("lock: " .. tostring(info.lock))
         info.lock.call('manualSet', {color=info.color, name=info.name})
         info.lock.highlightOn({0,0,0}, 0.01)
 
         if info.ship ~= nil then
-            info.lock.call('setOwner', {ship=info.ship})
+            info.lock.call('setOwner', {player=info.color, ship=info.ship})
         end
 
         if info.target ~= nil then
@@ -4902,15 +5100,15 @@ end
 
 -- Table for locks to be set and callback to trigger their naming and coloring
 -- Entry: {lock=targetLockRef, color=colorToTint, name=nameToSet}
-TokenModule.ionsToBeSet = {}
+TokenModule.shocksToBeSet = {}
 
 -- Callback to set ALL the locks in wueue
-function TokenModule_SetIons()
-    for k,info in pairs(TokenModule.ionsToBeSet) do
-        info.ion.call('manualSet',{ref=info.ref})
-        info.ion.highlightOn({0,0,0}, 0.01)
+function TokenModule_SetShocks()
+    for k,info in pairs(TokenModule.shocksToBeSet) do
+        info.shock.call('manualSet',{ref=info.ref})
+        info.shock.highlightOn({0,0,0}, 0.01)
     end
-    TokenModule.ionsToBeSet = {}
+    TokenModule.shocksToBeSet = {}
 end
 
 -- Take a token of some type and move to some position
@@ -4926,8 +5124,8 @@ TokenModule.TakeToken = function(type, playerColor, dest, flip)
     if type == 'Target Lock' then
         takeTable.callback = 'TokenModule_SetLocks'
         takeTable.callback_owner = Global
-    elseif type == 'Ion' then
-        takeTable.callback = 'TokenModule_SetIons'
+    elseif type == 'Shock' then
+        takeTable.callback = 'TokenModule_SetShocks'
         takeTable.callback_owner = Global
     elseif type == 'Tractor' then
         takeTable.callback = 'TokenModule_SetTractors'
@@ -5115,6 +5313,14 @@ TokenModule.UnAssignToken = function(token)
     token.setDescription("Unassigned")
 end
 
+function getShipTokenIsAssignedTo(args)
+    if args.token then
+      local guid = args.token.getGUID()
+      return TokenModule.tokenAssignments[guid]
+    end
+    return nil
+end
+
 -- END TOKEN MODULE
 --------
 
@@ -5123,7 +5329,7 @@ function proxyPerformAction(table)
     ship = table[1]
     actionType = table[2]
     playerColor = table[3]
-    args = {remove= (table[4] or false)}
+    args = table[4] or {}
     DialModule.PerformAction(ship, actionType, playerColor, args)
 end
 
@@ -5131,7 +5337,7 @@ DialModule = {}
 -- Perform an automated action
 -- Can be called externally for stuff like range ruler spawning
 DialModule.PerformAction = function(ship, type, playerColor, args)
-    local tokenActions = ' Focus Calculate Evade Stress Strain Deplete Target Lock Ion Cloak Jam Reinforce Disarm Tractor Dummy '
+    local tokenActions = ' Focus Calculate Evade Stress Strain Deplete Target Lock Shock Overheat Cloak Stationary Jam Guard Disarm Tractor Dummy '
     announceInfo = {type='action'}
     -- Ruler spawning
     if type:find('ruler') ~= nil then
@@ -5140,6 +5346,8 @@ DialModule.PerformAction = function(ship, type, playerColor, args)
         RulerModule.ToggleRuler(ship, rulerCode)
         return
     elseif type:find('spawnMoveTemplate') ~= nil then
+      local size = ship.getTable('Data').Size
+      if size ~= 'huge' then
         if DialModule.DeleteTemplate(ship) == false then
             local scPos = type:find(':')
             local dialCode = type:sub(scPos+1,-1)
@@ -5151,8 +5359,14 @@ DialModule.PerformAction = function(ship, type, playerColor, args)
         else
             return
         end
-    elseif type:find('deleteMoveTemplate') ~= nil then
-      DialModule.DeleteTemplate(ship)
+      else
+          return
+      end
+  elseif type:find('deleteMoveTemplate') ~= nil then
+      local size = ship.getTable('Data').Size
+      if size ~= 'huge' then
+          DialModule.DeleteTemplate(ship)
+      end
       return
     elseif tokenActions:find(' ' .. type .. ' ') ~= nil then
         if args ~= nil and args.remove == true then
@@ -5181,7 +5395,7 @@ DialModule.PerformAction = function(ship, type, playerColor, args)
             local newToken = TokenModule.TakeToken(type, playerColor, dest, flipToken)
 
             if type == 'Target Lock' then
-                local lockArguments = {lock=newToken, name=ship.getName(), color=playerColor}
+                local lockArguments = {ship = ship, lock=newToken, name=ship.getName(), color=playerColor}
                 if args ~= nil and args.ship ~= nil and args.target ~= nil then
                     -- The AI system passes in arguments to automatically assign the
                     -- lock. Process these if they've been passed in.
@@ -5191,9 +5405,9 @@ DialModule.PerformAction = function(ship, type, playerColor, args)
                 table.insert(TokenModule.locksToBeSet, lockArguments)
                 announceInfo.note = 'acquired a target lock'
                 TokenModule.UnAssignToken(newToken) -- Target locks are not assigned to the spawning ship
-            elseif type == 'Ion' then
-                table.insert(TokenModule.ionsToBeSet, {ion=newToken, ref=ship})
-                announceInfo.note = 'takes an ion token'
+            elseif type == 'Shock' then
+                table.insert(TokenModule.shocksToBeSet, {shock=newToken, ref=ship})
+                announceInfo.note = 'takes a shock token'
                 TokenModule.AssignToken(newToken, ship)
             elseif type == 'Tractor' then
                 table.insert(TokenModule.tractorsToBeSet, {tractor=newToken, ref=ship})
@@ -5215,6 +5429,39 @@ DialModule.PerformAction = function(ship, type, playerColor, args)
     AnnModule.Announce(announceInfo, 'all', ship)
 end
 
+DialModule.RotateCmd = {
+  rot = {direction = 'rotateleft', mount = 'main'},
+  rotl = {direction = 'rotateleft', mount = 'main'},
+  rotr = {direction = 'rotateright', mount = 'main'},
+  rot1 = {direction = 'rotateleft', mount = 'front'},
+  rotl1 = {direction = 'rotateleft', mount = 'front'},
+  rotr1 = {direction = 'rotateright', mount = 'front'},
+  rot2 = {direction = 'rotateleft',  mount = 'rear'},
+  rotl2 = {direction = 'rotateleft', mount = 'rear'},
+  rotr2 = {direction = 'rotateright', mount = 'rear'},
+}
+
+
+DialModule.RotateArc = function(ship, cmd)
+    ship.call("RotateAttachedArcIndicator", DialModule.RotateCmd[cmd])
+end
+
+DialModule.TurretArcCmd = {
+  turret = { mount = 'main'},
+  turret1 = { mount = 'front'},
+  turret2 = { mount = 'rear'},
+}
+
+
+DialModule.TurretArc = function(ship, cmd)
+    local arc = ship.call("GetTurretArc", DialModule.TurretArcCmd[cmd])
+    if arc then
+      RulerModule.ToggleRuler(ship, string.upper(arcToCmnd[arc]))
+    end
+end
+
+
+
 -- Spawned tempaltes are kept there
 -- Entry: {ship=shipRef, template=templateObjRef}
 DialModule.SpawnedTemplates = {}
@@ -5229,12 +5476,21 @@ DialModule.TemplateData.straight[2] = {0, -2.5, 40, 0}
 DialModule.TemplateData.straight[3] = {0, -2.5, 60, 0}
 DialModule.TemplateData.straight[4] = {0, -2.5, 80, 0}
 DialModule.TemplateData.straight[5] = {0, -2.5, 100, 0}
+DialModule.TemplateData.strafe = {}
+DialModule.TemplateData.strafe[1] = {0, -2.5, 20, 0}
+DialModule.TemplateData.strafe[2] = {0, -2.5, 40, 0}
 DialModule.TemplateData.bank = {}
 DialModule.TemplateData.bank.leftRot = 45
 DialModule.TemplateData.bank.trim = { left = {{-2,0,-4,0}, {-5.5,0,-5.2,0}, {-9.3,0,-6.45,0}}, right={{4.2,0,1.2,0}, {7.8,0,-0.3,0}, {11.5,0,-1.4,0}} }
 DialModule.TemplateData.bank[1] = {80*(1-math.cos(math.pi/8)), 0, 80*math.sin(math.pi/8), 180}
 DialModule.TemplateData.bank[2] = {130*(1-math.cos(math.pi/8)), 0, 130*math.sin(math.pi/8), 180}
 DialModule.TemplateData.bank[3] = {180*(1-math.cos(math.pi/8)), 0, 180*math.sin(math.pi/8), 180}
+DialModule.TemplateData.pylon = {}
+DialModule.TemplateData.pylon.leftRot = 45
+DialModule.TemplateData.pylon.trim = { left = {{-2,0,-4,0}, {-5.5,0,-5.2,0}, {-9.3,0,-6.45,0}}, right={{4.2,0,1.2,0}, {7.8,0,-0.3,0}, {11.5,0,-1.4,0}} }
+DialModule.TemplateData.pylon[1] = {80*(1-math.cos(math.pi/8)), 0, 80*math.sin(math.pi/8), 180}
+DialModule.TemplateData.pylon[2] = {130*(1-math.cos(math.pi/8)), 0, 130*math.sin(math.pi/8), 180}
+DialModule.TemplateData.pylon[3] = {180*(1-math.cos(math.pi/8)), 0, 180*math.sin(math.pi/8), 180}
 DialModule.TemplateData.bankSlip = {}
 DialModule.TemplateData.bankSlip.leftRot = 45
 DialModule.TemplateData.bankSlip.trim = { left = {{-2,0,-4,0}, {-5.5,0,-5.2,0}, {-9.3,0,-6.45,0}}, right={{4.2,0,1.2,0}, {7.8,0,-0.3,0}, {11.5,0,-1.4,0}} }
@@ -5253,13 +5509,19 @@ DialModule.TemplateData.talon.trim = { left = {{0,-2.5,0,0}, {-3,-2.5,-3.66,0}, 
 DialModule.TemplateData.talon[1] = {35*(1-math.cos(math.pi/4))+2, 0, 35*math.sin(math.pi/4)-2, 180}
 DialModule.TemplateData.talon[2] = {62.5*(1-math.cos(math.pi/4))+5, 0, 62.5*math.sin(math.pi/4)-4, 180}
 DialModule.TemplateData.talon[3] = {90*(1-math.cos(math.pi/4))+9, 0, 90*math.sin(math.pi/4)-6, 180}
+DialModule.TemplateData.turnSlip = {}
+DialModule.TemplateData.turnSlip.leftRot = 90
+DialModule.TemplateData.turnSlip.trim = { left = {{0,-2.5,0,0}, {-3,-2.5,-3.66,0}, {-4.7,-2.5,-7.5,0}}, right={{0,-2.5,0,0}, {3,-2.5,-4.1,0}, {4.5,-2.5,-7.8,0}} }
+DialModule.TemplateData.turnSlip[1] = {35*(1-math.cos(math.pi/4))+2, 0, 35*math.sin(math.pi/4)-2, 180}
+DialModule.TemplateData.turnSlip[2] = {62.5*(1-math.cos(math.pi/4))+5, 0, 62.5*math.sin(math.pi/4)-4, 180}
+DialModule.TemplateData.turnSlip[3] = {90*(1-math.cos(math.pi/4))+9, 0, 90*math.sin(math.pi/4)-6, 180}
 
 DialModule.TemplateData.baseOffset = {}
 DialModule.TemplateData.baseOffset.small = {0, 0, 20, 0}
 DialModule.TemplateData.baseOffset.medium = {0, 0, 30, 0}
 DialModule.TemplateData.baseOffset.large = {0, 0, 40, 0}
 
--- Spawn a tempalte on given ship
+-- Spawn a template on given ship
 -- dialCode is move code PLUS identifier if ship already did it or not
 -- be3_A means "spawn a bank left 3 template behind me" (A as in after move)
 -- tr1_B means "spawn a turn right 1 tempalte in front of me" (B as in before move)
@@ -5269,9 +5531,9 @@ DialModule.SpawnTemplate = function(ship, dialCode)
 
     local moveCode = dialCode:sub(1, -3)
     local moveInfo = MoveData.DecodeInfo(moveCode, ship)
-    --if moveInfo.speed == 0 then
-    --    return nil
-    --end
+    if moveInfo.speed == 0 then
+        return nil
+    end
     local tempEntry = DialModule.TemplateData[moveInfo.type][moveInfo.speed]
     local baseSize = ship.getTable("Data").Size or 'small'
     tempEntry = Vect.Sum(tempEntry, DialModule.TemplateData.baseOffset[baseSize])
@@ -5281,6 +5543,7 @@ DialModule.SpawnTemplate = function(ship, dialCode)
     end
     --TODO LAST MOVE LOGIC OUT!!!
     --TODO dont barf if no last move
+
     if moveInfo.dir == 'left' then
         tempEntry = MoveData.LeftVariant(tempEntry)
         tempEntry[4] = tempEntry[4] + 180 - DialModule.TemplateData[moveInfo.type].leftRot
@@ -5464,19 +5727,27 @@ RulerModule.meshes.smallBase = {}
 RulerModule.meshes.smallBase.scale = {0.629, 0.629, 0.629}
 RulerModule.meshes.smallBase.diffuse = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/arctexture.png'
 RulerModule.meshes.smallBase.collider = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/colliders/Small_base_Collider.obj'
-RulerModule.meshes.smallBase.front = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_front.obj'
+RulerModule.meshes.smallBase.front = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front.obj'
+RulerModule.meshes.smallBase.frontarc1 = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front_range_1.obj'
+RulerModule.meshes.smallBase.frontarc2 = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front_range_2.obj'
+RulerModule.meshes.smallBase.frontarc3 = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front_range_3.obj'
+RulerModule.meshes.smallBase.frontarc4 = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front_range_4.obj'
+RulerModule.meshes.smallBase.frontarc5 = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_front_range_5.obj'
 RulerModule.meshes.smallBase.fullfront = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_fullfront.obj'
 RulerModule.meshes.smallBase.rear = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_back.obj'
 RulerModule.meshes.smallBase.fullback = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_fullback.obj'
 RulerModule.meshes.smallBase.sideArc = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_side_4.obj'
 RulerModule.meshes.smallBase.frontback = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_frontback.obj'
 RulerModule.meshes.smallBase.leftright = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_leftright.obj'
-RulerModule.meshes.smallBase.bullseye = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_bullseye.obj'
+RulerModule.meshes.smallBase.bullseye = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_bullseye5.obj'
+RulerModule.meshes.smallBase.melee = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_ml.obj'
+RulerModule.meshes.smallBase.half = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_12.obj'
 RulerModule.meshes.smallBase.range = {}
-RulerModule.meshes.smallBase.range[1] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_range_1.obj'
-RulerModule.meshes.smallBase.range[2] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_range_2.obj'
-RulerModule.meshes.smallBase.range[3] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_range_3.obj'
-RulerModule.meshes.smallBase.range[4] = '{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/arcranges/new/small_range_4.obj'
+RulerModule.meshes.smallBase.range[1] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_1.obj'
+RulerModule.meshes.smallBase.range[2] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_2.obj'
+RulerModule.meshes.smallBase.range[3] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_3.obj'
+RulerModule.meshes.smallBase.range[4] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_4.obj'
+RulerModule.meshes.smallBase.range[5] = '{verifycache}https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/assets/Items/arcranges/new/small_range_5.obj'
 
 
 -- Ruler meshes for medium base JC
@@ -5539,7 +5810,7 @@ RulerModule.meshes.hugeBase.range[5] = '{verifycache}https://raw.githubuserconte
 
 -- Avaialble ruler codes:
 -- R            - 1-3 range rings
--- R1/R2/R3     - 1/2/3 range rings
+-- R1/R2/R3/R4/R5     - 1/2/3 range rings
 -- A            - contextual arc
 -- AA           - full ruler
 -- AP           - primary arc
@@ -5547,11 +5818,19 @@ RulerModule.meshes.hugeBase.range[5] = '{verifycache}https://raw.githubuserconte
 -- AR           - rear arc
 -- AT           - turret arc
 -- AM           - mobile arc
-XW_cmd.AddCommand('r[1-5]?', 'rulerHandle')     -- Range "rings"
-XW_cmd.AddCommand('[fbs][lrfb]?', 'rulerHandle')  -- Rulers with arc lines
-XW_cmd.AddCommand('leftright', 'rulerHandle')
-XW_cmd.AddCommand('frontback', 'rulerHandle')
-XW_cmd.AddCommand('bull', 'rulerHandle')
+XW_cmd.AddCommand('r[1-5]?a?', 'rulerHandle')     -- Range "rings"
+XW_cmd.AddCommand('[fbs][lrfb]?a?', 'rulerHandle')  -- Rulers with arc lines
+XW_cmd.AddCommand('leftrighta?', 'rulerHandle')
+XW_cmd.AddCommand('frontbacka?', 'rulerHandle')
+XW_cmd.AddCommand('bulla?', 'rulerHandle')
+XW_cmd.AddCommand('frontarc1a?', 'rulerHandle')     -- Front Range 1
+XW_cmd.AddCommand('frontarc2a?', 'rulerHandle')     -- Front Range 2
+XW_cmd.AddCommand('frontarc3a?', 'rulerHandle')     -- Front Range 3
+XW_cmd.AddCommand('frontarc4a?', 'rulerHandle')     -- Front Range 4
+XW_cmd.AddCommand('frontarc5a?', 'rulerHandle')     -- Front Range 5
+XW_cmd.AddCommand('meleea?', 'rulerHandle')
+XW_cmd.AddCommand('halfa?', 'rulerHandle')
+
 
 -- Translate ruler code to a mesh entry
 RulerModule.typeToKey = {}
@@ -5562,6 +5841,13 @@ RulerModule.typeToKey.FB = 'fullback'
 RulerModule.typeToKey.R = 'range'
 RulerModule.typeToKey.SL = 'sideArc'
 RulerModule.typeToKey.SR = 'sideArc'
+RulerModule.typeToKey.MELEE = 'melee'
+RulerModule.typeToKey.FRONTARC1 = 'frontarc1'
+RulerModule.typeToKey.FRONTARC2 = 'frontarc2'
+RulerModule.typeToKey.FRONTARC3 = 'frontarc3'
+RulerModule.typeToKey.FRONTARC4 = 'frontarc4'
+RulerModule.typeToKey.FRONTARC5 = 'frontarc5'
+RulerModule.typeToKey.HALF = 'half'
 RulerModule.typeToKey.FRONTBACK = 'frontback'
 RulerModule.typeToKey.LEFTRIGHT = 'leftright'
 RulerModule.typeToKey.BULL = 'bullseye'
@@ -5574,29 +5860,45 @@ RulerModule.typeToArc.FB = 'fullback'
 RulerModule.typeToArc.R1 = 'full'
 RulerModule.typeToArc.R2 = 'full'
 RulerModule.typeToArc.R3 = 'full'
+RulerModule.typeToArc.R4 = 'full'
+RulerModule.typeToArc.R5 = 'full'
 RulerModule.typeToArc.R = 'full'
 RulerModule.typeToArc.SL = 'left'
 RulerModule.typeToArc.SR = 'right'
 RulerModule.typeToArc.FRONTBACK = 'frontback'
 RulerModule.typeToArc.LEFTRIGHT = 'leftright'
 RulerModule.typeToArc.BULL = 'bullseye'
+RulerModule.typeToArc.MELEE = 'melee'
+RulerModule.typeToArc.FRONTARC1 = 'frontarc1'
+RulerModule.typeToArc.FRONTARC2 = 'frontarc2'
+RulerModule.typeToArc.FRONTARC3 = 'frontarc3'
+RulerModule.typeToArc.FRONTARC4 = 'frontarc4'
+RulerModule.typeToArc.FRONTARC5 = 'frontarc5'
+RulerModule.typeToArc.HALF = 'half'
 
 RulerModule.typeToRange = {}
+RulerModule.typeToRange.MELEE = 0.5
 RulerModule.typeToRange.F = 3
+RulerModule.typeToRange.FRONTARC1 = 1
+RulerModule.typeToRange.FRONTARC2 = 2
+RulerModule.typeToRange.FRONTARC3 = 3
+RulerModule.typeToRange.FRONTARC4 = 4
+RulerModule.typeToRange.FRONTARC5 = 5
 RulerModule.typeToRange.FF = 3
 RulerModule.typeToRange.B = 3
 RulerModule.typeToRange.FB = 3
+RulerModule.typeToRange.HALF = 0.5
 RulerModule.typeToRange.R1 = 1
 RulerModule.typeToRange.R2 = 2
 RulerModule.typeToRange.R3 = 3
+RulerModule.typeToRange.R4 = 4
+RulerModule.typeToRange.R5 = 5
 RulerModule.typeToRange.R = 3
 RulerModule.typeToRange.SL = 3
 RulerModule.typeToRange.SR = 3
 RulerModule.typeToRange.FRONTBACK = 3
 RulerModule.typeToRange.LEFTRIGHT = 3
 RulerModule.typeToRange.BULL = 3
-
-
 
 -- Get ruler spawn tables for some ship and some ruler code
 -- Return table with "mesh", "collider" and "scale" keys
@@ -5631,7 +5933,7 @@ RulerModule.DescriptiveName = function(ship, rulerType)
     if rulerType:sub(1,1) == 'R' then
         ranges = rulerType:sub(2,2)
         if ranges == '' then
-            ranges = '1-3'
+            ranges = '1-5'
         end
         return 'range ' .. ranges .. ' ruler'
     else
@@ -5681,7 +5983,7 @@ end
 
 -- Spawn a ruler for a ship
 -- Returns new ruler reference
-RulerModule.SpawnRuler = function(ship, rulerType, beQuiet)
+RulerModule.SpawnRuler = function(ship, rulerType, beQuiet, include_friendly_ships)
     local rulerData = RulerModule.CreateCustomTables(ship, rulerType)
     if rulerData.custom.mesh == nil then
         return nil
@@ -5692,7 +5994,7 @@ RulerModule.SpawnRuler = function(ship, rulerType, beQuiet)
 
     local arclines = {}
     if RulerModule.typeToArc[rulerType] then
-        arclines = CheckArc({ship=ship,arctype=RulerModule.typeToArc[rulerType], range=RulerModule.typeToRange[rulerType]})
+        arclines = CheckArc({ship=ship,arctype=RulerModule.typeToArc[rulerType], range=RulerModule.typeToRange[rulerType], include_friendly_ships=include_friendly_ships})
     end
     table.insert(RulerModule.spawnedRulers, {ship = ship, ruler = newRuler, arclines = arclines,type = rulerType})
     newRuler.lock()
@@ -5726,14 +6028,22 @@ end
 -- If any other ruler exists, delete it (and spawn queried one), return new ruler ref
 RulerModule.ToggleRuler = function(ship, rulerType, beQuiet)
     local destType = RulerModule.DeleteRuler(ship)
+
     if destType ~= rulerType then
+        includeFriendlies = (#rulerType > 1) and (rulerType:sub(#rulerType,#rulerType) == 'A')
+        includeFriendlyText = ""
+        spawnType = rulerType
+        if includeFriendlies then
+            spawnType = rulerType:sub(1,-2)
+            includeFriendlyText = " including friendlies"
+        end
         if beQuiet ~= true then
             local annInfo = {type='action'}
-            annInfo.note = 'spawned a ' .. RulerModule.DescriptiveName(ship, rulerType) .. ' (' .. rulerType .. ')'
+            annInfo.note = 'spawned a ' .. RulerModule.DescriptiveName(ship, spawnType) .. includeFriendlyText.. ' (' .. rulerType .. ')'
             AnnModule.Announce(annInfo, 'all', ship)
         end
         ship.setLock(true)
-        Wait.frames(function() RulerModule.SpawnRuler(ship, rulerType, beQuiet) end,1)
+        Wait.frames(function() RulerModule.SpawnRuler(ship, spawnType, beQuiet, includeFriendlies) end,1)
     end
 end
 
@@ -5818,6 +6128,7 @@ end
 -- Bomb type -> offset data
 BombModule.tokenOffset = {}
 BombModule.tokenOffset.standardAoE = {pos={0, Convert_mm_igu(-2), Convert_mm_igu(-4.5)}, rot={0, 90, 0}}
+BombModule.tokenOffset.crackerAoE = {pos={0, Convert_mm_igu(-2), Convert_mm_igu(-4.5)}, rot={0, 90, 0}}
 BombModule.tokenOffset.prox = {pos={0, Convert_mm_igu(-2), Convert_mm_igu(15)}, rot={0, 90, 0}}
 BombModule.tokenOffset.cluster = {pos={0, Convert_mm_igu(-2), 0}, rot={0, 180, 0}}
 BombModule.tokenOffset.connor = {pos={0, Convert_mm_igu(-2), Convert_mm_igu(21)}, rot={0, 180, 0}}
@@ -5825,9 +6136,10 @@ BombModule.tokenOffset.rgc = {pos={0, Convert_mm_igu(-1), Convert_mm_igu(9.5)}, 
 
 -- Bomb name -> type data
 BombModule.snapTable = {}
-BombModule.snapTable['Ion Bomb'] = 'standardAoE'
+BombModule.snapTable['Shock Bomb'] = 'standardAoE'
 BombModule.snapTable['Proton Bomb'] = 'standardAoE'
 BombModule.snapTable['Seismic Charge'] = 'standardAoE'
+BombModule.snapTable['Cracker Grenade'] = 'crackerAoE'
 BombModule.snapTable['Thermal Detonator'] = 'standardAoE'
 BombModule.snapTable.Bomblet = 'standardAoE'
 BombModule.snapTable['Electro-Proton Bomb'] = 'standardAoE'
@@ -5835,6 +6147,7 @@ BombModule.snapTable['Proximity Mine'] = 'prox'
 BombModule.snapTable['Cluster Mine (middle)'] = 'cluster'
 BombModule.snapTable['Connor Net'] = 'connor'
 BombModule.snapTable['Rigged Cargo Chute debris'] = 'rgc'
+BombModule.snapTable['Concussion Bomb'] = 'standardAoE'
 
 -- Minimum distance to snap
 BombModule.snapDist = 1.5
@@ -6085,7 +6398,7 @@ function onObjectPeek(object, player_color)
                 else
                     local info = MoveData.DecodeInfo(set_manouver)
                     local manouver = info.speed
-                    -- [koiogran] [segnor] [talon] [reverse] [straight] [forward] [backward] [nil]
+                    -- [koiogran] [segnor] [talon] [pylon] [reverse] [straight] [forward] [backward] [nil]
                     if info.extra == "koiogran" then
                         manouver = manouver .. " " .. info.extra
                     else
@@ -6210,22 +6523,89 @@ function onObjectSpawned(obj)
     obj.hide_when_face_down = false
 end
 
--- Positions for arc indicator tokens around the ship mounts
--- Used so arc indicators can snap to the relevant positions
-mountPositions = {
-    ['small'] = {
-        ['main'] = {0, 0}
-    },
-    ['medium'] = {
-        ['main'] = {0, 0}
-    },
-    ['large'] = {
-        ['main'] = {0, 0}
-    },
-    ['huge'] = {
-        ['front'] = {0, -2.63},
-        ['rear'] = {0, 2.63}
-    }
+XW_cmd.AddCommand('rot[lr]?[12]?', 'rotate')
+XW_cmd.AddCommand('turret[12]?', 'turretarc')
+
+
+mountRotations = {
+  front = vector(0,0,0),
+  left = vector(0,-90,0),
+  back = vector(0,180,0),
+  right = vector(0,90,0),
+  frontback = vector(0,0,0),
+  leftright = vector(0,90,0)
+}
+
+arcNames = {
+  front = "Front",
+  frontarc1 = "FrontArc1",
+  frontarc2 = "FrontArc2",
+  frontarc3 = "FrontArc3",
+  frontarc4 = "FrontArc4",
+  frontarc5 = "FrontArc5",
+  left = "Left",
+  back = "Back",
+  right = "Right",
+  melee = "Melee",
+  half = "Half",
+  frontback = "Front & Back",
+  leftright = "Left & Right",
+  fullfront = "Full Front",
+  fullback = "Full Back",
+  bull = "Bullseye",
+}
+
+arcToCmnd = {
+  front = "f",
+  frontarc1 = "frontarc1",
+  frontarc2 = "frontarc2",
+  frontarc3 = "frontarc3",
+  frontarc4 = "frontarc4",
+  frontarc5 = "frontarc5",
+  left = "sl",
+  back = "b",
+  right = "sr",
+  melee = "melee",
+  half = "half",
+  frontback = "frontback",
+  leftright = "leftright",
+  fullfront = "ff",
+  fullback = "fb",
+  bull = "bull",
+}
+
+nextMountDirection = {
+  rotateleft = {
+    front = "left",
+    left = "back",
+    back = "right",
+    right = "front",
+    leftright = "frontback",
+    frontback = "leftright"
+  },
+  rotateright = {
+    front = "right",
+    left = "front",
+    back = "left",
+    right = "back",
+    leftright = "frontback",
+    frontback = "leftright"
+  }
+}
+
+mountDirectionToArcs = {
+  front = {"front"},
+  left = {"left"},
+  back = {"back"},
+  right = {"right"},
+  leftright = {"left","right"},
+  frontback = {"front", "back"},
+}
+
+mountToIndex = {
+  main = '',
+  front = '1',
+  rear = '2'
 }
 
 -- Save and load ship data lua scriptState
@@ -6234,59 +6614,41 @@ saveAndLoadShipStateLua = [[
 __XW_Ship = true
 
 function initContextMenu()
-    local added_arcs = {}
-    for k, arctype in pairs(self.getTable("Data").arcs) do
-        if arctype == 'doubleturret' then
-            self.addContextMenuItem("FireArc - Left & Right", function(argument) self.setDescription("leftright") end, false)
-            self.addContextMenuItem("FireArc - Front & Back", function(argument) self.setDescription("frontback") end, false)
-        elseif arctype == 'singleturret' then
-            if added_arcs.front == nil then
-                self.addContextMenuItem("FireArc - Front", function(argument) self.setDescription("f") end, false)
-                added_arcs.front = true
-            end
-            if added_arcs.back == nil then
-                self.addContextMenuItem("FireArc - Back", function(argument) self.setDescription("b") end, false)
-                added_arcs.back = true
-            end
-            if added_arcs.left == nil then
-                self.addContextMenuItem("FireArc - Left", function(argument) self.setDescription("sl") end, false)
-                added_arcs.left = true
-            end
-            if added_arcs.right == nil then
-                self.addContextMenuItem("FireArc - Right", function(argument) self.setDescription("sr") end, false)
-                added_arcs.right = true
-            end
-        elseif arctype == 'front' then
-            if added_arcs.front == nil then
-                self.addContextMenuItem("FireArc - Front", function(argument) self.setDescription("f") end, false)
-                added_arcs.front = true
-            end
-        elseif arctype == 'back' then
-            if added_arcs.back == nil then
-                self.addContextMenuItem("FireArc - Back", function(argument) self.setDescription("b") end, false)
-                added_arcs.back = true
-            end
-        elseif arctype == 'fullfront' then
-            self.addContextMenuItem("FireArc - Full Front", function(argument) self.setDescription("ff") end, false)
-        elseif arctype == 'bullseye' then
-            self.addContextMenuItem("FireArc - Bullseye", function(argument) self.setDescription("bull") end, false)
-        elseif arctype == 'left' then
-            if added_arcs.left == nil then
-                self.addContextMenuItem("FireArc - Left", function(argument) self.setDescription("sl") end, false)
-                added_arcs.left = true
-            end
-        elseif arctype == 'right' then
-            if added_arcs.right == nil then
-                self.addContextMenuItem("FireArc - Right", function(argument) self.setDescription("sr") end, false)
-                added_arcs.right = true
-            end
+    for type, arc in pairs(self.getTable("Data").arcs or {}) do
+      if type == 'fixed' then
+        for i, fixedarc in pairs(arc.type or {}) do
+          self.addContextMenuItem("FireArc - " .. Global.getTable('arcNames')[fixedarc] , function(argument) self.setDescription(Global.getTable('arcToCmnd')[fixedarc]) end, false)
         end
+      elseif type == 'turret' then
+
+        for mount, turret in pairs(arc) do
+          local idx = Global.getTable('mountToIndex')[mount]
+          self.addContextMenuItem("FireArc - " .. turret.name , function(argument) self.setDescription('turret' .. idx) end, false)
+        end
+        for mount, turret in pairs(arc) do
+          local idx = Global.getTable('mountToIndex')[mount]
+          if (turret.type[1] == 'doubleturret') or (#turret.type == 2) then
+            self.addContextMenuItem("Rot - " .. turret.name , function(argument) self.setDescription('rot' ..  idx) end, false)
+          else
+            self.addContextMenuItem("Rot L - " .. turret.name , function(argument) self.setDescription('rotl' .. idx) end, false)
+            self.addContextMenuItem("Rot R - " .. turret.name , function(argument) self.setDescription('rotr' .. idx) end, false)
+          end
+        end
+      end
     end
+    local config = self.getTable("Data").Config
+    if config then
+        self.addContextMenuItem(config.ContextText, function() self.call(SetConfiguration()) end, false)
+    end
+
 
     if Global.getVar('test_AI') then
         self.AddContextMenuItem("AI move and action", function(argument) Global.call("PerformAIManeuver", {['ship']=self, ['take_action']=true}) end, false)
         self.AddContextMenuItem("AI move", function(argument) Global.call("PerformAIManeuver", {['ship']=self, ['take_action']=false}) end, false)
     end
+
+    self.AddContextMenuItem("Mark ship", function(argument) Global.call("MarkShip", {ship=self}) end, false)
+
 end
 
 assigned_tokens = {}
@@ -6314,59 +6676,155 @@ function GetTokens(args)
     return tokens
 end
 
-assigned_arc_indicators = {}
+current_config = 1
 
-function AddArcIndicator(args)
-    assigned_arc_indicators[args.location] = args.indicator
+function SetConfiguration(args)
+  if not args or not args.ConfigId then
+    current_config = (current_config % #self.getTable("Data").Config.States) + 1
+  else
+    current_config = args.ConfigId
+  end
+  local attachments = self.getAttachments()
+  for i = #attachments, 1, -1 do
+    local attachment = attachments[i]
+    if attachment.name == "Config" then
+      local scale = vector(0.0001,0.0001,0.0001)
+      if attachment.description == tostring(current_config) then
+          scale = vector(0.629, 0.629, 0.629)
+          printToAll(self.getName() .. self.getTable("Data").Config.States[current_config].Message)
+      end
+      id = self.removeAttachment(attachment.index)
+      id.setScale(scale)
+      self.addAttachment(id)
+
+    end
+  end
+  Wait.frames(DisableAttachedColliders, 1)
 end
 
-function RemoveArcIndicator(args)
-    for location, indicator in pairs(assigned_arc_indicators) do
-        if indicator == args.indicator then
-            assigned_arc_indicators[location] = nil
-            break
-        end
+arc_indicators = {}
+
+function DisableAttachedColliders()
+  for i, child in ipairs(self.getChildren()) do
+    if i ~= 1 then
+      if child.getComponent("MeshCollider") then
+        child.getComponent("MeshCollider").set("enabled", false)
+      end
+    end
+  end
+end
+
+
+function AttachArcIndicator(args)
+    local turret_mount = args.mount or 'main'
+    local default_direction = args.indicator.getVar("default_arc_direction") or 'front'
+    arc_indicators[turret_mount] = {
+      arc = default_direction,
+      double_arc = args.indicator.getVar("double_arc") or false,
+      color_by_id = args.indicator.getVar("color_by_id") or false
+    }
+    args.indicator.setDescription(turret_mount)
+    args.indicator.setRotation(self.getRotation() + Global.getTable('mountRotations')[default_direction] or vector(0,0,0))
+    Wait.frames(DisableAttachedColliders, 1)
+
+
+    for i, attachment in pairs(self.getAttachments()) do
+      if attachment.name:find("Arc Indicator") and (attachment.description == turret_mount) then
+        id = self.removeAttachment(attachment.index)
+        destroyObject(id)
+      end
     end
 end
 
-function GetAvailableMountPositions(args)
-    local mount_positions = Global.getTable('mountPositions')[self.getTable("Data").Size]
+function DeleteArcIndicator(args)
+    local turret_mount = args.mount or 'main'
+    for i, attachment in pairs(self.getAttachments()) do
+      if attachment.name:find("Arc Indicator") and (attachment.description == turret_mount) then
+        id = self.removeAttachment(attachment.index)
+        destroyObject(id)
+      end
+    end
+end
 
-    for location, _ in pairs(assigned_arc_indicators) do
-        mount_positions[location] = nil
+function GetNextValidRotation(mount, rotate_direction)
+  local direction = arc_indicators[mount].arc
+  local arcs = self.getTable('Data').arcs.turret[mount].type or {direction}
+  for i = 1,4,1 do
+    direction = Global.getTable('nextMountDirection')[rotate_direction][direction]
+    if direction == arc_indicators[mount].arc then
+      return direction
+    end
+    for idx, arc in pairs(arcs) do
+      if (arc == direction) or (arc == "singleturret") or (arc == "doubleturret") then
+        return direction
+      end
+    end
+  end
+  return arc_indicators[mount].arc
+end
+
+function RotateAttachedArcIndicator(args)
+  local turret_mount = args.mount or 'main'
+  for i, attachment in pairs(self.getAttachments()) do
+    if attachment.name:find("Arc Indicator") and (attachment.description == turret_mount) then
+      local next_direction = GetNextValidRotation(turret_mount, args.direction)
+      id = self.removeAttachment(attachment.index)
+      arc_indicators[turret_mount].arc = next_direction
+      id.setRotation(self.getRotation() + Global.getTable('mountRotations')[next_direction] or vector(0,0,0))
+      self.addAttachment(id)
+      Wait.frames(DisableAttachedColliders, 1)
+      return
+    end
+  end
+end
+
+function GetAvailableMountPositions(args)
+    local mount_positions = self.getTable('Data').mountingPoints or {main = {0, 0} }
+
+    for i, attachment in pairs(self.getAttachments()) do
+      if attachment.name:find("Arc Indicator") then
+        mount_positions[attachment.description] = nil
+      end
     end
 
     local ship_position = self.getPosition()
     local ship_rotation = math.rad(self.GetRotation().y) * -1
     for location, position in pairs(mount_positions) do
-        local transformed_position = {
+        local transformed_position = vector(
             ship_position.x + math.cos(ship_rotation) * position[1] - math.sin(ship_rotation) * position[2],
             ship_position.y,
             ship_position.z + math.sin(ship_rotation) * position[1] + math.cos(ship_rotation) * position[2]
-        }
+        )
         mount_positions[location] = transformed_position
     end
-
     return mount_positions
 end
 
-function GetFixedArcs(args)
-    local fixed_arcs = {}
-    for _, arc in pairs(self.getTable("Data").arcs) do
-        if arc ~= 'doubleturret' and arc ~= 'singleturret' then
-            table.insert(fixed_arcs, arc)
-        end
-    end
+function GetMountingPosition(args)
+    local turret_mount = args.mount or 'main'
+    local mount_position = self.getTable('Data').mountingPoints[turret_mount] or {0,0}
+    local ship_position = self.getPosition()
+    local ship_rotation = math.rad(self.GetRotation().y) * -1
+    return vector(
+        ship_position.x + math.cos(ship_rotation) * mount_position[1] - math.sin(ship_rotation) * mount_position[2],
+        ship_position.y,
+        ship_position.z + math.sin(ship_rotation) * mount_position[1] + math.cos(ship_rotation) * mount_position[2]
+    )
+end
 
-    return fixed_arcs
+function GetFixedArcs(args)
+    local fixed = self.getTable("Data").arcs.fixed or {}
+    return fixed.type or {}
 end
 
 function GetAllTurretArcs(args)
     local turret_arcs = {}
-    for _, arc_indicator in pairs(assigned_arc_indicators) do
-        local new_turret_arcs = arc_indicator.call('getArcs')
-
+    -- For attached arc indicators
+    for _, arc_indicator in pairs(arc_indicators) do
+      --print("GetAllTurretArcs: arc_indicator " .. arc_indicator.arc)
+        local new_turret_arcs = Global.getTable("mountDirectionToArcs")[arc_indicator.arc] or {}
         for _, new_arc in pairs(new_turret_arcs) do
+            --print("GetAllTurretArcs arc " .. new_arc)
             local found = false
             for _, existing_arc in pairs(turret_arcs) do
                 if new_arc == existing_arc then
@@ -6407,45 +6865,57 @@ end
 
 function GetAssignedMounts()
     local assigned_mounts = {}
-    for mount, _ in pairs(assigned_arc_indicators) do
-        table.insert(assigned_mounts, mount)
+    for i, attachment in pairs(self.getAttachments()) do
+      if attachment.name:find("Arc Indicator") then
+        table.insert(assigned_mounts, attachment.description)
+      end
     end
     return assigned_mounts
 end
 
 function GetTurretArcs(args)
     local turret_mount = args.mount or 'main'
-    return assigned_arc_indicators[turret_mount].call('getArcs')
+    if arc_indicators[turret_mount] ~= nil then
+      return Global.getTable("mountDirectionToArcs")[arc_indicators[turret_mount].arc ]
+    end
+    return {}
 end
 
 function GetTurretArc(args)
     local turret_mount = args.mount or 'main'
-    return assigned_arc_indicators[turret_mount].call('getArc')
+    if arc_indicators[turret_mount] then
+      return arc_indicators[turret_mount].arc
+    end
+    return nil
 end
 
 function SetTurretArc(args)
     local turret_mount = args.mount or 'main'
-    assigned_arc_indicators[turret_mount].call('setArc', {arc=args.arc, snap=args.snap})
+    for i, attachment in pairs(self.getAttachments()) do
+      if attachment.name:find("Arc Indicator") and (attachment.description == turret_mount) then
+        id = self.removeAttachment(attachment.index)
+        id.setRotation(self.getRotation() + Global.getTable('mountRotations')[args.arc] or vector(0,0,0))
+        self.addAttachment(id)
+        Wait.frames(DisableAttachedColliders, 1)
+      end
+    end
 end
 
 function GetTurretType(args)
     local turret_mount = args.mount or 'main'
-    local arc_indicator_name = assigned_arc_indicators[turret_mount].GetName()
-    if arc_indicator_name.find(self.getName(), 'Dual') ~= nil then
-        return 'doubleturret'
-    else
-        return 'singleturret'
+    local turret = self.getTable('Data').arcs.turret[turret_mount]
+    if turret then
+      return turret.type
     end
+    return nil;
 end
 
 -- Save self state
 function onSave()
-    local state = {shipData=self.getTable("Data")}
-
-    state.tokenData = {tokens={},arcs={}}
-    for location, indicator in pairs(assigned_arc_indicators) do
-        state.tokenData.arcs[location] = indicator.getGUID()
-    end
+    local state = {shipData=self.getTable("Data"), arcIndicators=self.getTable("arc_indicators")}
+    state.finishedSetup = self.getVar("finished_setup")
+    state.tokenData = {tokens={}}
+    state.owningPlayer = self.getVar("owningPlayer")
     for guid, _ in pairs(assigned_tokens) do
         table.insert(state.tokenData.tokens, guid)
     end
@@ -6453,54 +6923,21 @@ function onSave()
     return JSON.encode(state)
 end
 
-function linkArcIndicators()
-    Wait.condition(
-        function()
-            for location, guid in pairs(arc_indicator_queue) do
-                local arc_indicator = getObjectFromGUID(guid)
-                assigned_arc_indicators[location] = arc_indicator
-                arc_indicator.call('linkToShip', {ship=self})
-            end
-
-            arc_indicator_queue = {}
-        end,
-        function()
-            for location, guid in pairs(arc_indicator_queue) do
-                local arc_indicator = getObjectFromGUID(guid)
-                if arc_indicator == nil or arc_indicator.getVar('loaded') == false then
-                    return false
-                end
-            end
-
-            return true
-        end
-    )
-end
 
 -- Restore self state
-arc_indicator_queue = {}
 function onLoad(savedData)
     --print("OnLoad: ".. self.getName() .. " " .. savedData)
     if savedData ~= "" and Data == nil then
         local state =  JSON.decode(savedData)
         self.setTable("Data", state.shipData)
-        if state.shipData.arcs ~= nil then
-            initContextMenu()
-        end
-
+        self.setTable("arc_indicators", state.arcIndicators)
+        self.setVar("finished_setup", state.finishedSetup)
+        self.setVar("owningPlayer", state.owningPlayer)
+        initContextMenu()
         for _, guid in ipairs(state.tokenData.tokens) do
             assigned_tokens[guid] = getObjectFromGUID(guid)
         end
 
-        local any_arcs = false
-        for location, guid in pairs(state.tokenData.arcs) do
-            any_arcs = true
-            break
-        end
-        if any_arcs then
-            arc_indicator_queue = state.tokenData.arcs
-            linkArcIndicators()
-        end
     end
 end
 ]]
@@ -6518,6 +6955,16 @@ function addTintObject(params)
     end
 end
 
+function DisableAttachedColliders()
+  for i, child in ipairs(self.getChildren()) do
+    if i ~= 1 then
+      if child.getComponent("MeshCollider") then
+        child.getComponent("MeshCollider").set("enabled", false)
+      end
+    end
+  end
+end
+
 function onUpdate()
     local tint = self.getColorTint()
     if tint ~= color(1,1,1,1) then
@@ -6533,12 +6980,23 @@ function onUpdate()
       end
 
       if ship ~= nil then
+        local data = ship.getTable("Data")
+        data.ColorId = tint
+        ship.setTable("Data", data)
         for i, attachment in pairs(ship.getAttachments()) do
-          id = ship.removeAttachment(attachment.index)
-          id.setColorTint(tint)
+          id = ship.removeAttachment(0) -- This process puts the front attachment in the back, and the index is rearranged
+          if id.getName():find("Arc Indicator") then
+            local indicator = ship.getTable('arc_indicators')[id.getDescription()] or {}
+            if indicator.color_by_id then
+              id.setColorTint(tint)
+            end
+          elseif id.getName() == "ColorId" then
+            id.setColorTint(tint)
+          end
           ship.addAttachment(id)
         end
       end
+      Wait.frames(DisableAttachedColliders, 1)
 
     end
 end
@@ -6570,7 +7028,7 @@ function newSpawner(listTable)
     Upgrades = listTable.Upgrades
     spawnCard = listTable.spawnCard
     Faction = listTable.Faction
-    Configuration = listTable.Configuration or {}
+    Customization = listTable.Customization or {}
     local dialSkin = listTable.factionDial
     spawnedPilotList = {}
 
@@ -6580,11 +7038,9 @@ function newSpawner(listTable)
     PosBag4 = {20, 20, 0}
     PoaBag5 = {25, 25, 0}
     tempBagAcc = getObjectFromGUID('53ad3d').clone({position = PosBag3}) -- Accessories bag
-    tempBagShp = getObjectFromGUID('eb5680').clone({position = PosBag4}) -- Ships bag
 
     --Stablishes lists of available upgrades, pilots, accessories, ships and mobile upgrades
     listaAcc = tempBagAcc.getObjects()
-    listaShp = tempBagShp.getObjects()
 
     --Store the initial position of the Quick Build Card
     storePos = spawnCard.getPosition()
@@ -6596,6 +7052,7 @@ function newSpawner(listTable)
     while Pilots[shipIndex] ~= nil do
         --Values used for accessories spawn and layout
         forceValue = 0
+        armorValue = 0
         shieldValue = 0
         UpNum = 0
         Turret  = 0
@@ -6604,7 +7061,7 @@ function newSpawner(listTable)
         hasMob = 0
         bombTokenDescription = ''
         -- Spawn Mobile Upgrades
-        for j, Up in ipairs(Upgrades[shipIndex]) do
+        for j, Up in pairs(Upgrades[shipIndex]) do
             if  Up.Config == true then
                 finalPos = LocalPos(spawnCard, {-2, 0, 0})      --Layout adjustment
                 spawnCard.setPosition(finalPos)
@@ -6618,9 +7075,36 @@ function newSpawner(listTable)
                 newUp = card:spawn({position = pos, rotation=rot, scale={0.68,0.68,0.68}})
                 newUp.setName(Up.name)
                 hasMob = 1
+                charges = Up.Charge
+                if charges > 0 then
+                  for k, acc in ipairs(listaAcc) do
+                      if acc.name == 'Charge' then
+                        chargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                        while charges > 0 do
+                          if charges == 5 then
+                              pos = LocalPos(spawnCard, {-1.7 +4,0, 1.9})
+                          elseif charges == 4 then
+                              pos = LocalPos(spawnCard, {-1.7 +4,0, 2.8})
+                          elseif charges == 3 then
+                              pos = LocalPos(spawnCard, {-2.6 +4,0, 2.8})
+                          elseif charges == 2 then
+                              pos = LocalPos(spawnCard, {-1.7 +4,0, 3.7})
+                          elseif charges == 1 then
+                              pos = LocalPos(spawnCard, {-2.6 +4 ,0, 3.7})
+                          else
+                              charges = 0
+                          end
+                          charges = charges-1
+                          chargeClone = chargeToken.clone()
+                          chargeClone.setPosition(pos)
+                        end
+                        tempBagAcc.putObject(chargeToken)
+                      end
+                  end
+                end
             end
         end
-        for j, Up in ipairs(Upgrades[shipIndex]) do
+        for j, Up in pairs(Upgrades[shipIndex]) do
             if Up.Config ~= true then                               --Indicates there's a card left of the pilot card, for layout purposes
                 pos = LocalPos(spawnCard, {-1.5 - 2*UpNum, 2-0.2*UpNum, 5.5})
                 rot = spawnCard.getRotation()
@@ -6638,41 +7122,40 @@ function newSpawner(listTable)
                         if acc.name == Up.Condition then
                             pos = LocalPos(spawnCard, {-2 - 2*UpNum, 2-0.2*UpNum, 8})
                             rot = spawnCard.getRotation()
-                            newAsset = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
+                            newAsset = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth=false})
                             assetClone = newAsset.clone()
-                            tempBagAcc.putObject(assetClone)
+                            assetClone.setPosition(pos)
+                            tempBagAcc.putObject(newAsset)
                         end
                     end
                 end
                 --Checks and spawns Charge Tokens with appropriate layout (up to 4 tokens)
                 charges = Up.Charge
-                while charges > 0 do
-                    for k, acc in ipairs(listaAcc) do
-                        if acc.name == 'Charge' then
-                            if charges == 5 then
-                                pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,0, 1.9})
-                                rot = spawnCard.getRotation()
-                            elseif charges == 4 then
-                                pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,0, 2.8})
-                                rot = spawnCard.getRotation()
-                            elseif charges == 3 then
-                                pos = LocalPos(spawnCard, {-2.6 - 2*UpNum,0, 2.8})
-                                rot = spawnCard.getRotation()
-                            elseif charges == 2 then
-                                pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,0, 3.7})
-                                rot = spawnCard.getRotation()
-                            elseif charges == 1 then
-                                pos = LocalPos(spawnCard, {-2.6 - 2*UpNum,0, 3.7})
-                                rot = spawnCard.getRotation()
-                            else
-                                charges = 0
-                            end
-                            chargeToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                            chargeClone = chargeToken.clone()
-                            tempBagAcc.putObject(chargeClone)
-                            charges = charges-1
+                if charges > 0 then
+                  for k, acc in ipairs(listaAcc) do
+                      if acc.name == 'Charge' then
+                        chargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                        while charges > 0 do
+                          if charges == 5 then
+                              pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,3, 1.9})
+                          elseif charges == 4 then
+                              pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,3, 2.8})
+                          elseif charges == 3 then
+                              pos = LocalPos(spawnCard, {-2.6 - 2*UpNum,3, 2.8})
+                          elseif charges == 2 then
+                              pos = LocalPos(spawnCard, {-1.7 - 2*UpNum,3, 3.7})
+                          elseif charges == 1 then
+                              pos = LocalPos(spawnCard, {-2.6 - 2*UpNum,3, 3.7})
+                          else
+                              charges = 0
+                          end
+                          charges = charges-1
+                          chargeClone = chargeToken.clone()
+                          chargeClone.setPosition(pos)
                         end
-                    end
+                        tempBagAcc.putObject(chargeToken)
+                      end
+                  end
                 end
                 UpNum = UpNum + 1                       --Update number of upgrade being spawned
             end
@@ -6682,8 +7165,8 @@ function newSpawner(listTable)
         pilotName = Pilots[shipIndex].name
 
         local tint = color(0,0,0,0)
-        if Configuration[pilotName] ~= nil then
-            tint = Configuration[pilotName].tint or  color(0,0,0,0)
+        if Customization[pilotName] ~= nil then
+            tint = Customization[pilotName].tint or  color(0,0,0,0)
         end
         card = Pilots[shipIndex].card
         cardB = Pilots[shipIndex].cardB
@@ -6728,18 +7211,19 @@ function newSpawner(listTable)
             end
         end
         if pilotName ~= '' then
-            for k, acc in ipairs(listaAcc) do
+            for k, acc in pairs(listaAcc) do
                 local card = newPil
                 if acc.name == 'Unassigned Dial' then
                     local dialpos = LocalPos(spawnCard, {0, 3, 12})
                     local dialrot = rot
-                    local newDial = tempBagAcc.takeObject(
+                    local dial = tempBagAcc.takeObject(
                         {position = dialpos,
                          rotation = dialrot,
                          guid = acc.guid
                        })
-                    dialClone = newDial.clone()
-                    tempBagAcc.putObject(dialClone)
+                    local newDial = dial.clone()
+                    newDial.setPosition(pos)
+                    tempBagAcc.putObject(dial)
                     local conditionFunc = function() return (not card.spawning) and (not newDial.spawning) end
                     local executeFunc = function()
                         newDial.setCustomObject({['diffuse']=dialSkin})
@@ -6752,6 +7236,7 @@ function newSpawner(listTable)
                     Wait.condition(executeFunc , conditionFunc)
 
 
+
                 end
             end
         end
@@ -6759,30 +7244,21 @@ function newSpawner(listTable)
         if Pilots[shipIndex].Condition ~= nil then                                            --Checks and spawn conditions associated to pilots
             for k, acc in ipairs(listaAcc) do
                 if acc.name == Pilots[shipIndex].Condition then
-                    pos = LocalPos(spawnCard, {-2 - 2*UpNum, 2-0.2*UpNum, 8})
+                    pos = LocalPos(spawnCard, {-2 - 2*UpNum, 3, 8})
                     rot = spawnCard.getRotation()
                     newAsset = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
                     assetClone = newAsset.clone()
-                    tempBagAcc.putObject(assetClone)
+                    assetClone.setPosition(pos)
+                    tempBagAcc.putObject(newAsset)
                 end
             end
         end
+
+
         local newShip = nil
         pos = LocalPos(spawnCard, {0, 0, 9})
         rot = spawnCard.getRotation()
-        for v, ship in ipairs (listaShp) do
-            if ship.name == tostring(Pilots[shipIndex].id) then
-                newShip = tempBagShp.takeObject({ position = pos,
-                                                  rotation = rot,
-                                                  guid = ship.guid
-                                                })
-                shipClone = newShip.clone()
-                tempBagShp.putObject(shipClone)
-                newShip.setPosition(pos)
-                newShip.setRotation(rot)
-            end
-        end
-        if (newShip == nil) and (Pilots[shipIndex].id ~= 0) then
+        if (Pilots[shipIndex].id ~= 0) then
           newShip = spawnObject({
               type              = "Custom_Model",
               position          = pos,
@@ -6795,8 +7271,8 @@ function newSpawner(listTable)
 
         if newShip ~= nil then
             local model = nil
-            if Configuration[pilotName].model ~= nil then
-                model = Configuration[pilotName].model
+            if Customization[pilotName].model ~= nil then
+                model = Customization[pilotName].model
             elseif Pilots[shipIndex].mesh ~= nil then
                 model = '{verifycache}'..Pilots[shipIndex].mesh
             end
@@ -6804,16 +7280,16 @@ function newSpawner(listTable)
                 newShip.setCustomObject({mesh = model})
             end
             local texture = nil
-            if Configuration[pilotName].texture ~= nil then
-                texture = Configuration[pilotName].texture
+            if Customization[pilotName].texture ~= nil then
+                texture = Customization[pilotName].texture
             elseif Pilots[shipIndex].mesh ~= nil then
                 texture = '{verifycache}'..Pilots[shipIndex].texture
             end
             if texture then
                 newShip.setCustomObject({diffuse = texture})
             end
-            if Configuration[pilotName].modeltint ~= nil then
-                newShip.setColorTint(Configuration[pilotName].modeltint)
+            if Customization[pilotName].modeltint ~= nil then
+                newShip.setColorTint(Customization[pilotName].modeltint)
             end
             newShip.setName(pilotName)
             newShip.setCustomObject({
@@ -6823,6 +7299,7 @@ function newSpawner(listTable)
                 type = 1
             })
             newShip.setLock(true)
+            Pilots[shipIndex].Data.ColorId = tint
             newShip.setTable("Data", Pilots[shipIndex].Data)
             newShip.setLuaScript(saveAndLoadShipStateLua)
             local ship = newShip
@@ -6843,7 +7320,7 @@ function newSpawner(listTable)
             elseif Pilots[shipIndex].Size == "huge" then
                 customObj.mesh='{verifycache}https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/models/Base_ID_HUGE.obj'
             end
-            shipIdSpawnFunc = function()
+            local shipIdSpawnFunc = function()
               local shipId = spawnObject({
                   type              = "Custom_Model",
                   position          = idpos,
@@ -6854,62 +7331,137 @@ function newSpawner(listTable)
               })
               shipId.setCustomObject(customObj)
               shipId.setColorTint(tint)
+              shipId.setName("ColorId")
               ship.addAttachment(shipId)
               ship.setLock(false)
               card.call('addTintObject', {'ship',ship})
               ship.call('initContextMenu')
             end
             Wait.condition(shipIdSpawnFunc , function() return (not ship.spawning) and (not card.spawning) end)
+
+            if Pilots[shipIndex].Data.Config then
+              for k, config in pairs(Pilots[shipIndex].Data.Config.States) do
+                if config.Model then
+                  local customObject = ship.getCustomObject()
+                  customObject.mesh = config.Model
+
+                  local configSpawnFunction = function()
+                    local configModel = spawnObject({
+                        type              = "Custom_Model",
+                        position          = idpos,
+                        rotation          = idrot,
+                        scale             = mm_ship_scale,
+                        sound             = false,
+                        snap_to_grid      = false,
+                    })
+                    configModel.setName("Config")
+                    configModel.setDescription(tostring(k))
+                    configModel.setCustomObject(customObject)
+                    if k ~= 1 then
+                      configModel.setScale(vector(0.0001,0.0001,0.0001))
         end
+        ship.addAttachment(configModel)
+      end
+      Wait.condition(configSpawnFunction , function() return (not ship.spawning) end)
+    end -- if Config.Model
+  end -- for Data.Config
+  if Pilots[shipIndex].Data.Config.Token then
+    pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
+    local configToken = spawnObject({
+        type = "Custom_Model",
+        scale = {0.38, 0.38, 0.38},
+        rotation = {0, 270, 0},
+        position = pos,
+    })
+    configToken.setCustomObject({
+        mesh = "https://raw.githubusercontent.com/JohnnyCheese/TTS_X-Wing2.0/master/assets/Items/tokens/flip/flipToken.obj",
+        diffuse = Pilots[shipIndex].Data.Config.Token,
+        type = 5,
+        material = 1,
+        specular_intensity = 0
+    })
+    configToken.setLuaScript(
+[[side = 1
+function onUpdate()
+  if self.is_face_down then
+    if side == 1 then
+      side = 2
+      local ship = Global.call("getShipTokenIsAssignedTo",{token=self})
+      if ship and ship.getVar("SetConfiguration") then
+        ship.call("SetConfiguration", {ConfigId=side})
+      end
+
+          end
+
+        else
+          if side == 2 then
+            side = 1
+            local ship = Global.call("getShipTokenIsAssignedTo",{token=self})
+            if ship and ship.getVar("SetConfiguration") then
+              ship.call("SetConfiguration", {ConfigId=side})
+            end
+          end
+        end
+      end
+      ]])
+                    end
 
 
-        if Pilots[shipIndex].Ship == 3 then
+                  end -- if Config
+              end
+
+
+              if Pilots[shipIndex].Ship == 3 then
             for k, acc in ipairs(listaAcc) do
                 if acc.name == 'StarViper Mk.II roll token' then
                     pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
-                    svToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
+                    svToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth = false})
                     svClone = svToken.clone()
-                    tempBagAcc.putObject(svClone)
+                    svClone.setPosition(pos)
+                    tempBagAcc.putObject(svToken)
                 end
             end
         end
 
-        if Pilots[shipIndex].Turret ~= nil then       --Checks if upgrade should trigger the dual mobile arc indicator
-            if Pilots[shipIndex].Turret == 2 then
-                dualTurret = 1
-            else
-                Turret = 1
+        for mount, turret in pairs(Pilots[shipIndex].Data.arcs.turret or {}) do
+            local indicator_name = 'Arc Indicator'..tostring(Faction)
+            if turret.type[1] == 'doubleturret' then
+              indicator_name = 'Dual Arc Indicator'..tostring(Faction)
             end
-        end
-        if Turret == 1 and dualTurret == 0 then                                                       --Checks and spawn arc indicator if needed
-            for k, acc in ipairs(listaAcc) do
-                if acc.name == 'Arc Indicator'..tostring(Faction) then
-                    arcInd = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                    indClone = arcInd.clone()
-                    tempBagAcc.putObject(indClone)
-                    arcInd.setName(string.gsub(arcInd.getName(), Faction, ''))
-                    Turret = 0
-                end
-            end
-        elseif dualTurret == 1 then                                               --Checks and spawn dual arc indicator if needed
-            for k, acc in ipairs(listaAcc) do
-                if acc.name == 'Dual Arc Indicator'..tostring(Faction) then
-                    dualArcInd = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                    indClone = dualArcInd.clone()
-                    tempBagAcc.putObject(indClone)
-                    dualArcInd.setName(string.gsub(dualArcInd.getName(), Faction, ''))
-                    dualTurret = 0
+            local mount_pos = Pilots[shipIndex].Data.mountingPoints[mount]
+            local offset = LocalPos(spawnCard, {mount_pos[1], 0, mount_pos[2] + 9})
+            for k, acc in pairs(listaAcc) do
+                if acc.name == indicator_name then
+                    arcInd = tempBagAcc.takeObject({position = offset, rotation = rot, guid = acc.guid, smooth=false})
+                    newInd = arcInd.clone()
+                    newInd.setPosition(pos)
+                    tempBagAcc.putObject(arcInd)
+                    newInd.setName(string.gsub(newInd.getName(), Faction, ''))
                 end
             end
         end
+
         if Pilots[shipIndex].Bomb == true then                                                       --Checks and spawn bomb drop token if needed
             for k, acc in ipairs(listaAcc) do
                 if acc.name == 'Bomb drop token (unassigned)' then
                     pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
-                    bombDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
+                    bombDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth=false})
                     dropClone = bombDrop.clone()
-                    tempBagAcc.putObject(dropClone)
-                    bombDrop.setDescription(Pilots[shipIndex].bombD)
+                    dropClone.setPosition(pos)
+                    tempBagAcc.putObject(bombDrop)
+                    dropClone.setDescription(Pilots[shipIndex].bombD)
+                end
+            end
+        end
+        if Pilots[shipIndex].Bombt == true then                                                       --Checks and spawn bomb drop token if needed
+            for k, acc in ipairs(listaAcc) do
+                if acc.name == 'Bomb drop token (unassigned)' then
+                    pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
+                    bombDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth=false})
+                    dropClone = bombDrop.clone()
+                    dropClone.setPosition(pos)
+                    tempBagAcc.putObject(bombDrop)
+                    dropClone.setDescription(Pilots[shipIndex].bombD)
                 end
             end
         end
@@ -6917,9 +7469,10 @@ function newSpawner(listTable)
             for k, acc in ipairs(listaAcc) do
                 if acc.name == 'Shuttle Launcher (assigned to mothership)' then
                     pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
-                    shuttleDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
+                    shuttleDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth=false})
                     dropClone = shuttleDrop.clone()
-                    tempBagAcc.putObject(dropClone)
+                    dropClone.setPosition(pos)
+                    tempBagAcc.putObject(shuttleDrop)
                 end
             end
         end
@@ -6927,131 +7480,252 @@ function newSpawner(listTable)
             for k, acc in ipairs(listaAcc) do
                 if acc.name == 'Epic Wing Token' then
                     pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
-                    wingtoken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
+                    wingtoken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid, smooth=false})
                     wingtokenclone = wingtoken.clone()
-                    tempBagAcc.putObject(wingtokenclone)
+                    wingtokenclone.setPosition(pos)
+                    tempBagAcc.putObject(wingtoken)
                 end
             end
         end
 
-        if Pilots[shipIndex].Charge ~= nil then   --Checks and spawns Charge Tokens with appropriate layout (up to 4 tokens)
-            charges = Pilots[shipIndex].Charge
-            while charges > 0 do
-                for k, acc in ipairs(listaAcc) do
-                    if acc.name == 'Charge' then
-                        if charges == 4 then
-                            pos = LocalPos(spawnCard, {-0.9 ,0, 0.6})
-                            rot = spawnCard.getRotation()
-                        elseif charges == 3 then
-                            pos = LocalPos(spawnCard, {0.9 ,0, 1.6})
-                            rot = spawnCard.getRotation()
-                        elseif charges == 2 then
-                            pos = LocalPos(spawnCard, {0 ,0, 1.6})
-                            rot = spawnCard.getRotation()
-                        elseif charges == 1 then
-                            pos = LocalPos(spawnCard, {-0.9 ,0, 1.6})
-                            rot = spawnCard.getRotation()
-                        else
-                            charges = 0
-                        end
-                        chargeToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                        chargeClone = chargeToken.clone()
-                        tempBagAcc.putObject(chargeClone)
-                        charges = charges-1
+        --spawn pilot charge tokens
+        if Pilots[shipIndex].Charge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Charge' then
+                  chargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].Charge > 0 do
+
+                    if Pilots[shipIndex].Charge == 4 then
+                        pos = LocalPos(spawnCard, {-0.9 ,3, 0.6})
+                    elseif Pilots[shipIndex].Charge == 3 then
+                        pos = LocalPos(spawnCard, {0.9 ,3, 1.6})
+                    elseif Pilots[shipIndex].Charge == 2 then
+                        pos = LocalPos(spawnCard, {0 ,3, 1.6})
+                    elseif Pilots[shipIndex].Charge == 1 then
+                        pos = LocalPos(spawnCard, {-0.9 ,3, 1.6})
+                    else
+                        charges = 0
                     end
+                    Pilots[shipIndex].Charge = Pilots[shipIndex].Charge - 1
+                    chargeClone = chargeToken.clone()
+                    chargeClone.setPosition(pos)
+
+                  end
+                  tempBagAcc.putObject(chargeToken)
                 end
             end
         end
-        if Pilots[shipIndex].id ==0 then
-            if Pilots[shipIndex].Turret ~= nil then       --Checks if upgrade should trigger the dual mobile arc indicator
-                if Pilots[shipIndex].Turret == 2 then
-                    dualTurret = 1
-                else
-                    Turret = 1
-                end
-            end
-            if Turret == 1 and dualTurret == 0 then                                                       --Checks and spawn arc indicator if needed
-                for k, acc in ipairs(listaAcc) do
-                    if acc.name == 'Arc Indicator'..tostring(Faction) then
-                        arcInd = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                        indClone = arcInd.clone()
-                        tempBagAcc.putObject(indClone)
-                        arcInd.setName(string.gsub(arcInd.getName(), Faction, ''))
-                        Turret = 0
-                    end
-                end
-            elseif dualTurret == 1 then                                               --Checks and spawn dual arc indicator if needed
-                for k, acc in ipairs(listaAcc) do
-                    if acc.name == 'Dual Arc Indicator'..tostring(Faction) then
-                        dualArcInd = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                        indClone = dualArcInd.clone()
-                        tempBagAcc.putObject(indClone)
-                        dualArcInd.setName(string.gsub(dualArcInd.getName(), Faction, ''))
-                        dualTurret = 0
-                    end
-                end
-            end
-            if Pilots[shipIndex].Bomb == true then                                                       --Checks and spawn bomb drop token if needed
-                for k, acc in ipairs(listaAcc) do
-                    if acc.name == 'Bomb drop token (unassigned)' then
-                        pos = LocalPos(spawnCard, {-1.5, 3, 8.7})
-                        bombDrop = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
-                        dropClone = bombDrop.clone()
-                        tempBagAcc.putObject(dropClone)
-                        bombDrop.setDescription(Pilots[shipIndex].bombD)
-                    end
+        --spawn special charge tokens
+        if Pilots[shipIndex].ZBCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Zaku Bazooka Charge' then
+                  zbchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].ZBCharge > 0 do
+                    Pilots[shipIndex].ZBCharge = Pilots[shipIndex].ZBCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].ZBCharge})
+                    zbchargeClone = zbchargeToken.clone()
+                    zbchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(zbchargeToken)
                 end
             end
         end
-        while Pilots[shipIndex].Force > 0 do
-            for k, acc in ipairs(listaAcc) do
-                if acc.name == 'Force' then
+        if Pilots[shipIndex].CGCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Cracker Grenade Charge' then
+                  cgchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].CGCharge > 0 do
+                    Pilots[shipIndex].CGCharge = Pilots[shipIndex].CGCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].CGCharge})
+                    cgchargeClone = cgchargeToken.clone()
+                    cgchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(cgchargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].HBCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Hyper Bazooka Charge' then
+                  hbchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].HBCharge > 0 do
+                    Pilots[shipIndex].HBCharge = Pilots[shipIndex].HBCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].HBCharge})
+                    hbchargeClone = hbchargeToken.clone()
+                    hbchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(hbchargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].MMPCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'MMP-80 GN Charge' then
+                  mmpchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].MMPCharge > 0 do
+                    Pilots[shipIndex].MMPCharge = Pilots[shipIndex].MMPCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].MMPCharge})
+                    mmpchargeClone = mmpchargeToken.clone()
+                    mmpchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(mmpchargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].SBGCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Scattering Beam Gun Charge' then
+                  sbgchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].SBGCharge > 0 do
+                    Pilots[shipIndex].SBGCharge = Pilots[shipIndex].SBGCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].SBGCharge})
+                    sbgchargeClone = sbgchargeToken.clone()
+                    sbgchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(sbgchargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].GBCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Giant Bazooka Charge' then
+                  gbzhargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].GBCharge > 0 do
+                    Pilots[shipIndex].GBCharge = Pilots[shipIndex].GBCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].GBCharge})
+                    gbzhargeClone = gbzhargeToken.clone()
+                    gbzhargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(gbzhargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].PLMCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == '3-Tube Missile Pod Charge' then
+                  plmchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].PLMCharge > 0 do
+                    Pilots[shipIndex].PLMCharge = Pilots[shipIndex].PLMCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].PLMCharge})
+                    plmchargeClone = plmchargeToken.clone()
+                    plmchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(plmchargeToken)
+                end
+            end
+        end
+        if Pilots[shipIndex].ASRCharge > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Anti-Ship Rifle Charge' then
+                  asrchargeToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].ASRCharge > 0 do
+                    Pilots[shipIndex].ASRCharge = Pilots[shipIndex].ASRCharge - 1
+                    pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].ASRCharge})
+                    asrchargeClone = asrchargeToken.clone()
+                    asrchargeClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(asrchargeToken)
+                end
+            end
+        end
+        -- spawn force
+        if Pilots[shipIndex].Force > 0 then
+          for k, acc in pairs(listaAcc) do
+              if acc.name == 'Force' then
+                  forceToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].Force > 0 do
                     Pilots[shipIndex].Force = Pilots[shipIndex].Force - 1
                     if hasMob == 1 then                 --adjusts layout if Mobile Upgrade is present
-                        pos = LocalPos(spawnCard, {1.7 + 0.9*Pilots[shipIndex].Force, 0, 3.7})
-                        rot = spawnCard.getRotation()
+                        pos = LocalPos(spawnCard, {1.7 + 0.9*Pilots[shipIndex].Force, 3, 3.7})
                         if forceValue >2 then
-                            pos = LocalPos(spawnCard, {1.7 + 0.9*(Pilots[shipIndex].Force-2), 0, 2.8})
+                            pos = LocalPos(spawnCard, {1.7 + 0.9*(Pilots[shipIndex].Force-2), 3, 2.8})
                         end
                     else
-                        pos = LocalPos(spawnCard, {1.7, 0, 3.7 + 0.9*Pilots[shipIndex].Force})
-                        rot = spawnCard.getRotation()
+                        pos = LocalPos(spawnCard, {1.7, 3, 3.7 + 0.9*Pilots[shipIndex].Force})
                     end
-                    forceToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = acc.guid})
                     forceClone = forceToken.clone()
-                    tempBagAcc.putObject(forceClone)
+                    forceClone.setPosition(pos)
+                  end
+                  tempBagAcc.putObject(forceToken)
+                end
+            end
+        end
+        --Spawns Armor
+        if Pilots[shipIndex].Armor > 0 then --spawn armor tokens, layout good for up to 9 armors
+          for k, acc in ipairs(listaAcc) do
+              if acc.name == 'Armor' then
+                  armorToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].Armor > 0 do
+                    Pilots[shipIndex].Armor = Pilots[shipIndex].Armor - 1
+                    pos = LocalPos(spawnCard, { -0.9 + 0.9*Pilots[shipIndex].Armor, 3, 3.4})
+
+                    if Pilots[shipIndex].Armor >5  then
+                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Armor-6), 3, 1.6})
+                    elseif Pilots[shipIndex].Armor >2 then
+                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Armor-3), 3, 2.5})
+                    end
+                    armorClone = armorToken.clone()
+                    armorClone.setPosition(pos)
+
+                  end
+                  tempBagAcc.putObject(armorToken)
                 end
             end
         end
         --Spawns Shields
-        while Pilots[shipIndex].Shield > 0 do                                        --spawn shield tokens, layout good for up to 9 shields
-            for k, shd in ipairs(listaAcc) do
-                if shd.name == 'Shield' then
+        if Pilots[shipIndex].Shield > 0 then --spawn shield tokens, layout good for up to 9 shields
+          for k, acc in ipairs(listaAcc) do
+              if acc.name == 'Shield' then
+                  shieldToken = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth=false})
+                  while Pilots[shipIndex].Shield > 0 do
                     Pilots[shipIndex].Shield = Pilots[shipIndex].Shield - 1
-                    pos = LocalPos(spawnCard, { -0.9 + 0.9*Pilots[shipIndex].Shield, 0, 3.4})
-                    rot = spawnCard.getRotation()
+                    pos = LocalPos(spawnCard, { -0.9 + 0.9*Pilots[shipIndex].Shield, 3, 3.4})
+
                     if Pilots[shipIndex].Shield >5  then
-                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Shield-6), 0, 1.6})
+                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Shield-6), 3, 1.6})
                     elseif Pilots[shipIndex].Shield >2 then
-                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Shield-3), 0, 2.5})
+                        pos = LocalPos(spawnCard, {-0.9 + 0.9*(Pilots[shipIndex].Shield-3), 3, 2.5})
                     end
-                    shieldToken = tempBagAcc.takeObject({position = pos, rotation = rot, guid = shd.guid})
                     shieldClone = shieldToken.clone()
-                    tempBagAcc.putObject(shieldClone)
+                    shieldClone.setPosition(pos)
+
+                  end
+                  tempBagAcc.putObject(shieldToken)
                 end
             end
         end
-
 
 
 
         finalPos = LocalPos(spawnCard, {-4 - 2*UpNum, 0, 0})
         spawnCard.setPosition(finalPos)
         shipIndex = shipIndex + 1
-        -- Delete cloned bags
-        tempBagAcc.destruct()
-        tempBagShp.destruct()
+
     end
+
+    finalPos = LocalPos(spawnCard, {0, 0, 5.5})
+    spawnCard.setPosition(finalPos)
+
+    for i, remote in pairs(listTable.Remotes or {}) do
+        print("Spawning remote:" .. remote)
+        for k, acc in ipairs(listaAcc) do
+            if acc.name == remote then
+                pos = LocalPos(spawnCard, {1,3,0})
+                print("Found remote, spawning pos: " .. tostring(pos[1])..","..tostring(pos[2])..",".. tostring(pos[3]))
+                remObj = tempBagAcc.takeObject({rotation = spawnCard.getRotation(), guid = acc.guid, smooth = false})
+                remoteClone = remObj.clone()
+                remoteClone.setPosition(pos)
+                tempBagAcc.putObject(remObj)
+                finalpos = LocalPos(spawnCard, {-3,0,0})
+                spawnCard.setPosition(finalpos)
+                break
+            end
+        end
+    end
+
+    -- Delete cloned bags
+    tempBagAcc.destruct()
+
 
     if listTable.Obstacles ~= nil then
         tempObstacleBag = getObjectFromGUID('203cb8').clone({position = PosBag3}) -- Obstacles bag
@@ -7061,11 +7735,11 @@ function newSpawner(listTable)
             for j, obstacle in ipairs(obstacleAcc) do
                 if obstacle.name == obstacleName then
                     print("Found obstacle: " .. obstacle.name .. " - " .. obstacleName)
-                    pos =  LocalPos(spawnCard, {0, 3, 5.5})
-                    rot = spawnCard.getRotation()
-                    obstacleToken = tempObstacleBag.takeObject({position = pos, rotation = rot, guid = obstacle.guid})
+                    pos =  LocalPos(spawnCard, {0, 3, 0})
+                    obstacleToken = tempObstacleBag.takeObject({rotation = spawnCard.getRotation(), guid = obstacle.guid, smooth = false})
                     obstacleClone = obstacleToken.clone()
-                    tempObstacleBag.putObject(obstacleClone)
+                    obstacleClone.setPosition(pos)
+                    tempObstacleBag.putObject(obstacleToken)
                     found = true
                     break
                 end

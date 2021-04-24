@@ -610,15 +610,15 @@ BehaviourDB.rule_sets[1].ships[26].action_selection = {
         ['preconditions'] = {['hasShot'] = true},
         ['action'] = 'focus'
     },
-    [2] = { -- Reinforce the fore if within arc of two or more enemies in that full arc
-        ['description'] = "%s reinforced fore.",
+    [2] = { -- Guard the front if within arc of two or more enemies in that full arc
+        ['description'] = "%s guarded front.",
         ['preconditions'] = {['inEnemyArc'] = {['arguments'] = {['arc'] = 'fullfront', ['enemyCount'] = 2}, ['requiredResult'] = true}},
-        ['action'] = 'reinforceFore'
+        ['action'] = 'guardFront'
     },
-    [3] = { -- Reinforce the aft if within arc of two or more enemies in that full arc
-        ['description'] = "%s reinforced aft.",
+    [3] = { -- Guard the rear if within arc of two or more enemies in that full arc
+        ['description'] = "%s guarded rear.",
         ['preconditions'] = {['inEnemyArc'] = {['arguments'] = {['arc'] = 'fullback', ['enemyCount'] = 2}, ['requiredResult'] = true}},
-        ['action'] = 'reinforceAft'
+        ['action'] = 'guardRear'
     },
     [4] = { -- Coordinate the nearest friendly (unstressed) ship
         ['description'] = {['text'] = "%s coordinated %s.", ['strings'] = {'ship', 'coordinate'}},
@@ -689,15 +689,15 @@ BehaviourDB.rule_sets[1].ships[28].action_selection = {
         ['preconditions'] = {['targetMoved'] = true, ['targetLocked'] = false, ['targetWithinRange'] = true},
         ['action'] = 'targetLock'
     },
-    [4] = { -- Reinforce the fore if within arc of two or more enemies in that full arc
-        ['description'] = "%s reinforced fore.",
+    [4] = { -- Guard the front if within arc of two or more enemies in that full arc
+        ['description'] = "%s guarded front.",
         ['preconditions'] = {['inEnemyArc'] = {['arguments'] = {['arc'] = 'fullfront', ['enemyCount'] = 2}, ['requiredResult'] = true}},
-        ['action'] = 'reinforceFore'
+        ['action'] = 'guardFront'
     },
-    [5] = { -- Reinforce the aft if within arc of two or more enemies in that full arc
-        ['description'] = "%s reinforced aft.",
+    [5] = { -- Guard the rear if within arc of two or more enemies in that full arc
+        ['description'] = "%s guarded rear.",
         ['preconditions'] = {['inEnemyArc'] = {['arguments'] = {['arc'] = 'fullback', ['enemyCount'] = 2}, ['requiredResult'] = true}},
-        ['action'] = 'reinforceAft'
+        ['action'] = 'guardRear'
     },
     [6] = { -- Focus
         ['description'] = "%s focused.",
@@ -1247,15 +1247,15 @@ BehaviourDB.rule_sets[1].ships[23].action_selection = {
       ['preconditions'] = {['hasShot'] = true},
       ['action'] = 'focus'
   },
-  [4] = { -- Reinforce the fore if target is within that full arc
-      ['description'] = "%s reinforced fore.",
+  [4] = { -- Guard the front if target is within that full arc
+      ['description'] = "%s guarded front.",
       ['preconditions'] = {['inTargetsArc'] = {['arguments'] = {['arc'] = 'fullfront'}, ['requiredResult'] = true}},
-      ['action'] = 'reinforceFore'
+      ['action'] = 'guardFront'
   },
-  [5] = { -- Reinforce the aft if within arc of two or more enemies in that full arc
-      ['description'] = "%s reinforced aft.",
+  [5] = { -- Guard the rear if within arc of two or more enemies in that full arc
+      ['description'] = "%s guarded rear.",
       ['preconditions'] = {['inTargetsArc'] = {['arguments'] = {['arc'] = 'fullback'}, ['requiredResult'] = true}},
-      ['action'] = 'reinforceAft'
+      ['action'] = 'guardRear'
   },
   [6] = { -- Focus
       ['description'] = "%s focused.",
@@ -1683,7 +1683,7 @@ BehaviourDB.rule_sets[1].ships[34].action_selection = {
   }
 }
 
--- Firespray-Class Patrol Craft
+-- Firespray-Class Patrol Crrear
 BehaviourDB.rule_sets[1].ships[10] = {}
 BehaviourDB.rule_sets[1].ships[10].target_selection = {[1]='LockedInRange', [2]='ClosestInArc', [3]='Closest'}
 BehaviourDB.rule_sets[1].ships[10].move_table = {
