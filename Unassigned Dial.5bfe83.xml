@@ -850,9 +850,9 @@
           <Image id="RBR1ZIcon" class="MIcon" image="RedBankSlipR"></Image></ToggleButton>
 
 
-      <ToggleButton id="RBL1R" class="ManBtn" offsetXY="195 -100">
+      <ToggleButton id="RBL1R" class="ManBtn" offsetXY="-165 -100">
           <Image id="RBL1RIcon" class="MIcon"  image="RedReverseBankL"></Image></ToggleButton>
-      <ToggleButton id="RBR1R" class="ManBtn" offsetXY="285 -100">
+      <ToggleButton id="RBR1R" class="ManBtn" offsetXY="15 -100">
           <Image id="RBR1RIcon" class="MIcon"  image="RedReverseBankR"></Image></ToggleButton>
 
       <ToggleButton id="RTL1T" class="ManBtn" offsetXY="195 -100">
