@@ -770,7 +770,7 @@ function idSpawner(idTable)
         fList.Pilots[k].PLMCharge = (masterShipDB[Ship].PLMCharge or 0) + (masterPilotDB[id].PLMCharge or 0)
         fList.Pilots[k].ASRCharge = (masterShipDB[Ship].ASRCharge or 0) + (masterPilotDB[id].ASRCharge or 0)
         fList.Pilots[k].MMPCharge = (masterShipDB[Ship].MMPCharge or 0) + (masterPilotDB[id].MMPCharge or 0)
-        fList.Pilots[k].Force = masterPilotDB[id].Force or 0
+        fList.Pilots[k].Newtype = masterPilotDB[id].Newtype or 0
         fList.Upgrades[k] = {}
         local skilled_bombardier = false
         for key,value in pairs (idTable.Upgrades[k]) do
@@ -850,8 +850,8 @@ function idSpawner(idTable)
                   end
                 end
             end
-            if masterUpgradesDB[value].Force ~= nil then
-                fList.Pilots[k].Force = fList.Pilots[k].Force + masterUpgradesDB[value].Force
+            if masterUpgradesDB[value].Newtype ~= nil then
+                fList.Pilots[k].Newtype = fList.Pilots[k].Newtype + masterUpgradesDB[value].Newtype
             end
             if masterUpgradesDB[value].arm ~= nil then
                 fList.Pilots[k].Armor = fList.Pilots[k].Armor + masterUpgradesDB[value].shd
