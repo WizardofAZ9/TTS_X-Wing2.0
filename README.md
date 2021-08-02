@@ -19,7 +19,7 @@ GM Command Deployed.
 - Original script - Dzikakulka
 - Adapted script - Johnny Cheese
 - Additional scripting - Flippster and vitreuz
-- - AI Scripting - Shiprib
+- AI Scripting - Shiprib
 - Modelling and more - FabioOtto and CrazyVulcan
 - MSG Flightpath-specific Modeling and Scripting - WizardofAZ
 
