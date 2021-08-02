@@ -1,6 +1,23 @@
-# Tabletop Simulator - X-Wing 2.0
-Updated Dec 6, 2019 by infinityLoop
+# Tabletop Simulator - Mobile Suit Gundam: Flightpath (A total conversion for X-Wing 2.0)
+Updated Aug 2, 2021 by WizardofAZ9
 
+**MSG Flightpath Faceboook Group:**
+https://www.facebook.com/groups/GundamFlightpath
+
+**Version 0.1d**
+Recon Zaku Deployed.
+GM Command Deployed.
+
+**Known Issues**
+- Manuever Template for Strafe, BankSlip, TurnSlip, and Pylon Twist do not spawn.
+- Squad Builder not yet implemented.
+ 
+Original script - Dzikakulka 
+Adapted script - Johnny Cheese
+Additional scripting - Flippster and vitreuz
+AI Scripting - Shiprib
+Modelling and more - FabioOtto and CrazyVulcan
+MSG Flightpath-specific Modeling and Scripting - WizardofAZ
 
 ## Setting Up Your Environment
 
