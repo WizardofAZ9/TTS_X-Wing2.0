@@ -4,6 +4,9 @@ Updated Aug 2, 2021 by WizardofAZ9
 **MSG Flightpath Faceboook Group:**
 https://www.facebook.com/groups/GundamFlightpath
 
+**Discord Server**
+https://discord.gg/2G9mGMQt
+
 **Version 0.1d**
 Recon Zaku Deployed.
 GM Command Deployed.
