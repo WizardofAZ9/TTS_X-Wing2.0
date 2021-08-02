@@ -7,7 +7,7 @@ masterPilotDB[1]={
   XWS = '',
   Faction = 1,
   limited = 1,
-  ship_type = 1,
+  ship_type = 19,
   cost = 54,
   slot = {21, 1, 5, 10, 14, 18},
   Armor = 2,
@@ -17,8 +17,8 @@ masterPilotDB[1]={
   card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/Eager%20Recruit%20-%20MS-06F%20Zaku%20II%20(MG).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 6,
-  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Eager%20Recruit%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR','B','RB'}
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/RGM-79GS%20GM%20Command.png',
+  actSet = {'F','TL','BR','B','RB','Piv'}
 }
 
 masterPilotDB[2]={
@@ -32,7 +32,7 @@ masterPilotDB[2]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Eager%20Recruit%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[3]={
@@ -46,7 +46,7 @@ masterPilotDB[3]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(BAZ)/MS-06F%20Zaku%20II%20(BAZ)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Eager%20Recruit%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[4]={
@@ -60,7 +60,7 @@ masterPilotDB[4]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Capable%20Pilot%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[5]={
@@ -74,7 +74,7 @@ masterPilotDB[5]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(BAZ)/MS-06F%20Zaku%20II%20(BAZ)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Capable%20Pilot%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[6]={
@@ -89,7 +89,7 @@ masterPilotDB[6]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Karius%20Otto%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[7]={
@@ -104,7 +104,7 @@ masterPilotDB[7]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(BAZ)/MS-06F%20Zaku%20II%20(BAZ)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Karius%20Otto%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[8]={
@@ -118,7 +118,7 @@ masterPilotDB[8]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Anavel%20Odin%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR','RB'}
+  actSet = {'F','TL','BR','RB','Piv'}
 }
 
 masterPilotDB[9]={
@@ -132,7 +132,7 @@ masterPilotDB[9]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(Custom)/Anavel%20Odin%20-%20MS-06F%20Zaku%20II%20(AOC)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Anavel%20Odin%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR','RB'}
+  actSet = {'F','TL','BR','RB','Piv'}
 }
 
 masterPilotDB[10]={
@@ -147,7 +147,7 @@ masterPilotDB[10]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Falco%20Dante%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[11]={
@@ -162,7 +162,7 @@ masterPilotDB[11]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(Custom)/Falco%20Dante%20-%20MS-06F%20Zaku%20II%20(FDC)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Falco%20Dante%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[12]={
@@ -172,11 +172,11 @@ masterPilotDB[12]={
   ship_type = 3,
   cost = 1,
   slot = {21, 17, 5, 10, 14, 18},
-  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II%20(NSC).png',
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II%20(MG).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(MG)/MS-06F%20Zaku%20II%20(MG)%20Card%20Back.png',
   init = 5,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[13]={
@@ -190,7 +190,7 @@ masterPilotDB[13]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(Custom)/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II%20(NSC)%20Card%20Back.png',
   init = 5,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Nimbus%20Schterzen%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[14]={
@@ -203,8 +203,8 @@ masterPilotDB[14]={
   card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(BAZ)/Breniss%20Ox%20-%20MS-06F%20Zaku%20II%20(BAZ).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(BAZ)/MS-06F%20Zaku%20II%20(BAZ)%20Card%20Back.png',
   init = 7,
-  texture = 'https://github.com/WizardofAZ9/TTS_MSG-Flightpath/blob/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Breniss%20Ox%20-%20MS-06C-5%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Breniss%20Ox%20-%20MS-06F%20Zaku%20II.png',
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[15]={
@@ -218,7 +218,7 @@ masterPilotDB[15]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06F%20Zaku%20II%20(ASR)/Breniss%20Ox%20-%20MS-06F%20Zaku%20II%20(ASR)%20Card%20Back.png',
   init = 7,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06F%20Zaku%20II/Breniss%20Ox%20-%20MS-06F%20Zaku%20II.png',
-  actSet = {'F','TL','BR'}
+  actSet = {'F','TL','BR','Piv'}
 }
 
 masterPilotDB[16]={
@@ -232,7 +232,7 @@ masterPilotDB[16]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(MG)/RGM-79%20GM%20(MG)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Earnest%20Cadet%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[17]={
@@ -246,7 +246,7 @@ masterPilotDB[17]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Earnest%20Cadet%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[18]={
@@ -260,7 +260,7 @@ masterPilotDB[18]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(MG)/RGM-79%20GM%20(MG)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Proficient%20Pilot%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[19]={
@@ -274,7 +274,7 @@ masterPilotDB[19]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Proficient%20Pilot%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[20]={
@@ -288,7 +288,7 @@ masterPilotDB[20]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(MG)/RGM-79%20GM%20(MG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Philip%20Hughes%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[21]={
@@ -302,7 +302,7 @@ masterPilotDB[21]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Philip%20Hughes%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[22]={
@@ -316,7 +316,7 @@ masterPilotDB[22]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Adam%20Stingray%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[23]={
@@ -330,7 +330,7 @@ masterPilotDB[23]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BAZ)/RGM-79%20GM%20(BAZ)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Adam%20Stingray%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[24]={
@@ -345,7 +345,7 @@ masterPilotDB[24]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Bert%20Linao%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[25]={
@@ -360,7 +360,7 @@ masterPilotDB[25]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(Custom)/Bert%20Linao%20-%20RGM-79%20GM%20(BLC)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Bert%20Linao%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[26]={
@@ -375,7 +375,7 @@ masterPilotDB[26]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(MG)/RGM-79%20GM%20(MG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Kamuna%20Tachibana%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[27]={
@@ -390,7 +390,7 @@ masterPilotDB[27]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Kamuna%20Tachibana%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','G'}
+  actSet = {'F','TL','BR','G','Piv'}
 }
 
 masterPilotDB[28]={
@@ -404,7 +404,7 @@ masterPilotDB[28]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(BSG)/RGM-79%20GM%20(BSG)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Lance%20Einhardt%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','B','G'}
+  actSet = {'F','TL','BR','Ail','G','Piv'}
 }
 
 masterPilotDB[29]={
@@ -418,7 +418,7 @@ masterPilotDB[29]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79%20GM%20(Custom)/Lance%20Einhardt%20-%20RGM-79%20GM%20(LEC)%20Card%20Back.png',
   init = 3,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79%20GM/Lance%20Einhardt%20-%20RGM-79%20GM.png',
-  actSet = {'F','TL','BR','B','G'}
+  actSet = {'F','TL','BR','Ail','E','Piv'}
 }
 
 masterPilotDB[30]={
@@ -432,21 +432,21 @@ masterPilotDB[30]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Reliable%20Wingman%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[31]={
   name = 'Reliable Wingman',
   XWS = '',
   Faction = 1,
-  ship_type = 14,
+  ship_type = 15,
   cost = 1,
   slot = {21, 17, 5, 10, 14, 18},
   card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Reliable%20Wingman%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 2,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Reliable%20Wingman%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[32]={
@@ -460,7 +460,7 @@ masterPilotDB[32]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anxious%20Pilot%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[33]={
@@ -474,7 +474,7 @@ masterPilotDB[33]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anxious%20Pilot%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[34]={
@@ -488,7 +488,7 @@ masterPilotDB[34]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 4,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Gerald%20Sakai%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[35]={
@@ -502,7 +502,7 @@ masterPilotDB[35]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 4,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Gerald%20Sakai%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[36]={
@@ -516,7 +516,7 @@ masterPilotDB[36]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 7,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Breniss%20Ox%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[37]={
@@ -530,7 +530,7 @@ masterPilotDB[37]={
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 7,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Breniss%20Ox%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[38]={
@@ -543,24 +543,506 @@ masterPilotDB[38]={
   card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Char%20Aznable%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 5,
-  newtype = 1,
+  Newtype = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Char%20Aznable%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
 }
 
 masterPilotDB[39]={
   name = 'Char Aznable',
   XWS = '',
   Faction = 1,
-  ship_type = 14,
+  ship_type = 17,
   cost = 1,
   slot = {21, 17, 5, 10, 14, 18},
   card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Char%20Aznable%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
   cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
   init = 5,
-  newtype = 1,
+  Newtype = 1,
   texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Char%20Aznable%20-%20MS-09R%20Rick%20Dom.png',
-  actSet = {'F','TL','B'}
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[40]={
+  name = 'Anavel Gato',
+  XWS = '',
+  Faction = 1,
+  ship_type = 14,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 5,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[41]={
+  name = 'Anavel Gato',
+  XWS = '',
+  Faction = 1,
+  ship_type = 17,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 5,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[42]={
+  name = 'Gaius Zemela',
+  XWS = '',
+  Faction = 1,
+  ship_type = 14,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[43]={
+  name = 'Gaius Zemela',
+  XWS = '',
+  Faction = 1,
+  ship_type = 18,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[44]={
+  name = 'Vanessa Vermilion',
+  XWS = '',
+  Faction = 1,
+  ship_type = 14,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[45]={
+  name = 'Vanessa Vermilion',
+  XWS = '',
+  Faction = 1,
+  ship_type = 18,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[46]={
+  name = 'Tameu Lee',
+  XWS = '',
+  Faction = 1,
+  ship_type = 14,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[47]={
+  name = 'Tameu Lee',
+  XWS = '',
+  Faction = 1,
+  ship_type = 16,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-09R%20Rick%20Dom%20(BAZ)/MS-09R%20Rick%20Dom%20(BAZ)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-09R%20Rick%20Dom/Anavel%20Gato%20-%20MS-09R%20Rick%20Dom.png',
+  actSet = {'F','TL','B','Piv'}
+}
+
+masterPilotDB[48]={
+  name = 'Restless Rookie',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Restless%20Rookie%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 1,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Restless%20Rookie%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[49]={
+  name = 'Restless Rookie',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Restless%20Rookie%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 1,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Restless%20Rookie%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[50]={
+  name = 'Skillful Gunner',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Skillful%20Gunner%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Skillful%20Gunner%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[51]={
+  name = 'Skillful Gunner',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Skillful%20Gunner%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Skillful%20Gunner%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[52]={
+  name = 'Chap Adel',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Chap%20Adel%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Chap%20Adel%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[53]={
+  name = 'Chap Adel',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Chap%20Adel%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Chap%20Adel%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[54]={
+  name = 'Maximillian Berger',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Maximilian%20Berger%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Maximilian%20Berger%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[55]={
+  name = 'Maximillian Berger',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Maximilian%20Berger%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Maximilian%20Berger%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[56]={
+  name = 'Lydo Wolf',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Lydo%20Wolf%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 6,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Lydo%20Wolf%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[57]={
+  name = 'Lydo Wolf',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Lydo%20Wolf%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 6,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Lydo%20Wolf%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[58]={
+  name = 'Rex Bagley',
+  XWS = '',
+  Faction = 2,
+  ship_type = 19,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Rex%20Bagley%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 6,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Rex%20Bagley%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[59]={
+  name = 'Rex Bagley',
+  XWS = '',
+  Faction = 2,
+  ship_type = 20,
+  cost = 1,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/Rex%20Bagley%20-%20RGC-80%20GM%20Cannon%20(BSG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGC-80%20GM%20Cannon%20(BSG)/RGC-80%20GM%20Cannon%20(BSG)%20Card%20Back.png',
+  init = 6,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGC-80%20GM%20Cannon/Rex%20Bagley%20-%20RGC-80%20GM%20Cannon.png',
+  actSet = {'F','TL','BR','G','Piv'}
+}
+
+masterPilotDB[60]={
+  name = 'Formidable Veteran',
+  XWS = '',
+  Faction = 2,
+  ship_type = 21,
+  cost = 3,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/Formidable%20Veteran%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Formidable%20Veteran%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[61]={
+  name = 'Formidable Veteran',
+  XWS = '',
+  Faction = 2,
+  ship_type = 23,
+  cost = 3,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)/Formidable%20Veteran%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)%20Card%20Back.png',
+  init = 3,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Formidable%20Veteran%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[62]={
+  name = 'Yuu Kajima',
+  XWS = '',
+  Faction = 2,
+  ship_type = 22,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/Yuu%20Kajima%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)%20Card%20Back.png',
+  init = 5,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Yuu%20Kajima%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[63]={
+  name = 'Yuu Kajima',
+  XWS = '',
+  Faction = 2,
+  ship_type = 24,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)/Yuu%20Kajima%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(MG)%20Card%20Back.png',
+  init = 5,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Yuu%20Kajima%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[64]={
+  name = 'Hugues Courand',
+  XWS = '',
+  Faction = 2,
+  ship_type = 22,
+  cost = 5,
+  Charge = 1,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/Hugues%20Courand%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Hugues%20Courand%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[65]={
+  name = 'Hugues Courand',
+  XWS = '',
+  Faction = 2,
+  ship_type = 25,
+  cost = 5,
+  Charge = 1,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)/Hugues%20Courand%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Hugues%20Courand%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','G','Piv'}
+}
+
+masterPilotDB[66]={
+  name = 'Tenneth A Jung',
+  XWS = '',
+  Faction = 2,
+  ship_type = 22,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/Tenneth%20A%20Jung%20-%20RGM-79GS%20GM%20Command%20(BG).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BG)%20Card%20Back.png',
+  init = 7,
+  Newtype = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Tenneth%20A.%20Jung%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','B','G','Piv'}
+}
+
+masterPilotDB[67]={
+  name = 'Tenneth A Jung',
+  XWS = '',
+  Faction = 2,
+  ship_type = 25,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)/Tenneth%20A%20Jung%20-%20RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ).png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/EFF/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)/RGM-79GS%20GM%20Command%20%5BSpace%5D%20(BAZ)%20Card%20Back.png',
+  init = 7,
+  Newtype = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/EFF/RGM-79GS%20GM%20Command/Tenneth%20A.%20Jung%20-%20RGM-79GS%20GM%20Command.png',
+  actSet = {'F','BR','G','Piv'}
+}
+
+masterPilotDB[68]={
+  name = 'Observant Scout',
+  XWS = '',
+  Faction = 1,
+  ship_type = 26,
+  cost = 3,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/Observant%20Scout%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/Observant%20Scout%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
+}
+
+masterPilotDB[69]={
+  name = 'Observant Scout',
+  XWS = '',
+  Faction = 1,
+  ship_type = 28,
+  cost = 3,
+  slot = {21, 17, 5, 10, 14, 18},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/Observant%20Scout%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 2,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/Observant%20Scout%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
+}
+
+masterPilotDB[70]={
+  name = 'Annerose Rosenheim',
+  XWS = '',
+  Faction = 1,
+  ship_type = 27,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/Annerose%20Rosenheim%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 4,
+  Newtype = 1,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/Annerose%20Rosenheim%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
+}
+
+masterPilotDB[71]={
+  name = 'Annerose Rosenheim',
+  XWS = '',
+  Faction = 1,
+  ship_type = 29,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/Annerose%20Rosenheim%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 4,
+  Newtype = 1,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/Annerose%20Rosenheim%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
+}
+
+masterPilotDB[72]={
+  name = 'J.Q.',
+  XWS = '',
+  Faction = 1,
+  ship_type = 26,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/JQ%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/JQ%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
+}
+
+masterPilotDB[73]={
+  name = 'J.Q.',
+  XWS = '',
+  Faction = 1,
+  ship_type = 28,
+  cost = 5,
+  slot = {21, 17, 5, 10, 14, 18, 12},
+  card = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/JQ%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  cardB = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/unit%20cards/Zeon/MS-06E%20Zaku%20Recon%20Type%20(MG)/MS-06E%20Zaku%20Recon%20Type%20Card%20Back.png',
+  init = 4,
+  texture = 'https://raw.githubusercontent.com/WizardofAZ9/TTS_MSG-Flightpath/master/msgf_assets/textures/Zeon/MS-06E%20Zaku%20Recon%20Type/JQ%20-%20MS-06E%20Zaku%20Recon%20Type.png',
+  actSet = {'F','TL','BR','E','J','Piv'}
 }
 
 return masterPilotDB

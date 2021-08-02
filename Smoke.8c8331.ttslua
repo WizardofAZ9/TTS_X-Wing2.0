@@ -1,3 +1,0 @@
-function onDropped()
-    Global.call('API_BombTokenDrop', {token=self})
-end
