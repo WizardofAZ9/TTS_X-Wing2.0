@@ -12,12 +12,13 @@ GM Command Deployed.
 - Manuever Template for Strafe, BankSlip, TurnSlip, and Pylon Twist do not spawn.
 - Squad Builder not yet implemented.
  
-Original script - Dzikakulka
-Adapted script - Johnny Cheese
-Additional scripting - Flippster and vitreuz
-AI Scripting - Shiprib
-Modelling and more - FabioOtto and CrazyVulcan
-MSG Flightpath-specific Modeling and Scripting - WizardofAZ
+**Credits**
+- Original script - Dzikakulka
+- Adapted script - Johnny Cheese
+- Additional scripting - Flippster and vitreuz
+- - AI Scripting - Shiprib
+- Modelling and more - FabioOtto and CrazyVulcan
+- MSG Flightpath-specific Modeling and Scripting - WizardofAZ
 
 ## Setting Up Your Environment
 
